@@ -1,0 +1,43 @@
+import { ShieldCheck, Layers, Gem, Compass } from "lucide-react";
+import { Reveal } from "@/components/molecules/Reveal";
+import { SectionHeading } from "@/components/molecules/SectionHeading";
+import { whyUs } from "@/data/content";
+
+const icons = [ShieldCheck, Layers, Gem, Compass];
+
+export function WhyUsSection() {
+  return (
+    <section className="relative overflow-hidden py-20 md:py-28">
+      <div className="absolute inset-0 bg-gradient-to-b from-forest-50/80 via-transparent to-transparent" />
+      <div className="container-wide relative">
+        <Reveal>
+          <SectionHeading
+            eyebrow="Neden Biz?"
+            title="Kurumsal kaliteyi hissedilir kılan farklar"
+            description="Her adımda güven, her projede prestij. Çalışma biçimimizi tanımlayan dört temel ilke."
+          />
+        </Reveal>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {whyUs.map((item, index) => {
+            const Icon = icons[index] ?? ShieldCheck;
+            return (
+              <Reveal key={item.title} delay={index * 0.08}>
+                <div className="h-full rounded-3xl border border-earth-400/10 bg-white/80 p-6 shadow-premium transition duration-300 hover:-translate-y-1 hover:shadow-premium-hover">
+                  <div className="mb-5 grid size-12 place-items-center rounded-2xl bg-forest-800 text-gold-300">
+                    <Icon className="size-5" aria-hidden />
+                  </div>
+                  <h3 className="font-display text-lg font-semibold text-ink-900">
+                    {item.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-ink-500">
+                    {item.description}
+                  </p>
+                </div>
+              </Reveal>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}

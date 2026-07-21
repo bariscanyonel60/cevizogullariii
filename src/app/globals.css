@@ -1,26 +1,195 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --forest-950: #0f241c;
+  --forest-900: #163528;
+  --forest-800: #1b4d3e;
+  --forest-700: #2d6a4f;
+  --forest-600: #3d8b66;
+  --forest-500: #52b788;
+  --forest-100: #d8f3dc;
+  --forest-50: #f0faf3;
+
+  --earth-900: #3d2b1f;
+  --earth-700: #5c4033;
+  --earth-500: #8b6914;
+  --earth-400: #a67c52;
+  --earth-200: #d4b896;
+
+  --gold-600: #b8860b;
+  --gold-500: #c9a227;
+  --gold-400: #d4af37;
+  --gold-300: #e8c547;
+
+  --ivory-50: #faf9f6;
+  --ivory-100: #f4f1ea;
+  --ivory-200: #eae5db;
+  --mist-100: #f0eee9;
+  --mist-200: #e4e1da;
+
+  --ink-950: #0f0f0f;
+  --ink-900: #1a1a1a;
+  --ink-700: #2c2c2c;
+  --ink-500: #5a5a5a;
+  --ink-400: #7a7a7a;
+
+  --background: var(--ivory-50);
+  --foreground: var(--ink-900);
+  --muted: var(--ink-500);
+  --card: #ffffff;
+  --border: color-mix(in oklab, var(--earth-400) 18%, transparent);
+  --ring: var(--forest-700);
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.75rem;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+
+  --color-forest-950: var(--forest-950);
+  --color-forest-900: var(--forest-900);
+  --color-forest-800: var(--forest-800);
+  --color-forest-700: var(--forest-700);
+  --color-forest-600: var(--forest-600);
+  --color-forest-500: var(--forest-500);
+  --color-forest-100: var(--forest-100);
+  --color-forest-50: var(--forest-50);
+
+  --color-earth-900: var(--earth-900);
+  --color-earth-700: var(--earth-700);
+  --color-earth-500: var(--earth-500);
+  --color-earth-400: var(--earth-400);
+  --color-earth-200: var(--earth-200);
+
+  --color-gold-600: var(--gold-600);
+  --color-gold-500: var(--gold-500);
+  --color-gold-400: var(--gold-400);
+  --color-gold-300: var(--gold-300);
+
+  --color-ivory-50: var(--ivory-50);
+  --color-ivory-100: var(--ivory-100);
+  --color-ivory-200: var(--ivory-200);
+  --color-mist-100: var(--mist-100);
+  --color-mist-200: var(--mist-200);
+
+  --color-ink-950: var(--ink-950);
+  --color-ink-900: var(--ink-900);
+  --color-ink-700: var(--ink-700);
+  --color-ink-500: var(--ink-500);
+  --color-ink-400: var(--ink-400);
+
+  --font-sans: var(--font-montserrat);
+  --font-display: var(--font-cinzel);
+  --font-serif: var(--font-cinzel);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  body {
+    background:
+      radial-gradient(1200px 600px at 10% -10%, color-mix(in oklab, var(--forest-500) 12%, transparent), transparent 60%),
+      radial-gradient(900px 500px at 90% 0%, color-mix(in oklab, var(--gold-400) 10%, transparent), transparent 55%),
+      linear-gradient(180deg, var(--ivory-50), var(--mist-100));
+    color: var(--foreground);
+    font-family: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-cinzel), ui-serif, Georgia, serif;
+    letter-spacing: 0.02em;
+    color: var(--ink-900);
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--forest-600) 28%, white);
+    color: var(--ink-950);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .gradient-forest {
+    background: linear-gradient(135deg, var(--forest-900), var(--forest-600));
+  }
+
+  .gradient-gold {
+    background: linear-gradient(135deg, var(--gold-600), var(--gold-300));
+  }
+
+  .gradient-hero-overlay {
+    background:
+      linear-gradient(
+        105deg,
+        color-mix(in oklab, var(--forest-950) 78%, transparent) 0%,
+        color-mix(in oklab, var(--forest-900) 45%, transparent) 45%,
+        color-mix(in oklab, var(--earth-900) 20%, transparent) 100%
+      );
+  }
+
+  .glass {
+    background: color-mix(in oklab, white 72%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid color-mix(in oklab, white 55%, var(--earth-200));
+  }
+
+  .shadow-premium {
+    box-shadow:
+      0 1px 2px color-mix(in oklab, var(--ink-950) 4%, transparent),
+      0 12px 32px color-mix(in oklab, var(--forest-900) 8%, transparent);
+  }
+
+  .shadow-premium-hover {
+    box-shadow:
+      0 2px 4px color-mix(in oklab, var(--ink-950) 5%, transparent),
+      0 20px 48px color-mix(in oklab, var(--forest-900) 14%, transparent);
+  }
+
+  .container-premium {
+    width: min(100% - 2rem, 72rem);
+    margin-inline: auto;
+  }
+
+  .container-wide {
+    width: min(100% - 2rem, 84rem);
+    margin-inline: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
