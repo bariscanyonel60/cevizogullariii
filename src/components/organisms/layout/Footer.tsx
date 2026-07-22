@@ -6,7 +6,7 @@ import { flattenNavLinks, SITE } from "@/lib/constants";
 
 const serviceLinks = [
   { href: "/yapi-malzemeleri", label: "Yapı Market" },
-  { href: "/projelerimiz", label: "Yapı-İnşaat" },
+  { href: "/projelerimiz", label: "Gayrimenkul" },
   { href: "/teklif-al", label: "Teklif Al" },
   { href: "/iletisim", label: "İletişim" },
 ];

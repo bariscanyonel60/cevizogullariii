@@ -35,7 +35,7 @@ export default async function ProjectDetailPage({ params }: Props) {
 
   const jsonLd = breadcrumbJsonLd([
     { name: "Ana Sayfa", path: "/" },
-    { name: "Yapı-İnşaat", path: "/projelerimiz" },
+    { name: "Gayrimenkul", path: "/projelerimiz" },
     { name: project.title, path: `/projelerimiz/${project.slug}` },
   ]);
 
@@ -50,7 +50,7 @@ export default async function ProjectDetailPage({ params }: Props) {
         description={`${project.location} · ${project.year}`}
         crumbs={[
           { label: "Ana Sayfa", href: "/" },
-          { label: "Yapı-İnşaat", href: "/projelerimiz" },
+          { label: "Gayrimenkul", href: "/projelerimiz" },
           { label: project.title },
         ]}
       />

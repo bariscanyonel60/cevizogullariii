@@ -46,7 +46,8 @@ export const NAV_LINKS: readonly NavItem[] = [
     ],
   },
   { href: "/yapi-malzemeleri", label: "Yapı Market" },
-  { href: "/projelerimiz", label: "Yapı-İnşaat" },
+  { href: "/projelerimiz", label: "Gayrimenkul" },
+  { href: "/tokat", label: "Tokat" },
   { href: "/iletisim", label: "İletişim" },
 ];
 

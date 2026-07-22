@@ -29,7 +29,7 @@ export default function CorporatePage() {
           <Reveal>
             <div className="relative aspect-[5/4] overflow-hidden rounded-[2rem] shadow-premium">
               <Image
-                src="/about-project.jpg"
+                src="/projects/modern-konut-bahce.jpg"
                 alt="Cevizoğulları yapı market"
                 fill
                 className="object-cover"

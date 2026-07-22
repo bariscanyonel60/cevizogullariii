@@ -12,8 +12,8 @@ export function AboutPreview() {
           <div className="relative">
             <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-premium">
               <Image
-                src="/about-project.jpg"
-                alt="Cevizoğulları saha ve tedarik çalışması"
+                src="/projects/modern-konut-cephe.jpg"
+                alt="Cevizoğulları modern konut ve dış cephe uygulaması"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"

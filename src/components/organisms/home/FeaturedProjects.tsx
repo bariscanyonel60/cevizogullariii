@@ -12,9 +12,9 @@ export function FeaturedProjects() {
     <section className="container-wide py-20 md:py-28">
       <Reveal>
         <SectionHeading
-          eyebrow="Yapı-İnşaat"
+          eyebrow="Gayrimenkul"
           title="İmzamızı taşıyan işler"
-          description="Dış cephe, şantiye ve tadilat uygulamalarından seçilmiş örnekler."
+          description="Modern konut, dış cephe, şantiye ve tadilat uygulamalarından seçilmiş örnekler."
           action={
             <Button asChild variant="secondary">
               <Link href="/projelerimiz">Tüm Projeler</Link>

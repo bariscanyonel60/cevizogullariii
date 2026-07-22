@@ -11,6 +11,24 @@ const UPLOAD = "https://cevizogullari.com/wp-content/uploads";
  */
 export const projects: Project[] = [
   {
+    id: "0",
+    slug: "modern-konut-kompleksi",
+    title: "Modern Konut Kompleksi",
+    description:
+      "Çağdaş cephe kaplaması, ahşap dokulu detaylar ve peyzaj aydınlatmasıyla tamamlanan çok katlı konut uygulaması. Dış cephe boya, mantolama ve bitiş malzemelerinde uçtan uca tedarik ve uygulama desteği.",
+    category: "konut",
+    location: "Turhal, Tokat",
+    year: 2026,
+    images: [
+      "/projects/modern-konut-cephe.jpg",
+      "/projects/modern-konut-bahce.jpg",
+    ],
+    beforeImage: "/projects/modern-konut-bahce.jpg",
+    afterImage: "/projects/modern-konut-cephe.jpg",
+    featured: true,
+    instagramUrl: IG,
+  },
+  {
     id: "1",
     slug: "dis-cephe-uygulama-turhal",
     title: "Dış Cephe Uygulama",
