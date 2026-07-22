@@ -9,7 +9,10 @@ export function FeaturedProjects() {
   const items = getFeaturedProjects();
 
   return (
-    <section className="container-wide py-20 md:py-28">
+    <section
+      id="gayrimenkul"
+      className="container-wide scroll-mt-28 py-20 md:py-28"
+    >
       <Reveal>
         <SectionHeading
           eyebrow="Gayrimenkul"

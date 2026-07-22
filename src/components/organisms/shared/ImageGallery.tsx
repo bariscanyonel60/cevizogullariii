@@ -46,7 +46,7 @@ export function ImageGallery({
             >
               <Image
                 src={image}
-                alt=""
+                alt={`${alt} - küçük görsel ${index + 1}`}
                 fill
                 sizes="120px"
                 className="object-cover"

@@ -9,10 +9,10 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-forest-800 text-white hover:bg-forest-700 shadow-premium hover:shadow-premium-hover",
+          "bg-forest-800 text-white hover:bg-forest-700 shadow-premium hover:shadow-premium-hover hover:-translate-y-0.5",
         secondary:
-          "bg-white text-forest-800 border border-forest-700/15 hover:border-forest-700/30 hover:bg-forest-50",
-        gold: "gradient-gold text-ink-950 hover:brightness-105 shadow-premium",
+          "bg-white text-forest-800 border border-forest-800/15 hover:border-forest-800/30 hover:bg-forest-50 hover:-translate-y-0.5",
+        gold: "gradient-gold text-ink-950 hover:brightness-105 shadow-premium hover:-translate-y-0.5",
         ghost: "text-forest-800 hover:bg-forest-50",
         outline:
           "border border-white/40 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20",

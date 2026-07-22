@@ -29,7 +29,7 @@ export function PropertyCard({ property, className }: PropertyCardProps) {
         <div className="relative aspect-[4/3] overflow-hidden">
           <Image
             src={property.images[0]}
-            alt={property.title}
+            alt={`${property.title} ${property.status === "kiralik" ? "kiralık" : "satılık"} — ${property.district}, ${property.city}`}
             fill
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover transition duration-700 group-hover:scale-105"

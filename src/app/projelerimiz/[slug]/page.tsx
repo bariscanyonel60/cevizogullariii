@@ -8,7 +8,14 @@ import { InstagramCta } from "@/components/organisms/shared/InstagramCta";
 import { Button } from "@/components/atoms/Button";
 import { getProjectBySlug, projects } from "@/data/projects";
 import { SITE } from "@/lib/constants";
-import { breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/atoms/JsonLd";
+import {
+  breadcrumbJsonLd,
+  buildMetadata,
+  projectImageAlt,
+  projectJsonLd,
+  withLocalDescription,
+} from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -19,12 +26,29 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const project = getProjectBySlug(slug);
-  if (!project) return {};
+  if (!project) {
+    return buildMetadata({
+      title: "Proje bulunamadı",
+      description: "Aradığınız proje bulunamadı.",
+      path: "/projelerimiz",
+      noIndex: true,
+    });
+  }
   return buildMetadata({
-    title: project.title,
-    description: project.description,
+    title: `${project.title} · ${project.location}`,
+    description: withLocalDescription(
+      project.description,
+      `${project.location} · ${project.year} — Cevizoğulları proje portföyü.`,
+    ),
     path: `/projelerimiz/${project.slug}`,
     image: project.images[0],
+    keywords: [
+      project.title,
+      project.location,
+      "Tokat dış cephe",
+      "Turhal inşaat projesi",
+      "Cevizoğulları projeler",
+    ],
   });
 }
 
@@ -33,29 +57,32 @@ export default async function ProjectDetailPage({ params }: Props) {
   const project = getProjectBySlug(slug);
   if (!project) notFound();
 
-  const jsonLd = breadcrumbJsonLd([
-    { name: "Ana Sayfa", path: "/" },
-    { name: "Gayrimenkul", path: "/projelerimiz" },
-    { name: project.title, path: `/projelerimiz/${project.slug}` },
-  ]);
+  const schemas = [
+    projectJsonLd(project),
+    breadcrumbJsonLd([
+      { name: "Ana Sayfa", path: "/" },
+      { name: "Projeler", path: "/projelerimiz" },
+      { name: project.title, path: `/projelerimiz/${project.slug}` },
+    ]),
+  ];
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={schemas} />
       <PageHero
         title={project.title}
-        description={`${project.location} · ${project.year}`}
+        description={`${project.location} · ${project.year} · Tokat / Turhal proje`}
         crumbs={[
           { label: "Ana Sayfa", href: "/" },
-          { label: "Gayrimenkul", href: "/projelerimiz" },
+          { label: "Projeler", href: "/projelerimiz" },
           { label: project.title },
         ]}
       />
       <section className="container-wide space-y-12 py-12 md:py-16">
-        <ImageGallery images={project.images} alt={project.title} />
+        <ImageGallery
+          images={project.images}
+          alt={projectImageAlt(project)}
+        />
         <div className="max-w-3xl">
           <h2 className="font-display text-2xl font-bold">Proje Özeti</h2>
           <p className="mt-4 leading-relaxed text-ink-500">{project.description}</p>

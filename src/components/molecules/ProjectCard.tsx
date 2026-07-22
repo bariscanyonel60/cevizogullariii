@@ -21,10 +21,10 @@ export function ProjectCard({ project, className, tall }: ProjectCardProps) {
       <Link href={`/projelerimiz/${project.slug}`} className="absolute inset-0">
         <Image
           src={project.images[0]}
-          alt={project.title}
+          alt={`${project.title} — ${project.location} proje görseli`}
           fill
           sizes="(max-width: 768px) 100vw, 50vw"
-          className="object-cover transition duration-700 group-hover:scale-105"
+          className="object-cover transition duration-700 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-forest-950/85 via-forest-950/25 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 p-6 text-white">

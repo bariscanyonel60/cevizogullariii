@@ -14,7 +14,14 @@ import {
   properties,
 } from "@/data/properties";
 import { formatPrice } from "@/lib/utils";
-import { breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/atoms/JsonLd";
+import {
+  breadcrumbJsonLd,
+  buildMetadata,
+  propertyImageAlt,
+  realEstateListingJsonLd,
+  withLocalDescription,
+} from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -25,12 +32,35 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const property = getPropertyBySlug(slug);
-  if (!property) return {};
+  if (!property) {
+    return buildMetadata({
+      title: "İlan bulunamadı",
+      description: "Aradığınız gayrimenkul ilanı bulunamadı.",
+      path: "/gayrimenkul",
+      noIndex: true,
+    });
+  }
+  const statusLabel =
+    property.status === "kiralik"
+      ? "Kiralık"
+      : property.status === "satilik"
+        ? "Satılık"
+        : "Rezerve";
   return buildMetadata({
-    title: property.title,
-    description: property.description,
+    title: `${property.title} · ${statusLabel} ${property.district}`,
+    description: withLocalDescription(
+      property.description,
+      `${property.district}, ${property.city} — ${property.area} m², ${property.rooms}.`,
+    ),
     path: `/gayrimenkul/${property.slug}`,
     image: property.images[0],
+    keywords: [
+      `${property.district} ${statusLabel.toLowerCase()}`,
+      `${property.city} gayrimenkul`,
+      "Turhal satılık",
+      "Tokat kiralık",
+      property.title,
+    ],
   });
 }
 
@@ -40,21 +70,21 @@ export default async function PropertyDetailPage({ params }: Props) {
   if (!property) notFound();
 
   const related = getRelatedProperties(slug);
-  const jsonLd = breadcrumbJsonLd([
-    { name: "Ana Sayfa", path: "/" },
-    { name: "Gayrimenkul", path: "/gayrimenkul" },
-    { name: property.title, path: `/gayrimenkul/${property.slug}` },
-  ]);
+  const schemas = [
+    realEstateListingJsonLd(property),
+    breadcrumbJsonLd([
+      { name: "Ana Sayfa", path: "/" },
+      { name: "Gayrimenkul", path: "/gayrimenkul" },
+      { name: property.title, path: `/gayrimenkul/${property.slug}` },
+    ]),
+  ];
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={schemas} />
       <PageHero
         title={property.title}
-        description={`${property.district}, ${property.city}`}
+        description={`${property.district}, ${property.city} · Tokat gayrimenkul`}
         crumbs={[
           { label: "Ana Sayfa", href: "/" },
           { label: "Gayrimenkul", href: "/gayrimenkul" },
@@ -65,7 +95,10 @@ export default async function PropertyDetailPage({ params }: Props) {
       <section className="container-wide py-12 md:py-16">
         <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr]">
           <div className="space-y-8">
-            <ImageGallery images={property.images} alt={property.title} />
+            <ImageGallery
+              images={property.images}
+              alt={propertyImageAlt(property)}
+            />
             <div>
               <h2 className="font-display text-2xl font-bold">Açıklama</h2>
               <p className="mt-4 leading-relaxed text-ink-500">

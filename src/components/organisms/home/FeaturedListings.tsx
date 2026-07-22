@@ -9,13 +9,16 @@ export function FeaturedListings() {
   const products = getFeaturedProducts().slice(0, 3);
 
   return (
-    <section className="bg-gradient-to-b from-mist-100/80 to-transparent py-20 md:py-28">
+    <section
+      id="urunler"
+      className="scroll-mt-28 bg-gradient-to-b from-mist-100/80 to-transparent py-20 md:py-28"
+    >
       <div className="container-wide">
         <Reveal>
           <SectionHeading
             eyebrow="Yapı Market"
-            title="Kaliteli ürün, güvenilir tedarik"
-            description="Polisan boya, mantolama, yalıtım ve dış cephe malzemelerinde stoklu çözümler."
+            title="Tokat’ta kaliteli yapı malzemeleri"
+            description="Permolit boya, mantolama, yalıtım ve dış cephe malzemelerinde Turhal stoklu çözümler."
             action={
               <Button asChild variant="secondary">
                 <Link href="/yapi-malzemeleri#urunler">Yapı Market</Link>

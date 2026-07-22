@@ -1,14 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --forest-950: #0f241c;
-  --forest-900: #163528;
-  --forest-800: #1b4d3e;
-  --forest-700: #2d6a4f;
-  --forest-600: #3d8b66;
-  --forest-500: #52b788;
-  --forest-100: #d8f3dc;
-  --forest-50: #f0faf3;
+  /* Brand: Primary Green #295B2D family */
+  --forest-950: #0c1f10;
+  --forest-900: #16351c;
+  --forest-800: #295b2d;
+  --forest-700: #356f39;
+  --forest-600: #458049;
+  --forest-500: #5a9a5e;
+  --forest-100: #e4efe5;
+  --forest-50: #f3f8f3;
 
   --earth-900: #3d2b1f;
   --earth-700: #5c4033;
@@ -16,34 +17,49 @@
   --earth-400: #a67c52;
   --earth-200: #d4b896;
 
-  --gold-600: #b8860b;
-  --gold-500: #c9a227;
-  --gold-400: #d4af37;
-  --gold-300: #e8c547;
+  /* Brand: Gold Accent #C7A34A */
+  --gold-600: #a8863a;
+  --gold-500: #c7a34a;
+  --gold-400: #d4b56a;
+  --gold-300: #e2c98a;
 
-  --ivory-50: #faf9f6;
-  --ivory-100: #f4f1ea;
-  --ivory-200: #eae5db;
-  --mist-100: #f0eee9;
-  --mist-200: #e4e1da;
+  /* Brand: Background #FAFAF8 */
+  --ivory-50: #fafaf8;
+  --ivory-100: #f4f3ef;
+  --ivory-200: #eae8e2;
+  --mist-100: #f0efeb;
+  --mist-200: #e4e2dc;
 
-  --ink-950: #0f0f0f;
-  --ink-900: #1a1a1a;
-  --ink-700: #2c2c2c;
-  --ink-500: #5a5a5a;
-  --ink-400: #7a7a7a;
+  /* Brand: Dark #111827 · Text #222222 */
+  --ink-950: #111827;
+  --ink-900: #222222;
+  --ink-700: #374151;
+  --ink-500: #6b7280;
+  --ink-400: #9ca3af;
 
   --background: var(--ivory-50);
   --foreground: var(--ink-900);
   --muted: var(--ink-500);
   --card: #ffffff;
-  --border: color-mix(in oklab, var(--earth-400) 18%, transparent);
-  --ring: var(--forest-700);
+  --border: color-mix(in oklab, var(--earth-400) 16%, transparent);
+  --ring: var(--forest-800);
 
   --radius-sm: 0.5rem;
   --radius-md: 0.875rem;
   --radius-lg: 1.25rem;
   --radius-xl: 1.75rem;
+
+  /* Fluid type */
+  --text-display: clamp(2.5rem, 1.6rem + 3.5vw, 4.25rem);
+  --text-h1: clamp(2rem, 1.4rem + 2.2vw, 3.25rem);
+  --text-h2: clamp(1.65rem, 1.25rem + 1.4vw, 2.5rem);
+  --text-h3: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  --text-body: clamp(0.975rem, 0.94rem + 0.2vw, 1.0625rem);
+  --text-lead: clamp(1.05rem, 0.98rem + 0.35vw, 1.25rem);
+
+  /* Spacing */
+  --section-y: clamp(3.5rem, 2.5rem + 4vw, 6.5rem);
+  --section-y-sm: clamp(2.5rem, 2rem + 2vw, 4rem);
 }
 
 @theme inline {
@@ -103,15 +119,27 @@
 
   html {
     scroll-behavior: auto;
+    overflow-x: clip;
   }
 
   body {
+    overflow-x: clip;
+    overscroll-behavior-y: none;
     background:
-      radial-gradient(1200px 600px at 10% -10%, color-mix(in oklab, var(--forest-500) 12%, transparent), transparent 60%),
-      radial-gradient(900px 500px at 90% 0%, color-mix(in oklab, var(--gold-400) 10%, transparent), transparent 55%),
+      radial-gradient(
+        1200px 600px at 10% -10%,
+        color-mix(in oklab, var(--forest-500) 8%, transparent),
+        transparent 60%
+      ),
+      radial-gradient(
+        900px 500px at 90% 0%,
+        color-mix(in oklab, var(--gold-400) 8%, transparent),
+        transparent 55%
+      ),
       linear-gradient(180deg, var(--ivory-50), var(--mist-100));
     color: var(--foreground);
     font-family: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+    font-size: var(--text-body);
     text-rendering: optimizeLegibility;
   }
 
@@ -122,6 +150,23 @@
     font-family: var(--font-cinzel), ui-serif, Georgia, serif;
     letter-spacing: 0.02em;
     color: var(--ink-900);
+  }
+
+  h1 {
+    font-size: var(--text-h1);
+  }
+
+  h2 {
+    font-size: var(--text-h2);
+  }
+
+  h3 {
+    font-size: var(--text-h3);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
   }
 
   ::selection {
@@ -135,6 +180,24 @@
     text-wrap: balance;
   }
 
+  .text-display {
+    font-size: var(--text-display);
+    line-height: 1.08;
+  }
+
+  .text-lead {
+    font-size: var(--text-lead);
+    line-height: 1.65;
+  }
+
+  .section-padding {
+    padding-block: var(--section-y);
+  }
+
+  .section-padding-sm {
+    padding-block: var(--section-y-sm);
+  }
+
   .gradient-forest {
     background: linear-gradient(135deg, var(--forest-900), var(--forest-600));
   }
@@ -144,13 +207,12 @@
   }
 
   .gradient-hero-overlay {
-    background:
-      linear-gradient(
-        105deg,
-        color-mix(in oklab, var(--forest-950) 78%, transparent) 0%,
-        color-mix(in oklab, var(--forest-900) 45%, transparent) 45%,
-        color-mix(in oklab, var(--earth-900) 20%, transparent) 100%
-      );
+    background: linear-gradient(
+      105deg,
+      color-mix(in oklab, var(--ink-950) 82%, transparent) 0%,
+      color-mix(in oklab, var(--forest-900) 55%, transparent) 48%,
+      color-mix(in oklab, var(--earth-900) 22%, transparent) 100%
+    );
   }
 
   .glass {
@@ -180,6 +242,23 @@
   .container-wide {
     width: min(100% - 2rem, 84rem);
     margin-inline: auto;
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .animate-marquee {
+    animation: marquee 36s linear infinite;
+  }
+
+  .animate-marquee:hover {
+    animation-play-state: paused;
   }
 }
 

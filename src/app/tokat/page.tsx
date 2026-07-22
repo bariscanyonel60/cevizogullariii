@@ -1,91 +1,165 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Building2, MapPinned, ShieldCheck, Truck } from "lucide-react";
+import {
+  Flame,
+  Layers,
+  PaintBucket,
+  Home,
+  ShieldCheck,
+  Warehouse,
+} from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Reveal } from "@/components/molecules/Reveal";
 import { PageHero } from "@/components/organisms/shared/PageHero";
 import { SITE } from "@/lib/constants";
-import { buildMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/atoms/JsonLd";
+import {
+  breadcrumbJsonLd,
+  buildMetadata,
+  faqJsonLd,
+  webPageJsonLd,
+} from "@/lib/seo";
 
-export const metadata: Metadata = buildMetadata({
-  title: "Tokat & Bölge · Yapı Malzemeleri",
-  description:
-    "Tokat, Turhal ve yakın illerde yapı malzemeleri, inşaat tedariki ve 2026 deprem koşullarına uygun yapı çözümleri. Cevizoğulları ile güvenli inşaat.",
-  path: "/tokat",
-});
-
-const nearbyRegions = [
-  {
-    name: "Tokat & Turhal",
-    blurb: "Merkez üssümüz. Stoklu ürün, hızlı teslimat ve yerinde teknik destek.",
-  },
-  {
-    name: "Amasya",
-    blurb: "Konut ve tadilat projelerinde yalıtım, boya ve orman ürünleri tedariki.",
-  },
-  {
-    name: "Samsun",
-    blurb: "Şantiye temposuna uygun malzeme sevkiyatı ve cephe sistemleri.",
-  },
-  {
-    name: "Sivas",
-    blurb: "Isı yalıtımı, çatı ve kaba inşaat malzemelerinde bölgesel destek.",
-  },
-  {
-    name: "Ordu & Çorum",
-    blurb: "Yakın çevre illerde proje bazlı tedarik ve uygulama danışmanlığı.",
-  },
+const TOCAT_KEYWORDS = [
+  "Tokat yapı malzemeleri",
+  "Turhal yapı market",
+  "Tokat mantolama",
+  "Turhal mantolama",
+  "Tokat dış cephe boyası",
+  "Tokat ısı yalıtım",
+  "Tokat strafor",
+  "Tokat EPS XPS",
+  "Tokat inşaat malzemesi",
+  "Erbaa Niksar Zile yapı malzemeleri",
 ] as const;
 
-const services = [
+export const metadata: Metadata = buildMetadata({
+  title: "Tokat Yapı Malzemeleri · Turhal Mantolama & Boya",
+  description:
+    "Tokat yapı malzemeleri, Turhal mantolama, dış cephe boyası, ısı yalıtımı ve strafor (EPS/XPS) tedariki. Cevizoğulları Yapı Market — stoklu ürün, doğru yönlendirme, depreme uygun malzeme seçimi.",
+  path: "/tokat",
+  keywords: [...TOCAT_KEYWORDS],
+});
+
+/** İnsanların Google’da aradığı niyetlere göre konu başlıkları */
+const searchTopics = [
   {
-    icon: Building2,
-    title: "Yapı market & malzeme",
-    text: "Boya, mantolama, yalıtım, çatı, OSB, çimento ve nalbur ihtiyaçlarınızı tek noktadan karşılıyoruz.",
+    icon: Layers,
+    query: "Tokat mantolama",
+    title: "Tokat & Turhal mantolama malzemeleri",
+    text: "EPS, XPS, file, dübel, yapıştırıcı ve cephe sıvası… Mantolama setini eksiksiz stoklarız. Enerji faturasını düşüren, uzun ömürlü dış cephe yalıtımı için doğru ürünü birlikte seçeriz.",
+    href: "/yapi-malzemeleri",
   },
   {
-    icon: Truck,
-    title: "Bölgesel tedarik",
-    text: "Tokat ve çevresindeki şantiyelere planlı sevkiyat; usta ve müteahhitlere hızlı çözüm.",
+    icon: PaintBucket,
+    query: "Tokat dış cephe boyası",
+    title: "Dış cephe boyası & astar",
+    text: "Permolit, Filli Boya ve Marshall dış cephe boyaları; astar ve dekoratif kaplamalar. Tokat iklimine uygun, UV ve yağmura dayanıklı boya sistemleri.",
+    href: "/yapi-malzemeleri",
+  },
+  {
+    icon: Flame,
+    query: "Tokat ısı yalıtım",
+    title: "Isı yalıtımı & strafor",
+    text: "Tokat strafor, karbonlu EPS, XPS levha ve İzocam taşyünü / camyünü. Çatı, duvar ve temel detaylarında ısı-ses yalıtımı çözümleri.",
+    href: "/yapi-malzemeleri",
+  },
+  {
+    icon: Warehouse,
+    query: "Tokat yapı market",
+    title: "Yapı market & inşaat malzemesi",
+    text: "OSB, plywood, çimento, tuğla, çatı membranı, kiremit, PVC ve nalbur. Turhal’daki yapı marketimizden şantiye ve tadilat ihtiyaçlarınıza tek noktadan tedarik.",
+    href: "/yapi-malzemeleri",
+  },
+  {
+    icon: Home,
+    query: "Tokat ev tadilatı",
+    title: "Ev tadilatı malzemeleri",
+    text: "İç cephe boyası, alçıpan, sıva ve bitiş ürünleri. Tokat’ta daire / müstakil ev yenilemelerinde doğru malzeme ve uygulama danışmanlığı.",
+    href: "/yapi-malzemeleri",
   },
   {
     icon: ShieldCheck,
-    title: "Depreme dayanıklı yaklaşım",
-    text: "Malzeme seçimi ve uygulama yönlendirmesinde güncel yönetmelik ve güvenli yapı prensiplerini esas alıyoruz.",
-  },
-  {
-    icon: MapPinned,
-    title: "Yerel saha bilgisi",
-    text: "Bölgenin iklimi, zemin koşulları ve yapı kültürünü bilen bir ekiple yanınızdayız.",
+    query: "depreme dayanıklı yapı Tokat",
+    title: "Depreme uygun malzeme seçimi",
+    text: "2026 deprem koşullarına uygun yapı anlayışında; bağlayıcılar, yalıtım ve cephe sistemlerinde yönetmelik bilinciyle ürün önerisi sunuyoruz.",
+    href: "/teklif-al",
   },
 ] as const;
 
-const earthquakePoints = [
+const districts = [
   {
-    title: "Güncel yönetmelik bilinci",
-    body: "Türkiye Bina Deprem Yönetmeliği (TBDY) ve ilgili güncellemeler çerçevesinde; taşıyıcı sistem, yalıtım ve cephe detaylarında güvenli yapı yaklaşımını destekliyoruz.",
+    name: "Turhal",
+    text: "Merkez mağazamız burada. Turhal mantolama, boya ve yapı market alışverişinde hızlı teslimat.",
   },
   {
-    title: "2026 deprem koşullarına uygun yapı",
-    body: "Yeni konut ve tadilat projelerinde; doğru yalıtım, kaliteli bağlayıcılar, standartlara uygun demir-çimento kombinasyonu ve cephe sistemleriyle deprem riskine karşı daha dayanıklı yapılar hedefliyoruz.",
+    name: "Tokat Merkez",
+    text: "Tokat yapı malzemeleri ihtiyacında stoklu ürün ve şantiye sevkiyatı.",
   },
   {
-    title: "Malzeme kalitesi = yapı güvenliği",
-    body: "Depreme karşı direnç yalnızca proje çiziminde değil, sahadaki malzeme kalitesinde başlar. Stoklarımızda güvenilir marka ve standart ürünleri önceliklendiriyoruz.",
+    name: "Erbaa & Niksar",
+    text: "Erbaa / Niksar mantolama ve yalıtım malzemelerinde proje bazlı tedarik.",
   },
   {
-    title: "Uygulama & danışmanlık",
-    body: "Mantolama, sıva, boya ve çatı detaylarında doğru ürün-uygulama eşleşmesiyle uzun ömürlü ve daha güvenli sonuçlar üretiyoruz.",
+    name: "Zile & Pazar",
+    text: "Zile ve Pazar’daki tadilat ile konut işlerinde boya, sıva ve orman ürünleri.",
+  },
+  {
+    name: "Amasya & Çorum",
+    text: "Yakın illerdeki şantiyelere planlı malzeme sevkiyatı ve teklif desteği.",
+  },
+  {
+    name: "Yozgat & Sivas",
+    text: "Bölgesel tedarik ağımızla yalıtım, çatı ve kereste ihtiyaçlarına cevap.",
+  },
+] as const;
+
+const tokatFaqs = [
+  {
+    question: "Tokat’ta mantolama malzemesi nereden alınır?",
+    answer:
+      "Cevizoğulları Yapı Market, Turhal’da EPS/XPS, file, dübel, yapıştırıcı ve dış cephe sıvasını stoklu sunar. Tokat mantolama projeleriniz için ürün seçimi ve tedarik desteği sağlarız.",
+  },
+  {
+    question: "Turhal’da dış cephe boyası satıyor musunuz?",
+    answer:
+      "Evet. Permolit, Filli Boya ve Marshall dış cephe boyası ile astarları Turhal mağazamızda bulabilirsiniz. Renk ve yüzey tipine göre yönlendirme yapıyoruz.",
+  },
+  {
+    question: "Tokat strafor / ısı yalıtım ürünleri var mı?",
+    answer:
+      "Tokat ısı yalıtım ihtiyacı için strafor (EPS), karbonlu EPS, XPS ve İzocam ürünlerini tedarik ediyoruz. Kalınlık ve kullanım alanına göre öneri veriyoruz.",
+  },
+  {
+    question: "Erbaa, Niksar, Zile ve Pazar’a malzeme götürüyor musunuz?",
+    answer:
+      "Turhal merkezliyiz; Tokat merkez, Erbaa, Niksar, Zile, Pazar ve Amasya, Yozgat, Sivas, Çorum, Samsun’daki şantiye / tadilat işlerine ürün tedariki sunuyoruz. Detay için teklif alın.",
   },
 ] as const;
 
 export default function TokatPage() {
   return (
     <>
+      <JsonLd
+        data={[
+          webPageJsonLd({
+            path: "/tokat",
+            name: "Tokat Yapı Malzemeleri · Turhal Mantolama & Boya",
+            description:
+              "Tokat yapı malzemeleri, Turhal mantolama, dış cephe boyası ve ısı yalıtımı tedariki.",
+          }),
+          breadcrumbJsonLd([
+            { name: "Ana Sayfa", path: "/" },
+            { name: "Tokat", path: "/tokat" },
+          ]),
+          faqJsonLd(tokatFaqs),
+        ]}
+      />
+
       <PageHero
-        title="Tokat & Yakın Bölge"
-        description="Turhal merkezli Cevizoğulları; Tokat ve çevresinde yapı malzemeleri, inşaat tedariki ve deprem koşullarına uygun yapı çözümleri sunar."
+        title="Tokat Yapı Malzemeleri"
+        description="Turhal Yapı Market · Tokat mantolama, dış cephe boyası, ısı yalıtımı ve inşaat malzemeleri. Aradığınız ürün, doğru yönlendirme."
         crumbs={[
           { label: "Ana Sayfa", href: "/" },
           { label: "Tokat" },
@@ -98,7 +172,7 @@ export default function TokatPage() {
             <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-premium">
               <Image
                 src="/projects/modern-konut-cephe.jpg"
-                alt="Tokat bölgesinde modern konut ve dış cephe uygulaması"
+                alt="Tokat dış cephe mantolama ve boya uygulaması örneği"
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"
@@ -108,30 +182,30 @@ export default function TokatPage() {
           </Reveal>
           <Reveal delay={0.08}>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-600">
-              Bölgesel önem
+              Turhal Yapı Market
             </p>
             <h2 className="mt-3 font-display text-3xl font-bold text-ink-900 md:text-4xl text-balance">
-              Tokat’ta güvenli yapı, doğru malzemeyle başlar
+              Tokat’ta yapı malzemesi arayanlar için net adres
             </h2>
             <p className="mt-5 leading-relaxed text-ink-500">
-              Tokat ve yakın illerde konut, tadilat ve şantiye yatırımları artarken;
-              kaliteli yapı malzemesine erişim hem maliyet hem güvenlik açısından
-              kritik hale geldi. Deprem kuşağında yer alan bölgemizde; yalıtım,
-              bağlayıcı malzemeler, cephe sistemleri ve orman ürünleri doğru
-              seçildiğinde yapı ömrü ve can güvenliği doğrudan etkilenir.
+              “Tokat yapı malzemeleri”, “Turhal mantolama” veya “Tokat dış cephe
+              boyası” diye arıyorsanız doğru yerdesiniz. {SITE.shortName}; boya,
+              mantolama, ısı yalıtımı, strafor, OSB, çatı ve kaba inşaat
+              ürünlerini Turhal’daki yapı marketinde stoklu bulundurur.
             </p>
             <p className="mt-4 leading-relaxed text-ink-500">
-              {SITE.shortName} olarak Turhal’daki merkezimizden Tokat merkeze,
-              ilçelere ve komşu illere stoklu ürün, hızlı tedarik ve uygulama
-              danışmanlığı sağlıyoruz. Amacımız; bölgedeki her projede güvenilir
-              malzeme ve sürdürülebilir çözüm sunmak.
+              Amacımız katalog doldurmak değil; Tokat’taki konut, tadilat ve
+              şantiye işlerinde gerçekten kullanılan malzemeleri, anlaşılır
+              fiyat ve doğru uygulama önerisiyle sunmak. Deprem kuşağında
+              yaşadığımız için ürün seçiminde güvenli yapı bilincini öne
+              alıyoruz.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild>
-                <Link href="/yapi-malzemeleri">Yapı Market</Link>
+                <Link href="/yapi-malzemeleri">Ürünlere Git</Link>
               </Button>
               <Button asChild variant="secondary">
-                <Link href="/projelerimiz">Gayrimenkul</Link>
+                <Link href="/teklif-al">Fiyat Teklifi</Link>
               </Button>
             </div>
           </Reveal>
@@ -142,27 +216,39 @@ export default function TokatPage() {
         <div className="container-wide">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-300">
-              Hizmet bölgemiz
+              Ne arıyorsunuz?
             </p>
-            <h2 className="mt-3 max-w-2xl font-display text-3xl font-bold md:text-4xl text-balance">
-              Tokat ve yakın illerde yanınızdayız
+            <h2 className="mt-3 max-w-3xl font-display text-3xl font-bold md:text-4xl text-balance">
+              Tokat’ta en çok aranan yapı çözümleri
             </h2>
             <p className="mt-4 max-w-2xl text-white/70">
-              Merkezimiz Turhal’da; hizmet ağımız Tokat merkez, ilçeler ve
-              komşu illerdeki şantiye ile tadilat projelerine uzanır.
+              İnsanların arama motorlarında sorduğu sorulara göre düzenledik —
+              ezbere “yakın il” listesi değil; gerçek ihtiyaç başlıkları.
             </p>
           </Reveal>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            {nearbyRegions.map((region, index) => (
-              <Reveal key={region.name} delay={index * 0.05}>
-                <article className="h-full rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
-                  <h3 className="font-display text-lg font-semibold text-gold-300">
-                    {region.name}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-white/65">
-                    {region.blurb}
+          <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {searchTopics.map((topic, index) => (
+              <Reveal key={topic.query} delay={index * 0.05}>
+                <Link
+                  href={topic.href}
+                  className="group flex h-full flex-col rounded-2xl border border-white/10 bg-white/5 p-6 transition hover:border-gold-400/40 hover:bg-white/10"
+                >
+                  <span className="inline-flex size-11 items-center justify-center rounded-xl bg-gold-400/15 text-gold-300">
+                    <topic.icon className="size-5" aria-hidden />
+                  </span>
+                  <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-gold-400/80">
+                    {topic.query}
                   </p>
-                </article>
+                  <h3 className="mt-2 font-display text-xl font-semibold text-white">
+                    {topic.title}
+                  </h3>
+                  <p className="mt-3 flex-1 text-sm leading-relaxed text-white/65">
+                    {topic.text}
+                  </p>
+                  <span className="mt-5 text-sm font-semibold text-gold-300 group-hover:underline">
+                    İncele →
+                  </span>
+                </Link>
               </Reveal>
             ))}
           </div>
@@ -172,27 +258,26 @@ export default function TokatPage() {
       <section className="container-wide py-16 md:py-24">
         <Reveal>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-600">
-            Bölge içi hizmetlerimiz
+            İlçe bazlı hizmet
           </p>
           <h2 className="mt-3 max-w-2xl font-display text-3xl font-bold text-ink-900 md:text-4xl text-balance">
-            İnşaattan bitişe kadar tek çözüm ortağı
+            Turhal, Tokat, Erbaa, Niksar, Zile…
           </h2>
+          <p className="mt-4 max-w-2xl text-ink-500">
+            Mağazamız Turhal’da. Teslimat ve tedarik ağımız Tokat merkeze ve
+            ilçelerdeki şantiye / tadilat işlerine uzanır.
+          </p>
         </Reveal>
-        <div className="mt-10 grid gap-6 md:grid-cols-2">
-          {services.map((service, index) => (
-            <Reveal key={service.title} delay={index * 0.06}>
-              <article className="flex gap-4 rounded-[1.5rem] border border-earth-400/15 bg-white/70 p-6 shadow-sm">
-                <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-forest-800 text-gold-300">
-                  <service.icon className="size-5" aria-hidden />
-                </span>
-                <div>
-                  <h3 className="font-display text-xl font-semibold text-ink-900">
-                    {service.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-ink-500">
-                    {service.text}
-                  </p>
-                </div>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {districts.map((item, index) => (
+            <Reveal key={item.name} delay={index * 0.05}>
+              <article className="h-full rounded-2xl border border-earth-400/15 bg-white/80 p-5 shadow-sm">
+                <h3 className="font-display text-lg font-semibold text-forest-900">
+                  {item.name}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-500">
+                  {item.text}
+                </p>
               </article>
             </Reveal>
           ))}
@@ -201,40 +286,60 @@ export default function TokatPage() {
 
       <section className="bg-gradient-to-b from-mist-100/90 to-transparent py-16 md:py-24">
         <div className="container-wide">
-          <div className="grid items-start gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
+          <div className="grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
             <Reveal>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-600">
-                Deprem güvenliği
+                Neden burada alınır?
               </p>
               <h2 className="mt-3 font-display text-3xl font-bold text-ink-900 md:text-4xl text-balance">
-                2026 deprem koşullarına uygun yapı anlayışı
+                Tokat yapı marketinde stok + yönlendirme
               </h2>
-              <p className="mt-5 leading-relaxed text-ink-500">
-                Bölgemizde deprem riski göz ardı edilemez. Bu yüzden yalnızca
-                “ucuz malzeme” değil; yönetmelik bilinciyle seçilmiş, uygulamada
-                doğru kullanılan ürünlerle ilerliyoruz. Yeni binalarda ve
-                güçlendirme / tadilat işlerinde güvenli yapı kültürünü
-                yaygınlaştırmayı hedefliyoruz.
-              </p>
+              <div className="mt-5 space-y-4 text-sm leading-relaxed text-ink-500 md:text-base">
+                <p>
+                  İnternette “en ucuz strafor” aramak kolay; sahada doğru kalınlık,
+                  doğru yapıştırıcı ve doğru boya sistemi seçmek ayrı iş.
+                  Cevizoğulları’nda ürünü raftan vermekle kalmayız — mantolama mı,
+                  sadece boya mı, çatı mı netleştirip öneririz.
+                </p>
+                <p>
+                  Tokat kışları sert geçer; ısı yalıtımı ve dış cephe boyasında
+                  dayanım kritiktir. Bu yüzden Permolit / Filli / Marshall boya,
+                  Weber sistemleri ve İzocam gibi bilinen markaları öne çıkarırız.
+                </p>
+                <p>
+                  Yeni bina veya güçlendirme / tadilat fark etmeksizin; 2026
+                  deprem koşullarına uygun yapı kültüründe malzeme kalitesinin
+                  taşıyıcı güven kadar önemli olduğunu biliyoruz.
+                </p>
+              </div>
               <div className="relative mt-8 aspect-[16/10] overflow-hidden rounded-[1.75rem] shadow-premium">
                 <Image
                   src="/projects/modern-konut-bahce.jpg"
-                  alt="Deprem koşullarına uygun modern konut örneği"
+                  alt="Tokat modern konut dış cephe ve peyzaj uygulaması"
                   fill
                   className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 45vw"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                 />
               </div>
             </Reveal>
-            <div className="space-y-4">
-              {earthquakePoints.map((point, index) => (
-                <Reveal key={point.title} delay={index * 0.06}>
-                  <article className="rounded-2xl border border-earth-400/15 bg-white/80 p-5 md:p-6">
-                    <h3 className="font-display text-lg font-semibold text-forest-900">
-                      {point.title}
+
+            <div className="space-y-3">
+              <Reveal>
+                <h2 className="font-display text-2xl font-bold text-ink-900 md:text-3xl">
+                  Sık sorulanlar
+                </h2>
+                <p className="mt-2 text-sm text-ink-500">
+                  Tokat mantolama, boya ve yalıtım hakkında net cevaplar.
+                </p>
+              </Reveal>
+              {tokatFaqs.map((faq, index) => (
+                <Reveal key={faq.question} delay={index * 0.05}>
+                  <article className="rounded-2xl border border-earth-400/15 bg-white/90 p-5 md:p-6">
+                    <h3 className="font-display text-base font-semibold text-forest-900 md:text-lg">
+                      {faq.question}
                     </h3>
                     <p className="mt-2 text-sm leading-relaxed text-ink-500">
-                      {point.body}
+                      {faq.answer}
                     </p>
                   </article>
                 </Reveal>
@@ -250,22 +355,21 @@ export default function TokatPage() {
             <div className="pointer-events-none absolute -right-10 top-0 size-64 rounded-full bg-gold-400/20 blur-3xl" />
             <div className="relative max-w-2xl">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-300">
-                Tokat’ta yanınızdayız
+                Hemen teklif alın
               </p>
               <h2 className="mt-4 font-display text-3xl font-bold md:text-4xl text-balance">
-                Projeniz için bölgesel destek alın
+                Tokat mantolama, boya veya yalıtım listesi hazır mı?
               </h2>
               <p className="mt-4 text-white/70">
-                Tokat, Turhal ve yakın illerdeki konut / şantiye ihtiyaçlarınız
-                için teklif alın; deprem koşullarına uygun malzeme seçiminde
-                size yol gösterelim.
+                İhtiyacınızı yazın; Turhal Yapı Market stokundan net fiyat ve
+                ürün önerisi dönelim. WhatsApp veya teklif formu yeterli.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button asChild variant="gold" size="lg">
                   <Link href="/teklif-al">Teklif Al</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
-                  <Link href="/iletisim">İletişime Geç</Link>
+                  <Link href="/iletisim">İletişim</Link>
                 </Button>
               </div>
               <p className="mt-6 text-sm text-white/55">{SITE.address}</p>

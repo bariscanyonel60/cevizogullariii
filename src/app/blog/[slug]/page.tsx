@@ -17,7 +17,13 @@ import {
   getRelatedPosts,
 } from "@/data/blog";
 import { SITE } from "@/lib/constants";
-import { breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/atoms/JsonLd";
+import {
+  articleJsonLd,
+  breadcrumbJsonLd,
+  buildMetadata,
+  withLocalDescription,
+} from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -28,13 +34,27 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = getPostBySlug(slug);
-  if (!post) return {};
+  if (!post) {
+    return buildMetadata({
+      title: "Yazı bulunamadı",
+      description: "Aradığınız blog yazısı bulunamadı.",
+      path: "/blog",
+      noIndex: true,
+    });
+  }
   return buildMetadata({
     title: post.title,
-    description: post.excerpt,
+    description: withLocalDescription(post.excerpt),
     path: `/blog/${post.slug}`,
     image: post.coverImage,
     type: "article",
+    keywords: [
+      ...post.tags,
+      post.category,
+      "Tokat yapı",
+      "Turhal gayrimenkul",
+      "Cevizoğulları blog",
+    ],
   });
 }
 
@@ -53,16 +73,8 @@ export default async function BlogDetailPage({ params }: Props) {
   const related = getRelatedPosts(slug);
   const toc = extractToc(post.content);
   const shareUrl = `${SITE.url}/blog/${post.slug}`;
-  const jsonLd = [
-    {
-      "@context": "https://schema.org",
-      "@type": "Article",
-      headline: post.title,
-      description: post.excerpt,
-      image: post.coverImage,
-      datePublished: post.publishedAt,
-      author: { "@type": "Person", name: post.author },
-    },
+  const schemas = [
+    articleJsonLd(post),
     breadcrumbJsonLd([
       { name: "Ana Sayfa", path: "/" },
       { name: "Blog", path: "/blog" },
@@ -72,13 +84,10 @@ export default async function BlogDetailPage({ params }: Props) {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={schemas} />
       <PageHero
         title={post.title}
-        description={post.excerpt}
+        description={withLocalDescription(post.excerpt)}
         crumbs={[
           { label: "Ana Sayfa", href: "/" },
           { label: "Blog", href: "/blog" },
@@ -91,7 +100,7 @@ export default async function BlogDetailPage({ params }: Props) {
           <div className="relative mb-8 aspect-[16/9] overflow-hidden rounded-[2rem]">
             <Image
               src={post.coverImage}
-              alt={post.title}
+              alt={`${post.title} — Tokat Turhal Cevizoğulları blog kapak görseli`}
               fill
               priority
               className="object-cover"

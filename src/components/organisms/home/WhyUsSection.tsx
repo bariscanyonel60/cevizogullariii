@@ -7,7 +7,7 @@ const icons = [ShieldCheck, Layers, Gem, Compass];
 
 export function WhyUsSection() {
   return (
-    <section className="relative overflow-hidden py-20 md:py-28">
+    <section id="neden-biz" className="relative scroll-mt-28 overflow-hidden py-20 md:py-28">
       <div className="absolute inset-0 bg-gradient-to-b from-forest-50/80 via-transparent to-transparent" />
       <div className="container-wide relative">
         <Reveal>

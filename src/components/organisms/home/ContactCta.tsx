@@ -4,7 +4,7 @@ import { Reveal } from "@/components/molecules/Reveal";
 
 export function ContactCta() {
   return (
-    <section className="container-wide pb-8">
+    <section id="iletisim-cta" className="container-wide scroll-mt-28 pb-8">
       <Reveal>
         <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-forest-900 via-forest-800 to-earth-700 px-8 py-14 text-white md:px-14 md:py-16">
           <div className="pointer-events-none absolute -right-10 top-0 size-64 rounded-full bg-gold-400/20 blur-3xl" />

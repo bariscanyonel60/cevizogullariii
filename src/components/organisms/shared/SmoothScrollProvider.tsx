@@ -1,19 +1,55 @@
 "use client";
 
-import { ReactLenis } from "lenis/react";
-import type { ReactNode } from "react";
+import { ReactLenis, useLenis } from "lenis/react";
+import { useEffect, type ReactNode } from "react";
+
+/** Lenis içerik yüksekliği yenileme (resize / lazy load sonrası) */
+function LenisResizeBridge() {
+  const lenis = useLenis();
+
+  useEffect(() => {
+    if (!lenis) return;
+
+    const refresh = () => {
+      lenis.resize();
+    };
+
+    refresh();
+    const timer = window.setTimeout(refresh, 400);
+    const timer2 = window.setTimeout(refresh, 1200);
+    window.addEventListener("load", refresh);
+    window.addEventListener("resize", refresh);
+
+    const ro = new ResizeObserver(refresh);
+    ro.observe(document.body);
+
+    return () => {
+      window.clearTimeout(timer);
+      window.clearTimeout(timer2);
+      window.removeEventListener("load", refresh);
+      window.removeEventListener("resize", refresh);
+      ro.disconnect();
+    };
+  }, [lenis]);
+
+  return null;
+}
 
 export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   return (
     <ReactLenis
       root
       options={{
-        lerp: 0.08,
-        duration: 1.2,
+        lerp: 0.1,
+        duration: 1.1,
         smoothWheel: true,
         syncTouch: false,
+        touchMultiplier: 1.5,
+        wheelMultiplier: 1,
+        autoResize: true,
       }}
     >
+      <LenisResizeBridge />
       {children}
     </ReactLenis>
   );

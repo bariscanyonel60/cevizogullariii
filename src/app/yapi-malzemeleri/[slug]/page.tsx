@@ -6,13 +6,20 @@ import { PageHero } from "@/components/organisms/shared/PageHero";
 import { QuoteForm } from "@/components/organisms/shared/QuoteForm";
 import { Badge } from "@/components/atoms/Badge";
 import { Button } from "@/components/atoms/Button";
+import { JsonLd } from "@/components/atoms/JsonLd";
 import {
   getProductBySlug,
   PRODUCT_CATEGORY_LABELS,
   products,
   USE_CASE_LABELS,
 } from "@/data/products";
-import { breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
+import {
+  breadcrumbJsonLd,
+  buildMetadata,
+  productImageAlt,
+  productJsonLd,
+  withLocalDescription,
+} from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -23,12 +30,29 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const product = getProductBySlug(slug);
-  if (!product) return {};
+  if (!product) {
+    return buildMetadata({
+      title: "Ürün bulunamadı",
+      description: "Aradığınız ürün bulunamadı.",
+      path: "/yapi-malzemeleri",
+      noIndex: true,
+    });
+  }
   return buildMetadata({
-    title: product.title,
-    description: product.description,
+    title: `${product.title} · Tokat Turhal`,
+    description: withLocalDescription(
+      product.description,
+      `${product.brand} ürünü Turhal Yapı Market’te.`,
+    ),
     path: `/yapi-malzemeleri/${product.slug}`,
     image: product.image,
+    keywords: [
+      product.title,
+      product.brand,
+      "Tokat yapı malzemeleri",
+      "Turhal yapı market",
+      product.category,
+    ],
   });
 }
 
@@ -37,21 +61,21 @@ export default async function ProductDetailPage({ params }: Props) {
   const product = getProductBySlug(slug);
   if (!product) notFound();
 
-  const jsonLd = breadcrumbJsonLd([
-    { name: "Ana Sayfa", path: "/" },
-    { name: "Yapı Malzemeleri", path: "/yapi-malzemeleri" },
-    { name: product.title, path: `/yapi-malzemeleri/${product.slug}` },
-  ]);
+  const schemas = [
+    productJsonLd(product),
+    breadcrumbJsonLd([
+      { name: "Ana Sayfa", path: "/" },
+      { name: "Yapı Malzemeleri", path: "/yapi-malzemeleri" },
+      { name: product.title, path: `/yapi-malzemeleri/${product.slug}` },
+    ]),
+  ];
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={schemas} />
       <PageHero
         title={product.title}
-        description={product.brand}
+        description={`${product.brand} · Tokat / Turhal stoklu tedarik`}
         crumbs={[
           { label: "Ana Sayfa", href: "/" },
           { label: "Yapı Malzemeleri", href: "/yapi-malzemeleri" },
@@ -62,7 +86,7 @@ export default async function ProductDetailPage({ params }: Props) {
         <div className="relative aspect-[5/4] overflow-hidden rounded-[2rem] shadow-premium">
           <Image
             src={product.image}
-            alt={product.title}
+            alt={productImageAlt(product)}
             fill
             className="object-cover"
             sizes="(max-width: 1024px) 100vw, 50vw"

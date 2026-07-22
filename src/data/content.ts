@@ -1,10 +1,11 @@
 import type { StatItem, Testimonial } from "@/types";
 
 export const stats: StatItem[] = [
-  { id: "1", value: 15, suffix: "+", label: "Yıllık Tecrübe" },
-  { id: "2", value: 500, suffix: "+", label: "Desteklenen Proje" },
-  { id: "3", value: 2000, suffix: "+", label: "Mutlu Müşteri" },
-  { id: "4", value: 1000, suffix: "+", label: "Ürün Çeşidi" },
+  { id: "1", value: 30, suffix: "+", label: "Yıllık Tecrübe" },
+  { id: "2", value: 5000, suffix: "+", label: "Mutlu Müşteri" },
+  { id: "3", value: 15000, suffix: "+", label: "Teslim Edilen Ürün" },
+  { id: "4", value: 100, suffix: "+", label: "Proje" },
+  { id: "5", value: 500, suffix: "+", label: "Satılan Gayrimenkul" },
 ];
 
 export const testimonials: Testimonial[] = [
@@ -67,7 +68,7 @@ export const services = [
   {
     title: "Boya & Dış Cephe",
     description:
-      "Polisan, Filli Boya ve Marshall ile iç-dış cephe boyası, astar ve dekoratif kaplama.",
+      "Permolit, Filli Boya ve Marshall ile iç-dış cephe boyası, astar ve dekoratif kaplama.",
     href: "/yapi-malzemeleri",
   },
   {

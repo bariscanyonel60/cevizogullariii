@@ -23,7 +23,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
         <div className="relative aspect-[5/4] overflow-hidden">
           <Image
             src={product.image}
-            alt={product.title}
+            alt={`${product.title} — ${product.brand} | Tokat Turhal yapı malzemeleri`}
             fill
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover transition duration-700 group-hover:scale-105"

@@ -11,7 +11,7 @@ export const PRODUCT_CATEGORY_LABELS: Record<ProductCategory, string> = {
   demir: "Demir",
   ahsap: "Ahşap / Kereste",
   boru: "Boru & PVC",
-  nalbur: "Nalbur",
+  nalbur: "Nalbur · Çivi & Civata",
 };
 
 export const USE_CASE_LABELS: Record<ProductUseCase, string> = {
@@ -24,8 +24,8 @@ export const USE_CASE_LABELS: Record<ProductUseCase, string> = {
 /** Çalıştığımız büyük markalar */
 export const BRANDS = [
   {
-    name: "Polisan",
-    blurb: "Dış cephe ve iç cephe boyaları, astarlar",
+    name: "Permolit",
+    blurb: "İç ve dış cephe boyaları, astar ve kaplamalar",
   },
   {
     name: "Filli Boya",
@@ -61,7 +61,7 @@ export const EXTERIOR_PACKAGE = [
   },
   {
     title: "3. Cephe boyası",
-    items: ["Polisan dış cephe boyası", "Astar + 2 kat uygulama", "Renk danışmanlığı"],
+    items: ["Permolit dış cephe boyası", "Astar + 2 kat uygulama", "Renk danışmanlığı"],
   },
   {
     title: "4. Çatı & detay",
@@ -70,62 +70,7 @@ export const EXTERIOR_PACKAGE = [
 ] as const;
 
 export const products: Product[] = [
-  // ——— BOYA (Polisan & diğer) ———
-  {
-    id: "p1",
-    slug: "polisan-dis-cephe-boyasi",
-    title: "Polisan Dış Cephe Boyası",
-    description:
-      "Hava koşullarına dayanıklı, nefes alan dış cephe boyası. Polisan kalitesiyle evinizin dış yüzeyini uzun ömürlü korur; renk seçenekleri ve uzman yönlendirme ile birlikte sunulur.",
-    category: "boya",
-    brand: "Polisan",
-    unit: "15 L / 2.5 L",
-    image: "/products/boya-rulo.jpg",
-    featured: true,
-    useCases: ["dis-cephe"],
-    specs: [
-      { label: "Marka", value: "Polisan" },
-      { label: "Uygulama", value: "Dış cephe" },
-      { label: "Özellik", value: "UV & yağmur dayanımı" },
-      { label: "Kaplama", value: "Yüksek örtücülük" },
-    ],
-    catalogPdf: "/kataloglar/polisan.pdf",
-  },
-  {
-    id: "p2",
-    slug: "polisan-dis-cephe-astari",
-    title: "Polisan Dış Cephe Astarı",
-    description:
-      "Boya öncesi yüzey hazırlığı için Polisan dış cephe astarı. Emiciliği dengeler, boyanın tutunmasını ve ömrünü artırır.",
-    category: "boya",
-    brand: "Polisan",
-    unit: "15 L / 10 L",
-    image: "/products/siva-macun.jpg",
-    featured: true,
-    useCases: ["dis-cephe"],
-    specs: [
-      { label: "Marka", value: "Polisan" },
-      { label: "Amaç", value: "Astar / primer" },
-      { label: "Uyum", value: "Dış cephe boyaları" },
-    ],
-  },
-  {
-    id: "p3",
-    slug: "polisan-ic-cephe-boyasi",
-    title: "Polisan İç Cephe Boyası",
-    description:
-      "Silinebilir, düşük kokulu iç cephe boyası. Oturma alanları ve ofisler için Polisan iç cephe serisi.",
-    category: "boya",
-    brand: "Polisan",
-    unit: "15 L / 2.5 L",
-    image: "/products/ic-boya-uygulama.jpg",
-    useCases: ["ic-mekan"],
-    specs: [
-      { label: "Marka", value: "Polisan" },
-      { label: "Uygulama", value: "İç cephe" },
-      { label: "Özellik", value: "Silinebilir" },
-    ],
-  },
+  // ——— BOYA (Permolit & diğer) ———
   {
     id: "p4",
     slug: "filli-boya-cephe",
@@ -157,6 +102,59 @@ export const products: Product[] = [
     specs: [
       { label: "Marka", value: "Marshall" },
       { label: "Uygulama", value: "Dış cephe" },
+    ],
+  },
+  {
+    id: "p29",
+    slug: "permolit-dis-cephe-boyasi",
+    title: "Permolit Dış Cephe Boyası",
+    description:
+      "Permolit dış cephe boyası. Hava koşullarına dayanıklı, yüksek örtücülü cephe koruması — Turhal / Tokat Yapı Market stokunda.",
+    category: "boya",
+    brand: "Permolit",
+    unit: "15 L / 2.5 L",
+    image: "/products/cephe-boyali.jpg",
+    featured: true,
+    useCases: ["dis-cephe"],
+    specs: [
+      { label: "Marka", value: "Permolit" },
+      { label: "Uygulama", value: "Dış cephe" },
+      { label: "Özellik", value: "UV & yağmur dayanımı" },
+      { label: "Tip", value: "Su bazlı / akrilik" },
+    ],
+  },
+  {
+    id: "p30",
+    slug: "permolit-ic-cephe-boyasi",
+    title: "Permolit İç Cephe Boyası",
+    description:
+      "Permolit iç cephe boyası. Düşük kokulu, silinebilir yüzey — oturma alanları ve tadilat için Tokat / Turhal’da stoklu.",
+    category: "boya",
+    brand: "Permolit",
+    unit: "15 L / 2.5 L",
+    image: "/products/ic-boya-uygulama.jpg",
+    useCases: ["ic-mekan"],
+    specs: [
+      { label: "Marka", value: "Permolit" },
+      { label: "Uygulama", value: "İç cephe" },
+      { label: "Özellik", value: "Silinebilir" },
+    ],
+  },
+  {
+    id: "p31",
+    slug: "permolit-astar",
+    title: "Permolit Astar",
+    description:
+      "Permolit boya astarı. İç ve dış yüzeylerde emiciliği dengeler, boyanın tutunmasını güçlendirir.",
+    category: "boya",
+    brand: "Permolit",
+    unit: "15 L / 10 L",
+    image: "/products/boya-rulo.jpg",
+    useCases: ["dis-cephe", "ic-mekan"],
+    specs: [
+      { label: "Marka", value: "Permolit" },
+      { label: "Amaç", value: "Astar / primer" },
+      { label: "Uyum", value: "Permolit boyalar" },
     ],
   },
 
@@ -270,7 +268,7 @@ export const products: Product[] = [
     description:
       "Grenli ve dokulu dekoratif cephe kaplamaları. Estetik dış görünüm + koruma.",
     category: "cephe",
-    brand: "Filli Boya / Polisan",
+    brand: "Filli Boya / Permolit",
     unit: "kg / kova",
     image: "/products/dekoratif-cephe.jpg",
     useCases: ["dis-cephe"],
@@ -442,6 +440,107 @@ export const products: Product[] = [
       { label: "Kullanım", value: "Döşeme dolgusu" },
     ],
   },
+  // ——— NALBUR (çivi, civata, vida…) ———
+  {
+    id: "p23",
+    slug: "civi",
+    title: "Çivi",
+    description:
+      "Tel çivi, beton çivi ve galvaniz çivi çeşitleri. Ahşap, kalıp ve genel şantiye bağlantı işleri için — Turhal Yapı Market stokunda.",
+    category: "nalbur",
+    brand: "Nalbur",
+    unit: "kg / kutu",
+    image: "/products/nalbur-civi.jpg",
+    featured: true,
+    useCases: ["genel", "dis-cephe"],
+    specs: [
+      { label: "Türler", value: "Tel / beton / galvaniz" },
+      { label: "Kullanım", value: "Ahşap & şantiye" },
+      { label: "Satış", value: "kg veya kutu" },
+    ],
+  },
+  {
+    id: "p24",
+    slug: "civata",
+    title: "Civata",
+    description:
+      "Altıgen civata, flanşlı ve metrik civata seçenekleri. Somun uyumlu, çeşitli çap ve boylarda — Tokat / Turhal nalbur reyonu.",
+    category: "nalbur",
+    brand: "Nalbur",
+    unit: "adet / kutu",
+    image: "/products/nalbur-civata.jpg",
+    featured: true,
+    useCases: ["genel"],
+    specs: [
+      { label: "Standart", value: "Metrik" },
+      { label: "Malzeme", value: "Çelik / galvaniz" },
+      { label: "Uyum", value: "Somun & pul" },
+    ],
+  },
+  {
+    id: "p25",
+    slug: "vida",
+    title: "Vida",
+    description:
+      "Ahşap vidası, sunta vidası, sac vidası ve alçıpan vidası. Ölçüye göre kutu satışı — şantiye ve tadilat için stoklu.",
+    category: "nalbur",
+    brand: "Nalbur",
+    unit: "kutu / adet",
+    image: "/products/nalbur-vida.jpg",
+    useCases: ["genel", "ic-mekan"],
+    specs: [
+      { label: "Türler", value: "Ahşap / sunta / sac / alçıpan" },
+      { label: "Baş", value: "Havşa / pan" },
+    ],
+  },
+  {
+    id: "p26",
+    slug: "somun-pul",
+    title: "Somun & Pul",
+    description:
+      "Altıgen somun, flanş somun ve düz / yaylı pul. Civata bağlantılarında eksiksiz set — Turhal nalbur.",
+    category: "nalbur",
+    brand: "Nalbur",
+    unit: "adet / kutu",
+    image: "/products/nalbur-civata.jpg",
+    useCases: ["genel"],
+    specs: [
+      { label: "Türler", value: "Somun + düz/yaylı pul" },
+      { label: "Uyum", value: "Metrik civata" },
+    ],
+  },
+  {
+    id: "p27",
+    slug: "dubel",
+    title: "Dübel",
+    description:
+      "Plastik dübel, çelik dübel ve mantolama dübeli. Duvar, beton ve cephe tespit uygulamaları için.",
+    category: "nalbur",
+    brand: "Nalbur",
+    unit: "adet / kutu",
+    image: "/products/nalbur-vida.jpg",
+    useCases: ["dis-cephe", "genel", "ic-mekan"],
+    specs: [
+      { label: "Türler", value: "Plastik / çelik / mantolama" },
+      { label: "Uygulama", value: "Duvar & beton" },
+    ],
+  },
+  {
+    id: "p28",
+    slug: "mentese-kilit",
+    title: "Menteşe & Kilit Aksesuarı",
+    description:
+      "Kapı menteşesi, pencere aksesuarı ve kilit setleri. Tadilat ve montaj işleri için nalbur reyonunda.",
+    category: "nalbur",
+    brand: "Nalbur",
+    unit: "adet / takım",
+    image: "/products/nalbur-civata.jpg",
+    useCases: ["ic-mekan", "genel"],
+    specs: [
+      { label: "Ürün", value: "Menteşe / kilit aksesuar" },
+      { label: "Alan", value: "Kapı & pencere" },
+    ],
+  },
 ];
 
 export function getProductBySlug(slug: string) {
@@ -471,3 +570,79 @@ export function getCategoryCounts() {
     }),
   );
 }
+
+/** Kategori vitrin görselleri — yapı market premium grid */
+export const CATEGORY_SHOWCASE: {
+  key: ProductCategory;
+  label: string;
+  description: string;
+  image: string;
+}[] = [
+  {
+    key: "cimento",
+    label: "Çimento",
+    description: "Torba çimento ve bağlayıcı malzemeler.",
+    image: "/products/cimento-torbalar.jpg",
+  },
+  {
+    key: "demir",
+    label: "Demir",
+    description: "İnşaat demiri ve çelik ürünleri.",
+    image: "/products/tugla-duvar.jpg",
+  },
+  {
+    key: "cephe",
+    label: "Tuğla & Cephe",
+    description: "Dış cephe ve duvar sistemleri.",
+    image: "/products/dis-cephe-ev.jpg",
+  },
+  {
+    key: "cati",
+    label: "Çatı Sistemleri",
+    description: "Kiremit, membran ve çatı detayları.",
+    image: "/products/kiremit-kirmizi.jpg",
+  },
+  {
+    key: "boya",
+    label: "Boya",
+    description: "İç-dış cephe boya ve astar.",
+    image: "/products/boya-rulo.jpg",
+  },
+  {
+    key: "izolasyon",
+    label: "Yalıtım",
+    description: "EPS, XPS, taş yünü ve mantolama.",
+    image: "/products/eps-levha.jpg",
+  },
+  {
+    key: "boru",
+    label: "Tesisat / PVC",
+    description: "Boru, PVC ve tesisat malzemeleri.",
+    image: "/products/pvc-borular.jpg",
+  },
+  {
+    key: "siva",
+    label: "Sıva & Alçı",
+    description: "Sıva, macun ve iç yüzey ürünleri.",
+    image: "/products/siva-macun.jpg",
+  },
+  {
+    key: "orman",
+    label: "OSB & Levha",
+    description: "OSB, plywood ve orman ürünleri.",
+    image: "/products/osb-panel.jpg",
+  },
+  {
+    key: "ahsap",
+    label: "Kereste",
+    description: "Çam, kavak kereste ve lambri.",
+    image: "/products/kereste-yigin.jpg",
+  },
+  {
+    key: "nalbur",
+    label: "Nalbur",
+    description: "Çivi, civata, vida, dübel ve bağlantı elemanları.",
+    image: "/products/nalbur-civi.jpg",
+  },
+];
+

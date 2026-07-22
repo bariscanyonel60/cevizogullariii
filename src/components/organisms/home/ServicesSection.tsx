@@ -6,12 +6,15 @@ import { services } from "@/data/content";
 
 export function ServicesSection() {
   return (
-    <section className="container-wide py-20 md:py-28">
+    <section
+      id="hizmetler"
+      className="container-wide scroll-mt-28 py-20 md:py-28"
+    >
       <Reveal>
         <SectionHeading
           eyebrow="Hizmetler"
-          title="Uçtan uca kurumsal çözümler"
-          description="Orman ürünlerinden yalıtıma, inşaat malzemelerinden hızlı tedarike kadar yanınızdayız."
+          title="Tokat’ta uçtan uca yapı çözümleri"
+          description="Orman ürünlerinden yalıtıma, boyadan hızlı tedarike kadar Tokat ve Turhal’da yanınızdayız."
         />
       </Reveal>
       <div className="grid gap-4 md:grid-cols-2">

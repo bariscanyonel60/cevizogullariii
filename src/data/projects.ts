@@ -33,7 +33,7 @@ export const projects: Project[] = [
     slug: "dis-cephe-uygulama-turhal",
     title: "Dış Cephe Uygulama",
     description:
-      "Turhal’da dış cephe boya ve mantolama uygulamalarımızdan örnekler. Polisan ve yalıtım ürünleriyle uzun ömürlü cephe çözümleri.",
+      "Turhal’da dış cephe boya ve mantolama uygulamalarımızdan örnekler. Permolit ve yalıtım ürünleriyle uzun ömürlü cephe çözümleri.",
     category: "dis-cephe",
     location: "Turhal, Tokat",
     year: 2026,

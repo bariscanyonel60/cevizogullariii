@@ -8,6 +8,7 @@ export const metadata: Metadata = buildMetadata({
   title: "KVKK Aydınlatma Metni",
   description: `${SITE.name} kişisel verilerin korunması ve işlenmesi hakkında aydınlatma metni.`,
   path: "/kvkk",
+  noIndex: true,
 });
 
 const sections = [

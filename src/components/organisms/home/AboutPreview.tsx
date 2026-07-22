@@ -6,7 +6,7 @@ import { SectionHeading } from "@/components/molecules/SectionHeading";
 
 export function AboutPreview() {
   return (
-    <section id="kurumsal" className="container-wide py-20 md:py-28">
+    <section id="kurumsal" className="container-wide scroll-mt-28 py-20 md:py-28">
       <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
         <Reveal>
           <div className="relative">
@@ -33,7 +33,7 @@ export function AboutPreview() {
         <Reveal delay={0.1}>
           <SectionHeading
             eyebrow="Kurumsal"
-            title="Güvenin ve kalitenin adresi"
+            title="Turhal’dan Tokat’a güvenilir yapı market"
             description="Cevizoğulları olarak orman ürünleri, çatı ve ısı yalıtım malzemeleri ile inşaat sektörünün temel yapı taşlarını tek çatı altında sunuyoruz."
             className="mb-6"
           />

@@ -20,7 +20,7 @@ export function BlogCard({ post, className }: BlogCardProps) {
         <div className="relative aspect-[16/10] overflow-hidden">
           <Image
             src={post.coverImage}
-            alt={post.title}
+            alt={`${post.title} — Cevizoğulları Blog | Tokat yapı ve gayrimenkul`}
             fill
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover transition duration-700 group-hover:scale-105"

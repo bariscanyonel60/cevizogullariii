@@ -8,7 +8,7 @@ type PageHeroProps = {
 
 export function PageHero({ title, description, crumbs }: PageHeroProps) {
   return (
-    <section className="relative overflow-hidden border-b border-earth-400/10 bg-gradient-to-br from-forest-50 via-ivory-50 to-mist-100 pt-28 pb-12 md:pt-32 md:pb-16">
+    <section className="relative overflow-hidden border-b border-earth-400/10 bg-gradient-to-br from-forest-50 via-ivory-50 to-mist-100 pt-32 pb-12 md:pt-36 md:pb-16 lg:pt-32">
       <div className="pointer-events-none absolute -right-20 top-10 size-72 rounded-full bg-gold-400/15 blur-3xl" />
       <div className="container-wide relative">
         <Breadcrumbs items={crumbs} />

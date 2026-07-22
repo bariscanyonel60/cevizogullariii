@@ -62,7 +62,7 @@ export function ProductFilters({
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Ürün veya marka ara (örn. Polisan)..."
+            placeholder="Ürün veya marka ara (örn. Permolit)..."
             aria-label="Ürün ara"
             className="h-11 w-full rounded-full border border-earth-400/20 bg-ivory-50 px-5 text-sm lg:w-80"
           />

@@ -21,7 +21,7 @@ export function SectionHeading({
   return (
     <div
       className={cn(
-        "mb-10 md:mb-14 flex flex-col gap-4",
+        "mb-10 flex flex-col gap-4 md:mb-14",
         align === "center" && "items-center text-center",
         className,
       )}
@@ -38,13 +38,11 @@ export function SectionHeading({
         )}
       >
         <div className={cn(align === "center" && "max-w-2xl")}>
-          <h2 className="font-display text-3xl font-bold tracking-tight text-ink-900 md:text-4xl lg:text-[2.75rem] text-balance">
+          <h2 className="font-display font-bold tracking-tight text-ink-900 text-balance">
             {title}
           </h2>
           {description && (
-            <p className="mt-4 max-w-2xl text-base leading-relaxed text-ink-500 md:text-lg">
-              {description}
-            </p>
+            <p className="mt-4 max-w-2xl text-lead text-ink-500">{description}</p>
           )}
         </div>
         {action}

@@ -1,6 +1,6 @@
 # Cevizoğulları Yapı & Gayrimenkul
 
-Premium kurumsal web sitesi — Next.js App Router, TypeScript, Tailwind CSS, Framer Motion, GSAP, Lenis.
+Premium kurumsal web sitesi — Next.js App Router, TypeScript, Tailwind CSS, Framer Motion, Lenis.
 
 ## Geliştirme
 

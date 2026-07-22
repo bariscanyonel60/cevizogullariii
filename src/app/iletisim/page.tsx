@@ -1,26 +1,66 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Clock, Mail, MapPin, Phone } from "lucide-react";
+import { Building2, Clock, Mail, MapPin, Phone, Trees } from "lucide-react";
 import { PageHero } from "@/components/organisms/shared/PageHero";
 import { ContactForm } from "@/components/organisms/shared/ContactForm";
 import { InstagramCta } from "@/components/organisms/shared/InstagramCta";
 import { Button } from "@/components/atoms/Button";
+import { JsonLd } from "@/components/atoms/JsonLd";
 import { WhatsAppIcon } from "@/components/atoms/SocialIcons";
 import { SITE, whatsappUrl } from "@/lib/constants";
-import { buildMetadata } from "@/lib/seo";
+import {
+  breadcrumbJsonLd,
+  buildMetadata,
+  contactPageJsonLd,
+} from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "İletişim",
-  description: `${SITE.shortName} iletişim: ${SITE.address}, ${SITE.phone}, WhatsApp ve Instagram.`,
+  title: "İletişim · Turhal Tokat Yapı Market",
+  description: `${SITE.shortName} iletişim: ${SITE.address}. Telefon ${SITE.phone}, WhatsApp ve harita — Turhal / Tokat.`,
   path: "/iletisim",
+  keywords: [
+    "Turhal yapı market iletişim",
+    "Tokat Cevizoğulları telefon",
+    "Turhal adres",
+  ],
 });
+
+const departments = [
+  {
+    title: "Yapı Market",
+    text: "Boya, yalıtım, çimento ve şantiye malzemeleri",
+    href: "/yapi-malzemeleri",
+    icon: Building2,
+  },
+  {
+    title: "Kereste",
+    text: "OSB, plywood, kereste ve orman ürünleri",
+    href: "/kereste",
+    icon: Trees,
+  },
+  {
+    title: "Gayrimenkul",
+    text: "Satılık-kiralık ilan ve danışmanlık",
+    href: "/gayrimenkul",
+    icon: MapPin,
+  },
+] as const;
 
 export default function ContactPage() {
   return (
     <>
+      <JsonLd
+        data={[
+          contactPageJsonLd(),
+          breadcrumbJsonLd([
+            { name: "Ana Sayfa", path: "/" },
+            { name: "İletişim", path: "/iletisim" },
+          ]),
+        ]}
+      />
       <PageHero
         title="İletişim"
-        description="Turhal’daki yapı marketimize uğrayın veya WhatsApp’tan yazın."
+        description="Turhal’daki yapı marketimize uğrayın veya WhatsApp’tan yazın — Tokat ve çevre illere hizmet."
         crumbs={[
           { label: "Ana Sayfa", href: "/" },
           { label: "İletişim" },
@@ -70,16 +110,36 @@ export default function ContactPage() {
                 </Link>
               </Button>
               <Button asChild variant="secondary">
-                <Link
-                  href={SITE.social.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {SITE.social.instagramHandle}
-                </Link>
+                <Link href="/teklif-al">Teklif Al</Link>
               </Button>
             </div>
           </div>
+
+          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+            {departments.map((dept) => {
+              const Icon = dept.icon;
+              return (
+                <Link
+                  key={dept.title}
+                  href={dept.href}
+                  className="flex items-start gap-3 rounded-2xl border border-earth-400/10 bg-white p-4 shadow-sm transition hover:shadow-premium"
+                >
+                  <span className="grid size-10 place-items-center rounded-xl bg-forest-800 text-gold-300">
+                    <Icon className="size-4" />
+                  </span>
+                  <span>
+                    <span className="block font-display font-semibold text-ink-900">
+                      {dept.title}
+                    </span>
+                    <span className="mt-1 block text-xs text-ink-500">
+                      {dept.text}
+                    </span>
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+
           <div className="overflow-hidden rounded-3xl border border-earth-400/10 shadow-premium">
             <iframe
               title="İletişim haritası"

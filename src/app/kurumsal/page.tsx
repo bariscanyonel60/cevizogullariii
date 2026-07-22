@@ -7,9 +7,14 @@ import { buildMetadata } from "@/lib/seo";
 import { SITE } from "@/lib/constants";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Hakkımızda",
-  description: `${SITE.name} hakkında: Turhal / Tokat’ta orman ürünleri, yalıtım ve inşaat malzemeleri tedariki.`,
+  title: "Hakkımızda · Turhal Tokat Cevizoğulları",
+  description: `${SITE.name}: Turhal / Tokat’ta orman ürünleri, yalıtım, boya ve inşaat malzemeleri tedariki. Yerel güvenilir yapı market.`,
   path: "/kurumsal",
+  keywords: [
+    "Cevizoğulları hakkında",
+    "Turhal yapı market",
+    "Tokat inşaat firması",
+  ],
 });
 
 export default function CorporatePage() {
@@ -30,7 +35,7 @@ export default function CorporatePage() {
             <div className="relative aspect-[5/4] overflow-hidden rounded-[2rem] shadow-premium">
               <Image
                 src="/projects/modern-konut-bahce.jpg"
-                alt="Cevizoğulları yapı market"
+                alt="Cevizoğulları Turhal Tokat yapı market ve proje alanı"
                 fill
                 className="object-cover"
                 sizes="50vw"

@@ -1,33 +1,68 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FileText, PaintBucket, Shield, Home } from "lucide-react";
+import Image from "next/image";
 import { PageHero } from "@/components/organisms/shared/PageHero";
 import { ProductFilters } from "@/components/organisms/shared/ProductFilters";
 import { Button } from "@/components/atoms/Button";
 import { Reveal } from "@/components/molecules/Reveal";
 import {
   BRANDS,
+  CATEGORY_SHOWCASE,
   EXTERIOR_PACKAGE,
-  getCategoryCounts,
   products,
 } from "@/data/products";
-import { buildMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/atoms/JsonLd";
+import {
+  breadcrumbJsonLd,
+  buildMetadata,
+  itemListJsonLd,
+  webPageJsonLd,
+} from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Ürünler · Yapı Malzemeleri",
+  title: "Tokat Yapı Malzemeleri · Turhal Yapı Market Ürünleri",
   description:
-    "Polisan dış cephe boyası, mantolama, yalıtım, çatı ve evin dışı için gereken tüm yapı malzemeleri. Turhal / Tokat.",
+    "Permolit dış cephe boyası, mantolama, yalıtım, çatı, OSB ve yapı malzemeleri. Turhal / Tokat stoklu tedarik — Cevizoğulları Yapı Market.",
   path: "/yapi-malzemeleri",
+  keywords: [
+    "Tokat yapı malzemeleri",
+    "Turhal yapı market",
+    "Tokat mantolama",
+    "Turhal boya",
+    "Tokat OSB",
+    "Tokat yalıtım",
+  ],
 });
 
 export default function ProductsPage() {
-  const categories = getCategoryCounts().filter((c) => c.count > 0);
-
   return (
     <>
+      <JsonLd
+        data={[
+          webPageJsonLd({
+            path: "/yapi-malzemeleri",
+            name: "Tokat Yapı Malzemeleri · Turhal Yapı Market",
+            description:
+              "Permolit boya, mantolama, yalıtım, çatı ve yapı malzemeleri — Turhal / Tokat.",
+          }),
+          breadcrumbJsonLd([
+            { name: "Ana Sayfa", path: "/" },
+            { name: "Yapı Market", path: "/yapi-malzemeleri" },
+          ]),
+          itemListJsonLd({
+            path: "/yapi-malzemeleri",
+            name: "Yapı malzemesi kategorileri",
+            items: CATEGORY_SHOWCASE.map((c) => ({
+              name: c.label,
+              path: "/yapi-malzemeleri",
+            })),
+          }),
+        ]}
+      />
       <PageHero
         title="Yapı Malzemeleri & Ürünler"
-        description="Evinizin dışı için boyadan mantolamaya, çatıdan sıvaya kadar her şey. Polisan ve diğer büyük markalar stoklarımızda."
+        description="Evinizin dışı için boyadan mantolamaya, çatıdan sıvaya kadar her şey. Permolit ve diğer büyük markalar — Tokat / Turhal stok."
         crumbs={[
           { label: "Ana Sayfa", href: "/" },
           { label: "Yapı Market" },
@@ -49,7 +84,7 @@ export default function ProductsPage() {
                   Duvar boyasından mantolamaya — dış cephe paketiniz hazır
                 </h2>
                 <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/70 md:text-base">
-                  Astar, Polisan dış cephe boyası, EPS/XPS, file, sıva, membran ve
+                  Astar, Permolit dış cephe boyası, EPS/XPS, file, sıva, membran ve
                   oluk… Tadilat veya yeni yapıda ihtiyacınız olan malzemeleri tek
                   noktadan temin edin.
                 </p>
@@ -105,7 +140,7 @@ export default function ProductsPage() {
             {BRANDS.map((brand) => (
               <a
                 key={brand.name}
-                href={`#urunler`}
+                href="#urunler"
                 className="flex items-start gap-3 rounded-2xl border border-earth-400/10 bg-white p-5 shadow-sm transition hover:border-forest-700/20 hover:shadow-premium"
               >
                 <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-forest-800 font-display text-sm font-bold text-gold-300">
@@ -125,26 +160,41 @@ export default function ProductsPage() {
         </Reveal>
       </section>
 
-      {/* Kategori özeti */}
+      {/* Premium kategori grid */}
       <section className="container-wide py-10">
         <Reveal>
-          <div className="mb-6 flex items-center gap-2">
+          <div className="mb-8 flex items-center gap-2">
             <Shield className="size-5 text-forest-700" aria-hidden />
-            <h2 className="font-display text-xl font-bold text-ink-900">
+            <h2 className="font-display text-2xl font-bold text-ink-900">
               Kategoriler
             </h2>
           </div>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-            {categories.map((cat) => (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {CATEGORY_SHOWCASE.map((cat) => (
               <a
                 key={cat.key}
-                href="#urunler"
-                className="rounded-2xl bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-premium"
+                href={`#urunler`}
+                className="group relative overflow-hidden rounded-3xl bg-white shadow-premium transition hover:-translate-y-1 hover:shadow-premium-hover"
               >
-                <p className="font-display text-sm font-semibold text-forest-800">
-                  {cat.label}
-                </p>
-                <p className="mt-1 text-xs text-ink-400">{cat.count} ürün</p>
+                <div className="relative aspect-[4/3] overflow-hidden">
+                  <Image
+                    src={cat.image}
+                    alt={`${cat.label} kategorisi — Tokat Turhal yapı malzemeleri`}
+                    fill
+                    className="object-cover transition duration-700 group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, 25vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-ink-950/75 via-ink-950/20 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 p-4">
+                    <p className="font-display text-lg font-semibold text-white">
+                      {cat.label}
+                    </p>
+                    <p className="mt-1 text-xs text-white/75">{cat.description}</p>
+                    <span className="mt-3 inline-block text-xs font-semibold uppercase tracking-wider text-gold-300">
+                      Ürünleri gör →
+                    </span>
+                  </div>
+                </div>
               </a>
             ))}
           </div>
@@ -163,7 +213,7 @@ export default function ProductsPage() {
                 Katalog & toplu teklif
               </h2>
               <p className="mt-1 text-sm text-white/65">
-                Polisan boya, mantolama seti veya şantiye listesi için hemen
+                Permolit boya, mantolama seti veya şantiye listesi için hemen
                 teklif alın.
               </p>
             </div>
@@ -180,7 +230,7 @@ export default function ProductsPage() {
       </section>
 
       {/* Ürün listesi */}
-      <section className="container-wide pb-16 md:pb-24">
+      <section id="urunler" className="container-wide scroll-mt-28 pb-16 md:pb-24">
         <ProductFilters items={products} />
       </section>
     </>

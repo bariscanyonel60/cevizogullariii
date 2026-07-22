@@ -3,7 +3,7 @@ import { Cinzel, Montserrat } from "next/font/google";
 import { Footer } from "@/components/organisms/layout/Footer";
 import { Navbar } from "@/components/organisms/layout/Navbar";
 import { SmoothScrollProvider } from "@/components/organisms/shared/SmoothScrollProvider";
-import { WhatsAppFloat } from "@/components/organisms/shared/WhatsAppFloat";
+import { FloatingActions } from "@/components/organisms/shared/FloatingActions";
 import { SITE } from "@/lib/constants";
 import { buildMetadata, organizationJsonLd } from "@/lib/seo";
 import "./globals.css";
@@ -26,6 +26,7 @@ export const metadata: Metadata = {
     title: SITE.name,
     description: SITE.description,
     path: "/",
+    keywords: [...SITE.seoKeywords],
   }),
   icons: {
     icon: "/favicon.png",
@@ -54,7 +55,7 @@ export default function RootLayout({
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />
-          <WhatsAppFloat />
+          <FloatingActions />
         </SmoothScrollProvider>
       </body>
     </html>
