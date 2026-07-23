@@ -22,15 +22,39 @@ function getShowTopServerSnapshot() {
   return false;
 }
 
+function subscribeMobileNav(onStoreChange: () => void) {
+  const observer = new MutationObserver(onStoreChange);
+  observer.observe(document.body, {
+    attributes: true,
+    attributeFilter: ["data-mobile-nav"],
+  });
+  return () => observer.disconnect();
+}
+
+function getMobileNavOpenSnapshot() {
+  return document.body.dataset.mobileNav === "open";
+}
+
+function getMobileNavOpenServerSnapshot() {
+  return false;
+}
+
 export function FloatingActions() {
   const showTop = useSyncExternalStore(
     subscribeScroll,
     getShowTopSnapshot,
     getShowTopServerSnapshot,
   );
+  const menuOpen = useSyncExternalStore(
+    subscribeMobileNav,
+    getMobileNavOpenSnapshot,
+    getMobileNavOpenServerSnapshot,
+  );
+
+  if (menuOpen) return null;
 
   return (
-    <div className="fixed bottom-5 right-5 z-[70] flex flex-col items-end gap-2.5 md:bottom-8 md:right-8">
+    <div className="fixed bottom-5 right-5 z-70 flex flex-col items-end gap-2.5 md:bottom-8 md:right-8">
       <button
         type="button"
         aria-label="Yukarı çık"

@@ -1,9 +1,8 @@
 import type { MetadataRoute } from "next";
 import { blogPosts } from "@/data/blog";
-import { KERESTE_PAGES } from "@/data/kereste";
+import { ORMAN_URUNLERI_PAGES } from "@/data/orman-urunleri";
 import { products } from "@/data/products";
 import { projects } from "@/data/projects";
-import { properties } from "@/data/properties";
 import { SITE } from "@/lib/constants";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -15,8 +14,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "", priority: 1, changeFrequency: "weekly" },
     { path: "/yapi-malzemeleri", priority: 0.95, changeFrequency: "weekly" },
     { path: "/tokat", priority: 0.95, changeFrequency: "weekly" },
-    { path: "/kereste", priority: 0.9, changeFrequency: "weekly" },
-    { path: "/gayrimenkul", priority: 0.9, changeFrequency: "weekly" },
+    { path: "/orman-urunleri", priority: 0.9, changeFrequency: "weekly" },
+    { path: "/yapi-insaat", priority: 0.9, changeFrequency: "weekly" },
     { path: "/projelerimiz", priority: 0.8, changeFrequency: "weekly" },
     { path: "/kurumsal", priority: 0.7, changeFrequency: "monthly" },
     { path: "/blog", priority: 0.75, changeFrequency: "weekly" },
@@ -32,7 +31,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: route.priority,
   }));
 
-  const keresteRoutes = KERESTE_PAGES.filter((p) => p.slug !== "index").map(
+  const ormanRoutes = ORMAN_URUNLERI_PAGES.filter((p) => p.slug !== "index").map(
     (page) => ({
       url: `${SITE.url}${page.href}`,
       lastModified: new Date(),
@@ -44,12 +43,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const dynamicRoutes = [
     ...products.map((p) => ({
       url: `${SITE.url}/yapi-malzemeleri/${p.slug}`,
-      lastModified: new Date(),
-      changeFrequency: "weekly" as const,
-      priority: 0.72,
-    })),
-    ...properties.map((p) => ({
-      url: `${SITE.url}/gayrimenkul/${p.slug}`,
       lastModified: new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.72,
@@ -68,5 +61,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })),
   ];
 
-  return [...staticEntries, ...keresteRoutes, ...dynamicRoutes];
+  return [...staticEntries, ...ormanRoutes, ...dynamicRoutes];
 }

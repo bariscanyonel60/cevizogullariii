@@ -6,7 +6,7 @@ import { SITE, whatsappUrl } from "@/lib/constants";
 export function TopBar() {
   return (
     <div className="relative z-[60] hidden border-b border-white/10 bg-ink-950 text-white lg:block">
-      <div className="container-wide flex h-10 items-center justify-between gap-4 text-xs">
+      <div className="container-wide flex h-11 items-center justify-between gap-4 text-sm">
         <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-white/70">
           <a
             href={SITE.phoneHref}

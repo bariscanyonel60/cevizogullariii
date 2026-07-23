@@ -30,7 +30,7 @@ export function HomeLocalSeoSection() {
           <SectionHeading
             eyebrow="Hizmet Bölgesi · GEO"
             title="Tokat yapı malzemeleri ve güvenli inşaat desteği"
-            description="Turhal merkezli Cevizoğulları; Tokat ilçeleri ve yakın illerde yapı malzemesi, kereste ve gayrimenkul desteği sunar."
+            description="Turhal merkezli Cevizoğulları; Tokat ilçeleri ve yakın illerde yapı malzemesi, orman ürünleri ve yapı-inşaat desteği sunar."
           />
         </Reveal>
 
@@ -71,7 +71,7 @@ export function HomeLocalSeoSection() {
               <strong className="font-semibold text-ink-800">
                 Turhal yapı market
               </strong>{" "}
-              ve kereste / gayrimenkul arayanlar için Cevizoğulları; boya,
+              ve orman ürünleri / yapı-inşaat arayanlar için Cevizoğulları; boya,
               mantolama, yalıtım, çatı, OSB ve çimento gibi temel ürünleri tek
               çatı altında toplar.
             </p>

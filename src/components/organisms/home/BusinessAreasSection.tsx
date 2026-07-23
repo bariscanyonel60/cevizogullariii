@@ -89,7 +89,7 @@ export function BusinessAreasSection() {
         <SectionHeading
           eyebrow="Üç Güçlü Alan"
           title="Tek marka, üç uzmanlık"
-          description="Yapı malzemeleri, kereste ve gayrimenkul — ihtiyacınıza göre doğru kapıdan girin."
+          description="Yapı malzemeleri, orman ürünleri ve yapı-inşaat — ihtiyacınıza göre doğru kapıdan girin."
           action={
             <Button asChild variant="secondary">
               <Link href="/teklif-al">Teklif Al</Link>

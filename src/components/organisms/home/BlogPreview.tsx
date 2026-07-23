@@ -12,7 +12,7 @@ export function BlogPreview() {
         <SectionHeading
           eyebrow="Blog"
           title="Sektörden içgörüler"
-          description="Gayrimenkul ve yapı dünyasından güncel içerikler."
+          description="Yapı ve inşaat dünyasından güncel içerikler."
           action={
             <Button asChild variant="secondary">
               <Link href="/blog">Tüm Yazılar</Link>

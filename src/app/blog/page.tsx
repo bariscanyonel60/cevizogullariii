@@ -6,9 +6,9 @@ import { blogPosts } from "@/data/blog";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Blog · Tokat Yapı & Gayrimenkul Rehberi",
+  title: "Blog · Tokat Yapı & İnşaat Rehberi",
   description:
-    "Tokat ve Turhal’da yapı malzemeleri, mantolama, kereste ve gayrimenkul üzerine SEO uyumlu rehber içerikler — Cevizoğulları Blog.",
+    "Tokat ve Turhal’da yapı malzemeleri, mantolama, orman ürünleri ve yapı-inşaat üzerine SEO uyumlu rehber içerikler — Cevizoğulları Blog.",
   path: "/blog",
   keywords: [
     "Tokat yapı blog",

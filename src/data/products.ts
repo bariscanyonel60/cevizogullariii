@@ -634,7 +634,7 @@ export const CATEGORY_SHOWCASE: {
   },
   {
     key: "ahsap",
-    label: "Kereste",
+    label: "Orman Ürünleri",
     description: "Çam, kavak kereste ve lambri.",
     image: "/products/kereste-yigin.jpg",
   },

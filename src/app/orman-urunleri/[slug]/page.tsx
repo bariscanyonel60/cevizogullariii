@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { KeresteContent } from "@/components/organisms/kereste/KeresteContent";
+import { OrmanUrunleriContent } from "@/components/organisms/orman-urunleri/OrmanUrunleriContent";
 import { JsonLd } from "@/components/atoms/JsonLd";
-import { KERESTE_PAGES, getKerestePage } from "@/data/kereste";
+import { ORMAN_URUNLERI_PAGES, getOrmanUrunleriPage } from "@/data/orman-urunleri";
 import {
   breadcrumbJsonLd,
   buildMetadata,
@@ -14,7 +14,7 @@ type PageProps = {
 };
 
 const ALLOWED = new Set(
-  KERESTE_PAGES.filter((page) => page.slug !== "index").map((page) => page.slug),
+  ORMAN_URUNLERI_PAGES.filter((page) => page.slug !== "index").map((page) => page.slug),
 );
 
 export function generateStaticParams() {
@@ -25,12 +25,12 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const page = getKerestePage(slug);
+  const page = getOrmanUrunleriPage(slug);
   if (!page || page.slug === "index") {
     return buildMetadata({
-      title: "Kereste",
-      description: "Kereste ve orman ürünleri",
-      path: "/kereste",
+      title: "Orman Ürünleri",
+      description: "Orman ürünleri",
+      path: "/orman-urunleri",
       noIndex: true,
     });
   }
@@ -42,9 +42,9 @@ export async function generateMetadata({
   });
 }
 
-export default async function KeresteSlugPage({ params }: PageProps) {
+export default async function OrmanUrunleriSlugPage({ params }: PageProps) {
   const { slug } = await params;
-  const page = getKerestePage(slug);
+  const page = getOrmanUrunleriPage(slug);
   if (!page || page.slug === "index" || !ALLOWED.has(slug)) notFound();
 
   return (
@@ -58,12 +58,12 @@ export default async function KeresteSlugPage({ params }: PageProps) {
           }),
           breadcrumbJsonLd([
             { name: "Ana Sayfa", path: "/" },
-            { name: "Kereste", path: "/kereste" },
+            { name: "Orman Ürünleri", path: "/orman-urunleri" },
             { name: page.navLabel, path: page.href },
           ]),
         ]}
       />
-      <KeresteContent page={page} />
+      <OrmanUrunleriContent page={page} />
     </>
   );
 }

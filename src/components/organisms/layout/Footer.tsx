@@ -7,9 +7,9 @@ import { BUSINESS_AREAS, SITE } from "@/lib/constants";
 
 const corporateLinks = [
   { href: "/kurumsal", label: "Hakkımızda" },
+  { href: "/tokat", label: "Tokat" },
   { href: "/blog", label: "Blog" },
   { href: "/projelerimiz", label: "Projeler" },
-  { href: "/tokat", label: "Tokat" },
   { href: "/kvkk", label: "KVKK" },
   { href: "/#sss", label: "SSS" },
 ];
@@ -19,7 +19,7 @@ const quickLinks = [
   { href: "/teklif-al", label: "Teklif Al" },
   { href: "/iletisim", label: "İletişim" },
   { href: "/yapi-malzemeleri", label: "Ürünler" },
-  { href: "/gayrimenkul", label: "İlanlar" },
+  { href: "/yapi-insaat", label: "Yapı - İnşaat" },
 ];
 
 export function Footer() {

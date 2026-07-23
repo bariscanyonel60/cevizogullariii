@@ -52,6 +52,36 @@ const nextConfig: NextConfig = {
         destination: "/yapi-malzemeleri/permolit-ic-cephe-boyasi",
         permanent: true,
       },
+      {
+        source: "/kereste",
+        destination: "/orman-urunleri",
+        permanent: true,
+      },
+      {
+        source: "/kereste/:path*",
+        destination: "/orman-urunleri/:path*",
+        permanent: true,
+      },
+      {
+        source: "/gayrimenkul",
+        destination: "/yapi-insaat",
+        permanent: true,
+      },
+      {
+        source: "/gayrimenkul/:path*",
+        destination: "/yapi-insaat",
+        permanent: true,
+      },
+      {
+        source: "/yapi-insaat/:slug",
+        destination: "/yapi-insaat",
+        permanent: true,
+      },
+      {
+        source: "/orman-urunleri/orman-urunleri",
+        destination: "/orman-urunleri/turler",
+        permanent: true,
+      },
     ];
   },
 };

@@ -18,13 +18,13 @@ Yüksek enerji sınıfına sahip konutlar hem işletme maliyetlerini düşürüy
 
 ## Bölgesel Lokasyon: Tokat İlçeleri
 
-Erbaa, Niksar, Zile ve Pazar gibi ilçelerde imar ve talep dengesi yatırımı belirler. Cevizoğulları Gayrimenkul, yerel portföyü Tokat odaklı sunar.
+Erbaa, Niksar, Zile ve Pazar gibi ilçelerde imar ve talep dengesi yatırımı belirler. Cevizoğulları Yapı - İnşaat, yerel portföyü Tokat odaklı sunar.
 
 ## Sonuç
 
 Doğru lokasyon, şeffaf süreç ve uzman danışmanlık ile Tokat gayrimenkul yatırımı uzun vadede güvenli bir değer koruma aracı olmaya devam ediyor.
     `.trim(),
-    category: "Gayrimenkul",
+    category: "Yapı - İnşaat",
     tags: ["yatırım", "trend", "2026", "Tokat", "Turhal"],
     coverImage:
       "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1600&q=80",

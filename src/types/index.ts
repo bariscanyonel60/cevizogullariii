@@ -1,26 +1,3 @@
-export type PropertyStatus = "satilik" | "kiralik" | "rezerve";
-export type PropertyCategory = "konut" | "villa" | "arsa" | "isyeri" | "ofis";
-
-export interface Property {
-  id: string;
-  slug: string;
-  title: string;
-  description: string;
-  price: number;
-  city: string;
-  district: string;
-  category: PropertyCategory;
-  status: PropertyStatus;
-  area: number;
-  rooms: string;
-  bathrooms: number;
-  features: string[];
-  images: string[];
-  featured?: boolean;
-  lat?: number;
-  lng?: number;
-}
-
 /** Ürün kategori kodları — dış cephe ve genel yapı market. */
 export type ProductCategory =
   | "boya"

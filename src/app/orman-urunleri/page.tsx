@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { KeresteContent } from "@/components/organisms/kereste/KeresteContent";
+import { OrmanUrunleriContent } from "@/components/organisms/orman-urunleri/OrmanUrunleriContent";
 import { JsonLd } from "@/components/atoms/JsonLd";
-import { KERESTE_PAGES, getKerestePage } from "@/data/kereste";
+import { ORMAN_URUNLERI_PAGES, getOrmanUrunleriPage } from "@/data/orman-urunleri";
 import {
   breadcrumbJsonLd,
   buildMetadata,
@@ -9,7 +9,7 @@ import {
   webPageJsonLd,
 } from "@/lib/seo";
 
-const page = getKerestePage("index")!;
+const page = getOrmanUrunleriPage("index")!;
 
 export const metadata: Metadata = buildMetadata({
   title: page.metaTitle,
@@ -18,31 +18,31 @@ export const metadata: Metadata = buildMetadata({
   keywords: page.keywords,
 });
 
-export default function KeresteIndexPage() {
+export default function OrmanUrunleriIndexPage() {
   return (
     <>
       <JsonLd
         data={[
           webPageJsonLd({
-            path: "/kereste",
+            path: "/orman-urunleri",
             name: page.metaTitle,
             description: page.metaDescription,
           }),
           breadcrumbJsonLd([
             { name: "Ana Sayfa", path: "/" },
-            { name: "Kereste", path: "/kereste" },
+            { name: "Orman Ürünleri", path: "/orman-urunleri" },
           ]),
           itemListJsonLd({
-            path: "/kereste",
-            name: "Kereste & Orman Ürünleri",
-            items: KERESTE_PAGES.filter((p) => p.slug !== "index").map((p) => ({
+            path: "/orman-urunleri",
+            name: "Orman Ürünleri",
+            items: ORMAN_URUNLERI_PAGES.filter((p) => p.slug !== "index").map((p) => ({
               name: p.navLabel,
               path: p.href,
             })),
           }),
         ]}
       />
-      <KeresteContent page={page} />
+      <OrmanUrunleriContent page={page} />
     </>
   );
 }

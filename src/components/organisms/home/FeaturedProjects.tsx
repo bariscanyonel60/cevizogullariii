@@ -10,12 +10,12 @@ export function FeaturedProjects() {
 
   return (
     <section
-      id="gayrimenkul"
+      id="yapi-insaat"
       className="container-wide scroll-mt-28 py-20 md:py-28"
     >
       <Reveal>
         <SectionHeading
-          eyebrow="Gayrimenkul"
+          eyebrow="Yapı - İnşaat"
           title="İmzamızı taşıyan işler"
           description="Modern konut, dış cephe, şantiye ve tadilat uygulamalarından seçilmiş örnekler."
           action={

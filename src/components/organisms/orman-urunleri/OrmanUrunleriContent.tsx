@@ -5,8 +5,8 @@ import { Button } from "@/components/atoms/Button";
 import { ProductCard } from "@/components/molecules/ProductCard";
 import { Reveal } from "@/components/molecules/Reveal";
 import { PageHero } from "@/components/organisms/shared/PageHero";
-import type { KerestePage } from "@/data/kereste";
-import { KERESTE_PAGES } from "@/data/kereste";
+import type { OrmanUrunleriPage } from "@/data/orman-urunleri";
+import { ORMAN_URUNLERI_PAGES } from "@/data/orman-urunleri";
 import { getProductBySlug, products } from "@/data/products";
 
 const applications = [
@@ -17,7 +17,7 @@ const applications = [
 ];
 
 const advantages = [
-  "Stoklu kereste ve levha",
+  "Stoklu orman ürünleri ve levha",
   "Doğru tür / kalınlık danışmanlığı",
   "Şantiye temposuna uygun tedarik",
   "Tokat / Turhal hızlı sevkiyat",
@@ -25,16 +25,16 @@ const advantages = [
 
 const deliverySteps = [
   { step: "01", title: "İhtiyaç", text: "Ölçü, adet ve kullanım alanını iletin." },
-  { step: "02", title: "Öneri", text: "Kereste, OSB veya plywood yönlendirmesi." },
-  { step: "03", title: "Teklif", text: "Net fiyat ve stok bilgisi." },
+  { step: "02", title: "Öneri", text: "OSB, plywood veya kereste yönlendirmesi." },
+  { step: "03", title: "Teklif", text: "Stok bilgisi ve teklif." },
   { step: "04", title: "Teslimat", text: "Depodan çıkış veya sevkiyat planı." },
 ];
 
-type KeresteContentProps = {
-  page: KerestePage;
+type OrmanUrunleriContentProps = {
+  page: OrmanUrunleriPage;
 };
 
-export function KeresteContent({ page }: KeresteContentProps) {
+export function OrmanUrunleriContent({ page }: OrmanUrunleriContentProps) {
   const related = page.relatedSlugs
     .map((slug) => getProductBySlug(slug))
     .filter(Boolean);
@@ -47,7 +47,7 @@ export function KeresteContent({ page }: KeresteContentProps) {
     : [];
 
   const showcase = [...related, ...categoryProducts].slice(0, 3);
-  const subLinks = KERESTE_PAGES.filter((item) => item.slug !== "index");
+  const subLinks = ORMAN_URUNLERI_PAGES.filter((item) => item.slug !== "index");
   const gallery = [
     page.image,
     "/products/osb-panel.jpg",
@@ -62,7 +62,7 @@ export function KeresteContent({ page }: KeresteContentProps) {
         description={page.description}
         crumbs={[
           { label: "Ana Sayfa", href: "/" },
-          { label: "Kereste", href: "/kereste" },
+          { label: "Orman Ürünleri", href: "/orman-urunleri" },
           ...(page.slug === "index" ? [] : [{ label: page.navLabel }]),
         ]}
       />
@@ -148,7 +148,7 @@ export function KeresteContent({ page }: KeresteContentProps) {
               Ahşap Galeri
             </p>
             <h2 className="mt-3 font-display text-3xl font-bold">
-              Kereste & levha stokundan kareler
+              Orman ürünleri & levha stokundan kareler
             </h2>
           </Reveal>
           <div className="mt-10 columns-1 gap-4 sm:columns-2 lg:columns-4">
@@ -238,7 +238,7 @@ export function KeresteContent({ page }: KeresteContentProps) {
                 İlgili ürünler
               </h2>
               <p className="mt-2 text-sm text-ink-500">
-                Stoktan seçilmiş kereste ve orman ürünleri.
+                Stoktan seçilmiş orman ürünleri.
               </p>
             </Reveal>
             <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -257,7 +257,7 @@ export function KeresteContent({ page }: KeresteContentProps) {
           <div className="mt-16 flex flex-col items-start justify-between gap-6 rounded-[2rem] bg-forest-800 px-6 py-10 text-white md:flex-row md:items-center md:px-10">
             <div>
               <h2 className="font-display text-2xl font-bold">
-                Kereste teklifi alın
+                Orman ürünleri teklifi alın
               </h2>
               <p className="mt-2 max-w-xl text-sm text-white/70">
                 Ölçü ve adet bilginizle WhatsApp veya form üzerinden hızlı dönüş.

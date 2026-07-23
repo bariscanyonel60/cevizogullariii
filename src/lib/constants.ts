@@ -3,7 +3,7 @@ export const SITE = {
   shortName: "Cevizoğulları",
   tagline: "Tokat & Turhal’da yapı malzemeleri ve inşaat tedariki",
   description:
-    "Tokat / Turhal’da yapı market, mantolama, boya, yalıtım, kereste, OSB ve gayrimenkul. Deprem koşullarına uygun ürün seçimi, hızlı tedarik — Zile, Erbaa, Niksar, Pazar ve yakın illere hizmet.",
+    "Tokat / Turhal’da yapı market, mantolama, boya, yalıtım, orman ürünleri, OSB ve yapı-inşaat. Deprem koşullarına uygun ürün seçimi, hızlı tedarik — Zile, Erbaa, Niksar, Pazar ve yakın illere hizmet.",
   url: "https://cevizogullari.com",
   locale: "tr_TR",
   phone: "+90 535 573 01 15",
@@ -33,10 +33,10 @@ export const SITE = {
     "Tokat mantolama",
     "Turhal boya",
     "Tokat yalıtım",
-    "Tokat kereste",
+    "Tokat orman ürünleri",
     "Tokat OSB",
-    "Tokat gayrimenkul",
-    "Turhal satılık",
+    "Tokat yapı inşaat",
+    "Turhal inşaat",
     "Erbaa yapı malzemeleri",
     "Niksar mantolama",
     "Zile inşaat malzemesi",
@@ -66,7 +66,7 @@ export const HOME_FAQS = [
   {
     question: "Teklif nasıl alabilirim?",
     answer:
-      "Teklif Al formundan veya WhatsApp hattımızdan ihtiyacınızı iletebilirsiniz. Ürün listesi ve miktara göre hızlı fiyat dönüşü yapılır.",
+      "Teklif Al formundan veya WhatsApp hattımızdan ihtiyacınızı iletebilirsiniz. Ürün listesi ve miktara göre hızlı dönüş yapılır.",
   },
 ] as const;
 
@@ -88,24 +88,24 @@ export const NAV_LINKS: readonly NavItem[] = [
     label: "Kurumsal",
     children: [
       { href: "/kurumsal", label: "Hakkımızda" },
+      { href: "/tokat", label: "Tokat" },
       { href: "/blog", label: "Blog" },
       { href: "/kvkk", label: "KVKK" },
     ],
   },
   { href: "/yapi-malzemeleri", label: "Yapı Market" },
   {
-    href: "/kereste",
-    label: "Kereste",
+    href: "/orman-urunleri",
+    label: "Orman Ürünleri",
     children: [
-      { href: "/kereste/kerestecilik", label: "Kerestecilik" },
-      { href: "/kereste/plywood", label: "Plywood" },
-      { href: "/kereste/osb", label: "OSB" },
-      { href: "/kereste/orman-urunleri", label: "Orman Ürünleri Türleri" },
+      { href: "/orman-urunleri/kerestecilik", label: "Kerestecilik" },
+      { href: "/orman-urunleri/plywood", label: "Plywood" },
+      { href: "/orman-urunleri/osb", label: "OSB" },
+      { href: "/orman-urunleri/turler", label: "Türler" },
     ],
   },
-  { href: "/gayrimenkul", label: "Gayrimenkul" },
+  { href: "/yapi-insaat", label: "Yapı - İnşaat" },
   { href: "/projelerimiz", label: "Projeler" },
-  { href: "/tokat", label: "Tokat" },
   { href: "/iletisim", label: "İletişim" },
 ];
 
@@ -119,19 +119,19 @@ export const BUSINESS_AREAS = [
     image: "/products/boya-rulo.jpg",
   },
   {
-    href: "/kereste",
-    label: "Kereste",
-    title: "Kereste & Orman Ürünleri",
+    href: "/orman-urunleri",
+    label: "Orman Ürünleri",
+    title: "Orman Ürünleri",
     description:
       "Kereste, OSB, plywood ve lambri — şantiye ve tadilat için doğru levha.",
     image: "/products/kereste-yigin.jpg",
   },
   {
-    href: "/gayrimenkul",
-    label: "Gayrimenkul",
-    title: "Gayrimenkul",
+    href: "/yapi-insaat",
+    label: "Yapı - İnşaat",
+    title: "Yapı - İnşaat",
     description:
-      "Satılık ve kiralık konut, arsa ve işyeri — Turhal / Tokat odaklı portföy.",
+      "Konut ve bina inşaatı, dış cephe ve şantiye uygulamaları — Turhal / Tokat.",
     image: "/projects/modern-konut-cephe.jpg",
   },
 ] as const;

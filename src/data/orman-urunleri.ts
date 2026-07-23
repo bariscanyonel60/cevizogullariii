@@ -1,6 +1,6 @@
 import type { ProductCategory } from "@/types";
 
-export type KerestePage = {
+export type OrmanUrunleriPage = {
   slug: string;
   href: string;
   title: string;
@@ -17,16 +17,16 @@ export type KerestePage = {
   relatedCategories?: ProductCategory[];
 };
 
-export const KERESTE_PAGES: KerestePage[] = [
+export const ORMAN_URUNLERI_PAGES: OrmanUrunleriPage[] = [
   {
     slug: "index",
-    href: "/kereste",
-    title: "Kereste & Orman Ürünleri",
-    navLabel: "Kereste",
-    eyebrow: "Kereste",
+    href: "/orman-urunleri",
+    title: "Orman Ürünleri",
+    navLabel: "Orman Ürünleri",
+    eyebrow: "Orman Ürünleri",
     description:
       "Turhal / Tokat’ta kereste, plywood (odek), OSB ve orman ürünleri. Şantiye, çatı ve tadilat için stoklu tedarik.",
-    metaTitle: "Kereste · OSB · Plywood | Tokat Orman Ürünleri",
+    metaTitle: "Orman Ürünleri · OSB · Plywood | Tokat",
     metaDescription:
       "Tokat ve Turhal’da kereste, plywood, OSB ve orman ürünleri. Cevizoğulları Yapı Market — kaliteli levha ve kereste tedariki.",
     keywords: [
@@ -63,10 +63,10 @@ export const KERESTE_PAGES: KerestePage[] = [
   },
   {
     slug: "kerestecilik",
-    href: "/kereste/kerestecilik",
+    href: "/orman-urunleri/kerestecilik",
     title: "Kerestecilik",
     navLabel: "Kerestecilik",
-    eyebrow: "Kereste",
+    eyebrow: "Orman Ürünleri",
     description:
       "Çam kereste, kavak kereste ve lambri. Yapı, çatı detayı ve tadilat için kereste tedariki — Turhal / Tokat.",
     metaTitle: "Kerestecilik · Çam & Kavak Kereste | Tokat",
@@ -107,7 +107,7 @@ export const KERESTE_PAGES: KerestePage[] = [
   },
   {
     slug: "plywood",
-    href: "/kereste/plywood",
+    href: "/orman-urunleri/plywood",
     title: "Plywood (Odek)",
     navLabel: "Plywood",
     eyebrow: "Plywood",
@@ -150,7 +150,7 @@ export const KERESTE_PAGES: KerestePage[] = [
   },
   {
     slug: "osb",
-    href: "/kereste/osb",
+    href: "/orman-urunleri/osb",
     title: "OSB Levha",
     navLabel: "OSB",
     eyebrow: "OSB",
@@ -192,8 +192,8 @@ export const KERESTE_PAGES: KerestePage[] = [
     relatedCategories: ["orman"],
   },
   {
-    slug: "orman-urunleri",
-    href: "/kereste/orman-urunleri",
+    slug: "turler",
+    href: "/orman-urunleri/turler",
     title: "Orman Ürünleri Türleri",
     navLabel: "Orman Ürünleri Türleri",
     eyebrow: "Orman Ürünleri",
@@ -236,11 +236,11 @@ export const KERESTE_PAGES: KerestePage[] = [
   },
 ];
 
-export function getKerestePage(slug: string) {
-  return KERESTE_PAGES.find((page) => page.slug === slug);
+export function getOrmanUrunleriPage(slug: string) {
+  return ORMAN_URUNLERI_PAGES.find((page) => page.slug === slug);
 }
 
-export const KERESTE_NAV = KERESTE_PAGES.filter((p) => p.slug !== "index").map(
+export const KERESTE_NAV = ORMAN_URUNLERI_PAGES.filter((p) => p.slug !== "index").map(
   (page) => ({
     href: page.href,
     label: page.navLabel,

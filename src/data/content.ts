@@ -5,7 +5,7 @@ export const stats: StatItem[] = [
   { id: "2", value: 5000, suffix: "+", label: "Mutlu Müşteri" },
   { id: "3", value: 15000, suffix: "+", label: "Teslim Edilen Ürün" },
   { id: "4", value: 100, suffix: "+", label: "Proje" },
-  { id: "5", value: 500, suffix: "+", label: "Satılan Gayrimenkul" },
+  { id: "5", value: 500, suffix: "+", label: "Uygulama" },
 ];
 
 export const testimonials: Testimonial[] = [

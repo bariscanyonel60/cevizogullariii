@@ -33,15 +33,15 @@ const departments = [
     icon: Building2,
   },
   {
-    title: "Kereste",
+    title: "Orman Ürünleri",
     text: "OSB, plywood, kereste ve orman ürünleri",
-    href: "/kereste",
+    href: "/orman-urunleri",
     icon: Trees,
   },
   {
-    title: "Gayrimenkul",
-    text: "Satılık-kiralık ilan ve danışmanlık",
-    href: "/gayrimenkul",
+    title: "Yapı - İnşaat",
+    text: "Konut, bina inşaatı ve dış cephe uygulamaları",
+    href: "/yapi-insaat",
     icon: MapPin,
   },
 ] as const;

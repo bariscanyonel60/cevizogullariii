@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SITE } from "@/lib/constants";
-import type { BlogPost, Product, Project, Property } from "@/types";
+import type { BlogPost, Product, Project } from "@/types";
 
 const defaultOgImage = `${SITE.url}/og-default.jpg`;
 
@@ -49,18 +49,6 @@ export function productImageAlt(product: Pick<Product, "title" | "brand">) {
   return `${product.title} (${product.brand}) — Tokat Turhal yapı malzemeleri`;
 }
 
-export function propertyImageAlt(
-  property: Pick<Property, "title" | "district" | "city" | "status">,
-  index = 1,
-) {
-  const status =
-    property.status === "kiralik"
-      ? "kiralık"
-      : property.status === "satilik"
-        ? "satılık"
-        : "rezerve";
-  return `${property.title} ${status} gayrimenkul görseli ${index} — ${property.district}, ${property.city}`;
-}
 
 export function projectImageAlt(
   project: Pick<Project, "title" | "location">,
@@ -133,7 +121,7 @@ export function buildMetadata({
 export const HOME_SEO = {
   title: "Tokat Yapı Malzemeleri & Turhal Yapı Market",
   description:
-    "Tokat ve Turhal’da yapı malzemeleri, mantolama, boya, yalıtım, kereste ve gayrimenkul. Deprem koşullarına uygun malzeme seçimi, hızlı teslimat. Cevizoğulları Yapı Market.",
+    "Tokat ve Turhal’da yapı malzemeleri, mantolama, boya, yalıtım, orman ürünleri ve yapı-inşaat. Deprem koşullarına uygun malzeme seçimi, hızlı teslimat. Cevizoğulları Yapı Market.",
   keywords: [
     "Tokat yapı malzemeleri",
     "Turhal yapı market",
@@ -141,11 +129,11 @@ export const HOME_SEO = {
     "Tokat mantolama",
     "Turhal boya",
     "Tokat yalıtım",
-    "Tokat kereste",
+    "Tokat orman ürünleri",
     "Tokat OSB",
     "deprem yönetmeliği yapı malzemesi",
-    "Tokat gayrimenkul",
-    "Turhal satılık daire",
+    "Tokat yapı inşaat",
+    "Turhal bina inşaatı",
     "Erbaa yapı malzemeleri",
     "Niksar mantolama",
     "Zile inşaat",
@@ -166,7 +154,6 @@ export function organizationJsonLd() {
     email: SITE.email,
     image: [`${SITE.url}/logo.png`, `${SITE.url}/og-default.jpg`],
     logo: `${SITE.url}/logo.png`,
-    priceRange: "$$",
     address: {
       "@type": "PostalAddress",
       streetAddress: "Pazar Mahallesi, Yeşilırmak Sk. No: 99",
@@ -262,7 +249,7 @@ export function serviceJsonLd() {
     "@context": "https://schema.org",
     "@type": "Service",
     serviceType:
-      "Yapı malzemeleri, kereste ve gayrimenkul tedarik / danışmanlık",
+      "Yapı malzemeleri, orman ürünleri ve yapı-inşaat tedarik / danışmanlık",
     provider: { "@id": `${SITE.url}/#organization` },
     areaServed: SERVICE_AREA_SCHEMA,
     description: HOME_SEO.description,
@@ -270,50 +257,6 @@ export function serviceJsonLd() {
   };
 }
 
-export function realEstateAgentJsonLd() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "RealEstateAgent",
-    "@id": `${SITE.url}/gayrimenkul#agent`,
-    name: `${SITE.shortName} Gayrimenkul`,
-    description:
-      "Tokat ve Turhal’da satılık-kiralık konut, villa, arsa ve işyeri danışmanlığı.",
-    url: `${SITE.url}/gayrimenkul`,
-    telephone: SITE.phone,
-    email: SITE.email,
-    image: `${SITE.url}/og-default.jpg`,
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "Pazar Mahallesi, Yeşilırmak Sk. No: 99",
-      addressLocality: "Turhal",
-      addressRegion: "Tokat",
-      postalCode: "60300",
-      addressCountry: "TR",
-    },
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: 40.3889,
-      longitude: 36.0831,
-    },
-    openingHoursSpecification: [
-      {
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: [
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-        ],
-        opens: "08:00",
-        closes: "19:00",
-      },
-    ],
-    areaServed: SERVICE_AREA_SCHEMA,
-    parentOrganization: { "@id": `${SITE.url}/#organization` },
-  };
-}
 
 export function contactPageJsonLd() {
   return {
@@ -363,7 +306,6 @@ export function productJsonLd(product: Product) {
     offers: {
       "@type": "Offer",
       url: `${SITE.url}/yapi-malzemeleri/${product.slug}`,
-      priceCurrency: "TRY",
       availability: "https://schema.org/InStock",
       seller: { "@id": `${SITE.url}/#organization` },
       areaServed: SERVICE_AREA_SCHEMA,
@@ -371,43 +313,6 @@ export function productJsonLd(product: Product) {
   };
 }
 
-export function realEstateListingJsonLd(property: Property) {
-  const images = property.images.map((src) =>
-    src.startsWith("http") ? src : `${SITE.url}${src}`,
-  );
-  return {
-    "@context": "https://schema.org",
-    "@type": "RealEstateListing",
-    "@id": `${SITE.url}/gayrimenkul/${property.slug}#listing`,
-    name: property.title,
-    description: withLocalDescription(property.description),
-    url: `${SITE.url}/gayrimenkul/${property.slug}`,
-    image: images,
-    datePosted: new Date().toISOString().slice(0, 10),
-    offers: {
-      "@type": "Offer",
-      price: property.price,
-      priceCurrency: "TRY",
-      availability:
-        property.status === "rezerve"
-          ? "https://schema.org/Reserved"
-          : "https://schema.org/InStock",
-    },
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: property.district,
-      addressRegion: property.city,
-      addressCountry: "TR",
-    },
-    floorSize: {
-      "@type": "QuantitativeValue",
-      value: property.area,
-      unitCode: "MTK",
-    },
-    numberOfRooms: property.rooms,
-    seller: { "@id": `${SITE.url}/gayrimenkul#agent` },
-  };
-}
 
 export function articleJsonLd(post: BlogPost) {
   const image = post.coverImage.startsWith("http")

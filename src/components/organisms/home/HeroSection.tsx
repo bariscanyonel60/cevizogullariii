@@ -10,8 +10,8 @@ import { BUSINESS_AREAS } from "@/lib/constants";
 
 const trustItems = [
   "Stoklu yapı market",
-  "Kereste & OSB",
-  "Gayrimenkul danışmanlığı",
+  "Orman ürünleri & OSB",
+  "Yapı - inşaat uygulamaları",
 ];
 
 export function HeroSection() {
@@ -60,10 +60,10 @@ export function HeroSection() {
                 Cevizoğulları · Turhal / Tokat
               </p>
               <h1 className="font-display text-display font-bold tracking-tight text-white text-balance">
-                Yapı market, kereste ve gayrimenkul — tek marka
+                Yapı market, orman ürünleri ve yapı-inşaat — tek marka
               </h1>
               <p className="mt-6 max-w-xl text-lead text-white/75">
-                İnşaat malzemelerinden orman ürünlerine, emlak danışmanlığına
+                İnşaat malzemelerinden orman ürünlerine, bina inşaatına
                 kadar premium tedarik ve güvenilir yerel hizmet.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
