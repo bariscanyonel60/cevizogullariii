@@ -303,13 +303,6 @@ export function productJsonLd(product: Product) {
     brand: { "@type": "Brand", name: product.brand },
     category: product.category,
     sku: product.slug,
-    offers: {
-      "@type": "Offer",
-      url: `${SITE.url}/yapi-malzemeleri/${product.slug}`,
-      availability: "https://schema.org/InStock",
-      seller: { "@id": `${SITE.url}/#organization` },
-      areaServed: SERVICE_AREA_SCHEMA,
-    },
   };
 }
 

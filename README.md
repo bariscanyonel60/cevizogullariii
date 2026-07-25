@@ -1,6 +1,6 @@
-# Cevizoğulları Yapı & Gayrimenkul
+# Cevizoğulları Yapı Market & İnşaat
 
-Premium kurumsal web sitesi — Next.js App Router, TypeScript, Tailwind CSS, Framer Motion, Lenis.
+Tokat / Turhal merkezli kurumsal web sitesi — yapı market, orman ürünleri ve yapı-inşaat. Next.js App Router, TypeScript, Tailwind CSS, Framer Motion, Lenis.
 
 ## Geliştirme
 
@@ -9,6 +9,8 @@ npm install
 npm run dev
 ```
 
+Yerel adres: `http://127.0.0.1:3000`
+
 ## Yapı
 
 Atomic Design klasör mimarisi:
@@ -16,7 +18,7 @@ Atomic Design klasör mimarisi:
 - `src/components/atoms` — temel UI
 - `src/components/molecules` — birleşik bileşenler
 - `src/components/organisms` — sayfa bölümleri
-- `src/data` — örnek içerik
+- `src/data` — içerik
 - `src/app` — App Router sayfaları
 
 ## Scripts

@@ -18,11 +18,11 @@ const sections = [
   },
   {
     title: "2. İşlenen kişisel veriler",
-    body: "İletişim ve teklif formları aracılığıyla ad-soyad, telefon, e-posta ve talep içeriği gibi veriler; site kullanımına bağlı olarak teknik log verileri işlenebilir.",
+    body: "İletişim ve teklif formları, bilgilerinizi sunucumuza kaydetmez; WhatsApp üzerinden mesaj hazırlamak için tarayıcınızda kullanır. Bu süreçte paylaştığınız ad-soyad, telefon, e-posta ve talep içeriği WhatsApp üzerinden tarafımıza iletilebilir. Ayrıca site kullanımına bağlı teknik log verileri işlenebilir.",
   },
   {
     title: "3. İşleme amaçları",
-    body: "Kişisel verileriniz; taleplerinizi yanıtlamak, teklif süreçlerini yürütmek, müşteri ilişkilerini yönetmek, yasal yükümlülükleri yerine getirmek ve hizmet kalitesini artırmak amacıyla işlenir.",
+    body: "Kişisel verileriniz; WhatsApp ile ilettiğiniz talepleri yanıtlamak, teklif süreçlerini yürütmek, müşteri ilişkilerini yönetmek, yasal yükümlülükleri yerine getirmek ve hizmet kalitesini artırmak amacıyla işlenir.",
   },
   {
     title: "4. Hukuki sebepler",

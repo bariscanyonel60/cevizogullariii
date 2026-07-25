@@ -46,27 +46,37 @@ export const SITE = {
   ],
 } as const;
 
-/** Anasayfa SSS — FAQPage şeması ile birlikte kullanılır */
+/** Anasayfa SSS — FAQPage şeması ile birlikte kullanılır (Google People Also Ask uyumlu) */
 export const HOME_FAQS = [
   {
     question: "Tokat’ta yapı malzemesi nereden alınır?",
     answer:
-      "Cevizoğulları Yapı Market, Turhal / Tokat’ta boya, mantolama, yalıtım, çatı, OSB, çimento ve nalbur ürünlerini stoklu sunar. Tokat merkez ve ilçelere hızlı tedarik sağlar.",
+      "Tokat yapı malzemeleri için Cevizoğulları Yapı Market, Turhal’da boya, mantolama, yalıtım, çatı, çimento, OSB ve nalbur ürünlerini stoklu satar. Tokat merkez ile Zile, Erbaa, Niksar ve Pazar’a hızlı tedarik sunar.",
   },
   {
-    question: "Deprem yönetmeliğine uygun malzeme seçimi yapıyor musunuz?",
+    question: "Turhal’da mantolama ve ısı yalıtım malzemesi satılıyor mu?",
     answer:
-      "Evet. TBDY bilinciyle; yalıtım, bağlayıcı malzemeler ve cephe sistemlerinde güvenli yapı yaklaşımını destekler, 2026 deprem koşullarına uygun ürün yönlendirmesi yaparız.",
+      "Evet. Turhal mağazamızda EPS/XPS strafor, karbonlu EPS, file, dübel, yapıştırıcı, dış cephe sıvası ve İzocam ürünleri bulunur. Tokat mantolama projelerinizde kalınlık ve sistem seçiminde yönlendirme yapıyoruz.",
   },
   {
-    question: "Hangi bölgelere hizmet veriyorsunuz?",
+    question: "Tokat’ta orman ürünleri, OSB ve plywood nereden alınır?",
     answer:
-      "Merkezimiz Turhal’dadır. Tokat (Merkez, Zile, Erbaa, Niksar, Pazar), Amasya, Yozgat, Sivas, Çorum ve Samsun’daki şantiye ile tadilat projelerine bölgesel tedarik ve danışmanlık sunuyoruz.",
+      "Cevizoğulları, Tokat / Turhal’da orman ürünleri, kereste, OSB, plywood (odek) ve laminat levha tedarik eder. Ölçü ve adet bilginizle şantiye veya tadilat ihtiyacınıza göre stok ve teslimat planlanır.",
   },
   {
-    question: "Teklif nasıl alabilirim?",
+    question: "Deprem yönetmeliğine uygun yapı malzemesi seçimi yapıyor musunuz?",
     answer:
-      "Teklif Al formundan veya WhatsApp hattımızdan ihtiyacınızı iletebilirsiniz. Ürün listesi ve miktara göre hızlı dönüş yapılır.",
+      "Evet. TBDY bilinciyle yalıtım, bağlayıcı, cephe ve çatı ürünlerinde güvenli yapı yaklaşımını destekleriz. Tokat’taki konut ve bina işleriniz için deprem koşullarına uygun malzeme yönlendirmesi sağlarız.",
+  },
+  {
+    question: "Cevizoğulları hangi bölgelere hizmet veriyor?",
+    answer:
+      "Merkezimiz Turhal / Tokat’tadır. Tokat (Merkez, Zile, Erbaa, Niksar, Pazar), Amasya, Yozgat, Sivas, Çorum ve Samsun’daki şantiye ile tadilat projelerine yapı market, orman ürünleri ve inşaat tedariki sunuyoruz.",
+  },
+  {
+    question: "Tokat yapı market’ten teklif nasıl alınır?",
+    answer:
+      "Teklif Al formundan veya WhatsApp (+90 535 573 01 15) hattımızdan ürün listesi ve miktarı iletin. Turhal mağazamız Pzt–Cmt 08:00–19:00 açıktır; hızlı fiyat ve stok dönüşü yapılır.",
   },
 ] as const;
 

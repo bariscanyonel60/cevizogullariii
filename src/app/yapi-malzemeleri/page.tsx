@@ -10,6 +10,7 @@ import {
   BRANDS,
   CATEGORY_SHOWCASE,
   EXTERIOR_PACKAGE,
+  PRODUCT_CATEGORY_LABELS,
   products,
 } from "@/data/products";
 import { JsonLd } from "@/components/atoms/JsonLd";
@@ -19,6 +20,7 @@ import {
   itemListJsonLd,
   webPageJsonLd,
 } from "@/lib/seo";
+import type { ProductCategory } from "@/types";
 
 export const metadata: Metadata = buildMetadata({
   title: "Tokat Yapı Malzemeleri · Turhal Yapı Market Ürünleri",
@@ -35,7 +37,23 @@ export const metadata: Metadata = buildMetadata({
   ],
 });
 
-export default function ProductsPage() {
+type Props = {
+  searchParams: Promise<{ kategori?: string }>;
+};
+
+function parseCategory(
+  value: string | undefined,
+): "" | ProductCategory {
+  if (!value) return "";
+  return value in PRODUCT_CATEGORY_LABELS
+    ? (value as ProductCategory)
+    : "";
+}
+
+export default async function ProductsPage({ searchParams }: Props) {
+  const { kategori } = await searchParams;
+  const initialCategory = parseCategory(kategori);
+
   return (
     <>
       <JsonLd
@@ -55,7 +73,7 @@ export default function ProductsPage() {
             name: "Yapı malzemesi kategorileri",
             items: CATEGORY_SHOWCASE.map((c) => ({
               name: c.label,
-              path: "/yapi-malzemeleri",
+              path: `/yapi-malzemeleri?kategori=${c.key}`,
             })),
           }),
         ]}
@@ -69,7 +87,6 @@ export default function ProductsPage() {
         ]}
       />
 
-      {/* Dış cephe paketi */}
       <section className="container-wide py-12 md:py-16">
         <Reveal>
           <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-forest-900 via-forest-800 to-earth-700 px-6 py-10 text-white md:px-10 md:py-12">
@@ -122,7 +139,6 @@ export default function ProductsPage() {
         </Reveal>
       </section>
 
-      {/* Markalar */}
       <section className="container-wide pb-8">
         <Reveal>
           <div className="mb-6 flex items-end justify-between gap-4">
@@ -160,7 +176,6 @@ export default function ProductsPage() {
         </Reveal>
       </section>
 
-      {/* Premium kategori grid */}
       <section className="container-wide py-10">
         <Reveal>
           <div className="mb-8 flex items-center gap-2">
@@ -173,7 +188,7 @@ export default function ProductsPage() {
             {CATEGORY_SHOWCASE.map((cat) => (
               <a
                 key={cat.key}
-                href={`#urunler`}
+                href={`?kategori=${cat.key}#urunler`}
                 className="group relative overflow-hidden rounded-3xl bg-white shadow-premium transition hover:-translate-y-1 hover:shadow-premium-hover"
               >
                 <div className="relative aspect-[4/3] overflow-hidden">
@@ -201,7 +216,6 @@ export default function ProductsPage() {
         </Reveal>
       </section>
 
-      {/* Katalog + teklif */}
       <section className="container-wide pb-8">
         <div className="flex flex-col gap-4 rounded-3xl bg-forest-950 p-6 text-white md:flex-row md:items-center md:justify-between md:p-8">
           <div className="flex items-start gap-4">
@@ -209,7 +223,7 @@ export default function ProductsPage() {
               <FileText className="size-5" />
             </div>
             <div>
-              <h2 className="font-display text-xl font-semibold">
+              <h2 className="font-display text-xl font-semibold text-white">
                 Katalog & toplu teklif
               </h2>
               <p className="mt-1 text-sm text-white/65">
@@ -229,9 +243,8 @@ export default function ProductsPage() {
         </div>
       </section>
 
-      {/* Ürün listesi */}
       <section id="urunler" className="container-wide scroll-mt-28 pb-16 md:pb-24">
-        <ProductFilters items={products} />
+        <ProductFilters items={products} initialCategory={initialCategory} />
       </section>
     </>
   );

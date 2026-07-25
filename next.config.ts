@@ -59,7 +59,7 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/kereste/:path*",
-        destination: "/orman-urunleri/:path*",
+        destination: "/orman-urunleri",
         permanent: true,
       },
       {
@@ -80,6 +80,16 @@ const nextConfig: NextConfig = {
       {
         source: "/orman-urunleri/orman-urunleri",
         destination: "/orman-urunleri/turler",
+        permanent: true,
+      },
+      {
+        source: "/blog/2026-gayrimenkul-yatirim-trendleri",
+        destination: "/blog/2026-tokat-yapi-insaat-ve-yalitim-trendleri",
+        permanent: true,
+      },
+      {
+        source: "/blog/premium-konutlarda-tasarim-dili",
+        destination: "/blog/dis-cephe-boya-ve-mantolama-uyumu",
         permanent: true,
       },
     ];

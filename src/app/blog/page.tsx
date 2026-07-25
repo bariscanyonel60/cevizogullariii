@@ -13,7 +13,7 @@ export const metadata: Metadata = buildMetadata({
   keywords: [
     "Tokat yapı blog",
     "Turhal mantolama rehberi",
-    "Tokat gayrimenkul yatırım",
+    "Tokat yapı inşaat",
   ],
 });
 

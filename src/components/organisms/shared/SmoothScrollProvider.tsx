@@ -1,7 +1,21 @@
 "use client";
 
 import { ReactLenis, useLenis } from "lenis/react";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useSyncExternalStore, type ReactNode } from "react";
+
+function subscribeReducedMotion(onStoreChange: () => void) {
+  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mq.addEventListener("change", onStoreChange);
+  return () => mq.removeEventListener("change", onStoreChange);
+}
+
+function getReducedMotionSnapshot() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function getReducedMotionServerSnapshot() {
+  return false;
+}
 
 /** Lenis içerik yüksekliği yenileme (resize / lazy load sonrası) */
 function LenisResizeBridge() {
@@ -36,6 +50,16 @@ function LenisResizeBridge() {
 }
 
 export function SmoothScrollProvider({ children }: { children: ReactNode }) {
+  const prefersReducedMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    getReducedMotionSnapshot,
+    getReducedMotionServerSnapshot,
+  );
+
+  if (prefersReducedMotion) {
+    return <>{children}</>;
+  }
+
   return (
     <ReactLenis
       root

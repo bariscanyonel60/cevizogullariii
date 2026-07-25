@@ -12,7 +12,7 @@ export const testimonials: Testimonial[] = [
   {
     id: "1",
     name: "Hasan Yıldız",
-    role: "Müteaahhit · Turhal",
+    role: "Müteahhit · Turhal",
     quote:
       "Toplu alımlarda zamanında teslimat ve doğru ürün önerisi sayesinde şantiye tempomuz hiç düşmedi. Güvenilir bir tedarikçi.",
     rating: 5,
@@ -63,7 +63,7 @@ export const services = [
     title: "Orman Ürünleri",
     description:
       "OSB, plywood (odek), laminat, çam kereste, lambri ve kavak kereste ile sağlam temel.",
-    href: "/yapi-malzemeleri",
+    href: "/orman-urunleri",
   },
   {
     title: "Boya & Dış Cephe",

@@ -3,31 +3,30 @@ import type { BlogPost } from "@/types";
 export const blogPosts: BlogPost[] = [
   {
     id: "1",
-    slug: "2026-gayrimenkul-yatirim-trendleri",
-    title: "2026 Gayrimenkul Yatırım Trendleri · Tokat & Turhal",
+    slug: "2026-tokat-yapi-insaat-ve-yalitim-trendleri",
+    title: "2026 Tokat Yapı-İnşaat & Yalıtım Trendleri",
     excerpt:
-      "Tokat ve Turhal’da enerji verimli konutlar, bölgesel gelişim ve doğru lokasyon seçimi 2026 gayrimenkul yatırımını nasıl şekillendiriyor?",
+      "Tokat ve Turhal’da enerji verimli cepheler, doğru mantolama ve şantiye malzemesi seçimi 2026 yapı-inşaat gündemini nasıl şekillendiriyor?",
     content: `
 ## Giriş
 
-2026 yılında gayrimenkul yatırımları; sürdürülebilirlik, lokasyon kalitesi ve uzun vadeli değer artışı etrafında şekilleniyor. Tokat ve Turhal’da da aynı dinamikler geçerli: doğru ilçe, sağlam yapı malzemesi ve şeffaf süreç kritik.
+2026’da Tokat ve Turhal’daki yapı-inşaat işleri; enerji verimliliği, deprem bilinci ve doğru malzeme tedariki etrafında şekilleniyor. Konut veya tadilat fark etmeksizin mantolama, boya ve yalıtım seçimi uzun vadeli konforu belirler.
 
-## Enerji Verimliliği Önceliği
+## Enerji Verimli Cepheler
 
-Yüksek enerji sınıfına sahip konutlar hem işletme maliyetlerini düşürüyor hem de ikinci el piyasada daha hızlı talep görüyor. Turhal’daki mantolama ve yalıtım uygulamaları bu değeri doğrudan etkiler.
+Doğru EPS / XPS kalınlığı, dış cephe boyası ve sıva sistemi hem ısı kaybını azaltır hem bakım aralığını uzatır. Turhal’daki stoklu ürünlerle şantiye temposuna uygun tedarik mümkündür.
 
-## Bölgesel Lokasyon: Tokat İlçeleri
+## Bölgesel Uygulama: Tokat İlçeleri
 
-Erbaa, Niksar, Zile ve Pazar gibi ilçelerde imar ve talep dengesi yatırımı belirler. Cevizoğulları Yapı - İnşaat, yerel portföyü Tokat odaklı sunar.
+Erbaa, Niksar, Zile ve Pazar’daki konut ve tadilat projelerinde malzeme seçimi yerel iklim ve uygulama koşullarına göre yapılmalıdır. Cevizoğulları Yapı Market & İnşaat, Turhal merkezli danışmanlık ve tedarik sunar.
 
 ## Sonuç
 
-Doğru lokasyon, şeffaf süreç ve uzman danışmanlık ile Tokat gayrimenkul yatırımı uzun vadede güvenli bir değer koruma aracı olmaya devam ediyor.
+Doğru yalıtım, şeffaf süreç ve yerinde ürün yönlendirmesi ile Tokat yapı-inşaat işleri daha güvenli ve verimli ilerler.
     `.trim(),
     category: "Yapı - İnşaat",
-    tags: ["yatırım", "trend", "2026", "Tokat", "Turhal"],
-    coverImage:
-      "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1600&q=80",
+    tags: ["yalıtım", "mantolama", "2026", "Tokat", "Turhal"],
+    coverImage: "/projects/modern-konut-cephe.jpg",
     author: "Cevizoğulları Editör",
     publishedAt: "2026-03-12",
     readingTime: 6,
@@ -57,35 +56,33 @@ Cevizoğulları; Turhal merkezli stok ve danışmanlıkla doğru ürünü doğru
     `.trim(),
     category: "Yapı",
     tags: ["malzeme", "kalite", "rehber", "Tokat mantolama", "Turhal"],
-    coverImage:
-      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&q=80",
+    coverImage: "/products/boya-rulo.jpg",
     author: "Cevizoğulları Editör",
     publishedAt: "2026-02-20",
     readingTime: 5,
   },
   {
     id: "3",
-    slug: "premium-konutlarda-tasarim-dili",
-    title: "Premium Konutlarda Tasarım Dili · Yerel Uygulama",
+    slug: "dis-cephe-boya-ve-mantolama-uyumu",
+    title: "Dış Cephe Boya & Mantolama Uyumu · Yerel Uygulama",
     excerpt:
-      "Tokat ve Turhal’daki yeni konutlarda minimal çizgiler, doğal dokular ve dış cephe uyumu: prestijli yaşamın ortak ilkeleri.",
+      "Tokat ve Turhal’da cephe boyası, astar ve yalıtım birlikte planlandığında görünüm ile enerji performansı nasıl yükselir?",
     content: `
-## Minimal Ama Sıcak
+## Sistem Olarak Düşünmek
 
-Premium konutlarda sade formlar, doğal malzemelerle dengelenerek zamansız bir estetik oluşturur. Turhal’daki dış cephe boyası ve lambri seçimleri bu dili tamamlar.
+Dış cephede boya tek başına yetmez; astar, yalıtım levhası, file, dübel ve sıva birlikte çalışır. Turhal’da Permolit ve yalıtım ürünleriyle sistem bütünlüğü sağlanır.
 
 ## Işık, Oran ve Cephe
 
-Doğru oranlar ve doğal ışık kullanımı, mekân algısını büyütür. Tokat’ta cephe boyası ve yalıtım birlikte planlandığında hem görünüm hem enerji performansı yükselir.
+Doğru renk ve yüzey dokusu, mantolama detayıyla birleşince cephe hem estetik hem dayanıklı olur. Tokat ikliminde UV ve nem dayanımı kritik seçim kriteridir.
 
 ## Sonuç
 
-Tasarım dili; doğru yapı malzemesi ve yerel uygulama bilgisiyle tamamlanır. Cevizoğulları Yapı Market bu süreci destekler.
+Cephe dili; doğru yapı malzemesi ve yerel uygulama bilgisiyle tamamlanır. Cevizoğulları Yapı Market bu süreci destekler.
     `.trim(),
-    category: "Tasarım",
-    tags: ["tasarım", "konut", "mimari", "Tokat", "dış cephe"],
-    coverImage:
-      "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1600&q=80",
+    category: "Dış Cephe",
+    tags: ["dış cephe", "boya", "mantolama", "Tokat", "Turhal"],
+    coverImage: "/projects/modern-konut-bahce.jpg",
     author: "Cevizoğulları Editör",
     publishedAt: "2026-01-18",
     readingTime: 4,

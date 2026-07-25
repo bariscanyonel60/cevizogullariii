@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
@@ -16,6 +17,9 @@ const quoteSchema = z.object({
   phone: z.string().min(10, "Geçerli telefon girin"),
   type: z.enum(["boya", "yalitim", "orman", "santiye", "diger"]),
   details: z.string().min(10, "Detayları yazın"),
+  consent: z.literal(true, {
+    error: "Devam etmek için KVKK bilgilendirmesini onaylayın",
+  }),
 });
 
 type QuoteValues = z.infer<typeof quoteSchema>;
@@ -108,10 +112,32 @@ export function QuoteForm({
           <p className="mt-1 text-xs text-red-600">{errors.details.message}</p>
         )}
       </div>
+      <div>
+        <label className="flex items-start gap-3 text-sm text-ink-600">
+          <input
+            type="checkbox"
+            className="mt-1 size-4 rounded border-earth-400/40"
+            {...register("consent")}
+          />
+          <span>
+            Bilgilerimin WhatsApp üzerinden iletilmesi için{" "}
+            <Link href="/kvkk" className="font-semibold text-forest-800 underline-offset-2 hover:underline">
+              KVKK aydınlatma metnini
+            </Link>{" "}
+            okudum, onaylıyorum.
+          </span>
+        </label>
+        {errors.consent && (
+          <p className="mt-1 text-xs text-red-600">{errors.consent.message}</p>
+        )}
+      </div>
       <Button type="submit" size="lg" disabled={isSubmitting}>
         <WhatsAppIcon className="size-4" />
         {isSubmitting ? "Açılıyor..." : "WhatsApp ile Teklif İste"}
       </Button>
+      <p className="text-xs text-ink-400">
+        Bu form sunucuya kayıt göndermez; teklif metninizi WhatsApp’ta hazırlar.
+      </p>
     </form>
   );
 }

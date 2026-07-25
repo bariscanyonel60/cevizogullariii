@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
@@ -16,6 +17,9 @@ const contactSchema = z.object({
   phone: z.string().min(10, "Geçerli bir telefon girin"),
   subject: z.string().min(3, "Konu gerekli"),
   message: z.string().min(10, "Mesaj en az 10 karakter olmalı"),
+  consent: z.literal(true, {
+    error: "Devam etmek için KVKK bilgilendirmesini onaylayın",
+  }),
 });
 
 type ContactValues = z.infer<typeof contactSchema>;
@@ -96,12 +100,32 @@ export function ContactForm() {
           <p className="mt-1 text-xs text-red-600">{errors.message.message}</p>
         )}
       </div>
+      <div>
+        <label className="flex items-start gap-3 text-sm text-ink-600">
+          <input
+            type="checkbox"
+            className="mt-1 size-4 rounded border-earth-400/40"
+            {...register("consent")}
+          />
+          <span>
+            Bilgilerimin WhatsApp üzerinden iletilmesi için{" "}
+            <Link href="/kvkk" className="font-semibold text-forest-800 underline-offset-2 hover:underline">
+              KVKK aydınlatma metnini
+            </Link>{" "}
+            okudum, onaylıyorum.
+          </span>
+        </label>
+        {errors.consent && (
+          <p className="mt-1 text-xs text-red-600">{errors.consent.message}</p>
+        )}
+      </div>
       <Button type="submit" size="lg" disabled={isSubmitting} className="w-full md:w-auto">
         <WhatsAppIcon className="size-4" />
         {isSubmitting ? "Açılıyor..." : "WhatsApp ile Gönder"}
       </Button>
       <p className="text-xs text-ink-400">
-        Form, mesajınızı WhatsApp’ta hazırlar; göndermek için onaylamanız yeterli.
+        Bu form sunucuya kayıt göndermez; mesajınızı WhatsApp’ta hazırlar.
+        Göndermek için WhatsApp’ta onaylamanız gerekir.
       </p>
     </form>
   );

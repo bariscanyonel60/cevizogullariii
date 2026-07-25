@@ -39,7 +39,7 @@ function cardsForLabel(label: string): MegaCard[] {
       return CATEGORY_SHOWCASE.filter((c) => YAPI_MARKET_KEYS.has(c.key))
         .slice(0, 6)
         .map((c) => ({
-          href: `/yapi-malzemeleri#${c.key}`,
+          href: `/yapi-malzemeleri?kategori=${c.key}#urunler`,
           title: c.label,
           description: c.description,
           image: c.image,

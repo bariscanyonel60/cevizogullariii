@@ -53,7 +53,7 @@ export function ProductFilters({
     }`;
 
   return (
-    <div id="urunler">
+    <div>
       <div className="mb-6 space-y-4 rounded-3xl bg-white p-4 shadow-premium md:p-6">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <h2 className="font-display text-xl font-bold text-ink-900 md:text-2xl">

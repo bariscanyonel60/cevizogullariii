@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ...post.tags,
       post.category,
       "Tokat yapı",
-      "Turhal gayrimenkul",
+      "Turhal yapı market",
       "Cevizoğulları blog",
     ],
   });

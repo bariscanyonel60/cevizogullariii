@@ -4,7 +4,7 @@ import { HeroSection } from "@/components/organisms/home/HeroSection";
 import { BusinessAreasSection } from "@/components/organisms/home/BusinessAreasSection";
 import { WhyUsSection } from "@/components/organisms/home/WhyUsSection";
 import { ServicesSection } from "@/components/organisms/home/ServicesSection";
-import { FeaturedListings } from "@/components/organisms/home/FeaturedListings";
+import { FeaturedProducts } from "@/components/organisms/home/FeaturedProducts";
 import { FeaturedProjects } from "@/components/organisms/home/FeaturedProjects";
 import { ProcessSection } from "@/components/organisms/home/ProcessSection";
 import { BrandsMarquee } from "@/components/organisms/home/BrandsMarquee";
@@ -57,7 +57,7 @@ export default function HomePage() {
       <WhyUsSection />
       <ProcessSection />
       <ServicesSection />
-      <FeaturedListings />
+      <FeaturedProducts />
       <FeaturedProjects />
       <BrandsMarquee />
       <TestimonialsSection />

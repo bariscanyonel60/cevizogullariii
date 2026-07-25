@@ -5,7 +5,7 @@ import { Reveal } from "@/components/molecules/Reveal";
 import { SectionHeading } from "@/components/molecules/SectionHeading";
 import { getFeaturedProducts } from "@/data/products";
 
-export function FeaturedListings() {
+export function FeaturedProducts() {
   const products = getFeaturedProducts().slice(0, 3);
 
   return (

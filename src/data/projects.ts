@@ -2,12 +2,10 @@ import type { Project } from "@/types";
 import { SITE } from "@/lib/constants";
 
 const IG = SITE.social.instagram;
-const UPLOAD = "https://cevizogullari.com/wp-content/uploads";
 
 /**
- * Gerçek proje görselleri — mevcut sitedeki galeri (Instagram / saha fotoğrafları).
- * Instagram API kapalı olduğu için görseller cevizogullari.com üzerinden alındı;
- * her proje Instagram profiline bağlandı: https://www.instagram.com/cevizogullari/
+ * Proje görselleri — yerel `public/` altında (WordPress upload bağımlılığı yok).
+ * Instagram: https://www.instagram.com/cevizogullari/
  */
 export const projects: Project[] = [
   {
@@ -38,14 +36,13 @@ export const projects: Project[] = [
     location: "Turhal, Tokat",
     year: 2026,
     images: [
-      `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.53.47.jpeg`,
-      `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.53.47-1.jpeg`,
-      `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.53.47-2.jpeg`,
-      `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.53.47-3.jpeg`,
-      `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.53.47-4.jpeg`,
+      "/products/dis-cephe-ev.jpg",
+      "/products/cephe-boyali.jpg",
+      "/products/mantolama-saha.jpg",
+      "/products/dekoratif-cephe.jpg",
     ],
-    beforeImage: `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.53.45.jpeg`,
-    afterImage: `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.53.47.jpeg`,
+    beforeImage: "/products/eps-levha.jpg",
+    afterImage: "/products/dis-cephe-ev.jpg",
     featured: true,
     instagramUrl: IG,
   },
@@ -59,10 +56,10 @@ export const projects: Project[] = [
     location: "Turhal, Tokat",
     year: 2026,
     images: [
-      `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.31.35-2.jpeg`,
-      `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.31.35.jpeg`,
-      `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.31.35-1.jpeg`,
-      `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.31.35-3.jpeg`,
+      "/products/cimento-torbalar.jpg",
+      "/products/tugla-duvar.jpg",
+      "/products/asmolen-kopuk.jpg",
+      "/products/formwork.jpg",
     ],
     featured: true,
     instagramUrl: IG,
@@ -77,10 +74,10 @@ export const projects: Project[] = [
     location: "Tokat",
     year: 2026,
     images: [
-      `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.53.48.jpeg`,
-      `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.53.48-1.jpeg`,
-      `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.53.48-2.jpeg`,
-      `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.53.46.jpeg`,
+      "/products/kiremit-kirmizi.jpg",
+      "/products/membran-cati.jpg",
+      "/products/xps-board.jpg",
+      "/products/izocam-yun.jpg",
     ],
     featured: true,
     instagramUrl: IG,
@@ -95,10 +92,10 @@ export const projects: Project[] = [
     location: "Turhal, Tokat",
     year: 2025,
     images: [
-      `${UPLOAD}/2026/02/WhatsApp-Image-2025-08-30-at-13.17.58.jpeg`,
-      `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.31.34.jpeg`,
-      `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.31.34-1.jpeg`,
-      `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.31.33.jpeg`,
+      "/products/ic-boya-uygulama.jpg",
+      "/products/boya-rulo.jpg",
+      "/products/siva-macun.jpg",
+      "/projects/modern-konut-bahce.jpg",
     ],
     featured: true,
     instagramUrl: IG,
@@ -113,10 +110,10 @@ export const projects: Project[] = [
     location: "Turhal, Tokat",
     year: 2026,
     images: [
-      `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.31.32.jpeg`,
-      `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.31.32-1.jpeg`,
-      `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.53.45-1.jpeg`,
-      `${UPLOAD}/2026/03/WhatsApp-Image-2026-02-09-at-19.31.33-2.jpeg`,
+      "/products/kereste-yigin.jpg",
+      "/products/osb-panel.jpg",
+      "/products/nalbur-civata.jpg",
+      "/products/pvc-borular.jpg",
     ],
     instagramUrl: IG,
   },
