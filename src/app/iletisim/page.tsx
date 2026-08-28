@@ -28,7 +28,7 @@ export const metadata: Metadata = buildMetadata({
 const departments = [
   {
     title: "Yapı Market",
-    text: "Boya, yalıtım, çimento ve şantiye malzemeleri",
+    text: "Boya, mantolama, çimento, çatı ve nalbur — reyon",
     href: "/yapi-malzemeleri",
     icon: Building2,
   },
@@ -60,7 +60,7 @@ export default function ContactPage() {
       />
       <PageHero
         title="İletişim"
-        description="Turhal’daki yapı marketimize uğrayın veya WhatsApp’tan yazın — Tokat ve çevre illere hizmet."
+        description="Pazar Mahallesi, Yeşilırmak Sk. No: 99. Mağazaya uğrayın veya WhatsApp’tan liste atın — Tokat ve çevre illere çıkarız."
         crumbs={[
           { label: "Ana Sayfa", href: "/" },
           { label: "İletişim" },

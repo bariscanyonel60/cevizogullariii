@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { CdnImage } from "@/components/atoms/CdnImage";
 import { useState } from "react";
 import { X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -24,7 +24,7 @@ export function ImageGallery({
           onClick={() => setOpen(true)}
           aria-label="Galeri lightbox aç"
         >
-          <Image
+          <CdnImage
             src={images[active]}
             alt={`${alt} - görsel ${active + 1}`}
             fill
@@ -44,7 +44,7 @@ export function ImageGallery({
               }`}
               aria-label={`Görsel ${index + 1}`}
             >
-              <Image
+              <CdnImage
                 src={image}
                 alt={`${alt} - küçük görsel ${index + 1}`}
                 fill
@@ -76,7 +76,7 @@ export function ImageGallery({
               <X className="size-5" />
             </button>
             <div className="relative h-[70vh] w-full max-w-5xl">
-              <Image
+              <CdnImage
                 src={images[active]}
                 alt={`${alt} büyük görsel`}
                 fill

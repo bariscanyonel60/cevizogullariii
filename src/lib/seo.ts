@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { SITE } from "@/lib/constants";
+import { absoluteMediaUrl } from "@/lib/media";
 import type { BlogPost, Product, Project } from "@/types";
 
-const defaultOgImage = `${SITE.url}/og-default.jpg`;
+const defaultOgImage = absoluteMediaUrl("/og-default.jpg", SITE.url);
 
 /** Canonical hizmet bölgesi — UI, FAQ ve tüm JSON-LD ile senkron */
 export const SERVICE_AREA_CITIES = [
@@ -46,9 +47,8 @@ export function withLocalDescription(description: string, extra?: string) {
 }
 
 export function productImageAlt(product: Pick<Product, "title" | "brand">) {
-  return `${product.title} (${product.brand}) — Tokat Turhal yapı malzemeleri`;
+  return `${product.title} — Tokat yapı malzemeleri, ${product.brand} Turhal`;
 }
-
 
 export function projectImageAlt(
   project: Pick<Project, "title" | "location">,
@@ -71,7 +71,7 @@ export function buildMetadata({
     title === SITE.name ? title : `${title} | ${SITE.shortName}`;
   const absoluteImage = image.startsWith("http")
     ? image
-    : `${SITE.url}${image.startsWith("/") ? image : `/${image}`}`;
+    : absoluteMediaUrl(image.startsWith("/") ? image : `/${image}`, SITE.url);
 
   return {
     title: fullTitle,
@@ -121,7 +121,7 @@ export function buildMetadata({
 export const HOME_SEO = {
   title: "Tokat Yapı Malzemeleri & Turhal Yapı Market",
   description:
-    "Tokat ve Turhal’da yapı malzemeleri, mantolama, boya, yalıtım, orman ürünleri ve yapı-inşaat. Deprem koşullarına uygun malzeme seçimi, hızlı teslimat. Cevizoğulları Yapı Market.",
+    "Tokat yapı malzemeleri: Turhal’da boya, mantolama, yalıtım, orman ürünleri ve yapı-inşaat. Depreme uygun seçim, hızlı teslimat — Cevizoğulları Yapı Market.",
   keywords: [
     "Tokat yapı malzemeleri",
     "Turhal yapı market",
@@ -152,8 +152,11 @@ export function organizationJsonLd() {
     url: SITE.url,
     telephone: SITE.phone,
     email: SITE.email,
-    image: [`${SITE.url}/logo.png`, `${SITE.url}/og-default.jpg`],
-    logo: `${SITE.url}/logo.png`,
+    image: [
+      absoluteMediaUrl("/logo.png", SITE.url),
+      absoluteMediaUrl("/og-default.jpg", SITE.url),
+    ],
+    logo: absoluteMediaUrl("/logo.png", SITE.url),
     address: {
       "@type": "PostalAddress",
       streetAddress: "Pazar Mahallesi, Yeşilırmak Sk. No: 99",
@@ -290,9 +293,7 @@ export function webPageJsonLd(input: {
 }
 
 export function productJsonLd(product: Product) {
-  const image = product.image.startsWith("http")
-    ? product.image
-    : `${SITE.url}${product.image}`;
+  const image = absoluteMediaUrl(product.image, SITE.url);
   return {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -308,9 +309,7 @@ export function productJsonLd(product: Product) {
 
 
 export function articleJsonLd(post: BlogPost) {
-  const image = post.coverImage.startsWith("http")
-    ? post.coverImage
-    : `${SITE.url}${post.coverImage}`;
+  const image = absoluteMediaUrl(post.coverImage, SITE.url);
   return {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -334,9 +333,7 @@ export function articleJsonLd(post: BlogPost) {
 }
 
 export function projectJsonLd(project: Project) {
-  const images = project.images.map((src) =>
-    src.startsWith("http") ? src : `${SITE.url}${src}`,
-  );
+  const images = project.images.map((src) => absoluteMediaUrl(src, SITE.url));
   return {
     "@context": "https://schema.org",
     "@type": "CreativeWork",

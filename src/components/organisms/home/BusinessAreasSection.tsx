@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { CdnImage } from "@/components/atoms/CdnImage";
 import Link from "next/link";
 import { useRef, type MouseEvent } from "react";
 import { ArrowUpRight } from "lucide-react";
@@ -51,9 +51,15 @@ function TiltCard({
         onMouseLeave={onLeave}
         className="group relative block h-full min-h-[28rem] overflow-hidden rounded-[1.75rem] shadow-premium will-change-transform"
       >
-        <Image
+        <CdnImage
           src={area.image}
-          alt={`${area.title} — Tokat Turhal Cevizoğulları iş alanı`}
+          alt={
+            area.href === "/yapi-malzemeleri"
+              ? `Tokat yapı malzemeleri — ${area.title}, Turhal Cevizoğulları`
+              : area.href === "/yapi-insaat"
+                ? "CVZ Yapı İnşaat Ova Apt. 2 — Tokat Turhal konut inşaatı"
+                : `${area.title} — Tokat Turhal Cevizoğulları iş alanı`
+          }
           fill
           className="object-cover transition duration-700 group-hover:scale-105"
           sizes="(max-width: 1024px) 100vw, 33vw"
@@ -87,9 +93,9 @@ export function BusinessAreasSection() {
     >
       <Reveal>
         <SectionHeading
-          eyebrow="Üç Güçlü Alan"
-          title="Tek marka, üç uzmanlık"
-          description="Yapı malzemeleri, orman ürünleri ve yapı-inşaat — ihtiyacınıza göre doğru kapıdan girin."
+          eyebrow="Ne iş yaparız"
+          title="Reyon, kereste ve saha uygulaması"
+          description="Yapı marketten orman ürünlerine, konut ve cephe inşaatına — Turhal’dan Tokat’a tek adres."
           action={
             <Button asChild variant="secondary">
               <Link href="/teklif-al">Teklif Al</Link>

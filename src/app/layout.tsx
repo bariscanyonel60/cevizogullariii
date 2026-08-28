@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
-import { Cinzel, Montserrat } from "next/font/google";
-import { Footer } from "@/components/organisms/layout/Footer";
-import { Navbar } from "@/components/organisms/layout/Navbar";
-import { SmoothScrollProvider } from "@/components/organisms/shared/SmoothScrollProvider";
-import { FloatingActions } from "@/components/organisms/shared/FloatingActions";
+import { Cinzel, Montserrat, JetBrains_Mono } from "next/font/google";
+import { SiteShell } from "@/components/organisms/layout/SiteShell";
 import { SITE } from "@/lib/constants";
+import { getNavCms } from "@/lib/cms-store";
 import { buildMetadata, organizationJsonLd } from "@/lib/seo";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
 
 /** aevumtroia.com ile aynı çift: Cinzel (başlık) + Montserrat (gövde) */
 const montserrat = Montserrat({
@@ -34,17 +38,23 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const jsonLd = organizationJsonLd();
+  const nav = await getNavCms();
 
   return (
     <html
       lang="tr"
-      className={`${montserrat.variable} ${cinzel.variable} h-full`}
+      className={cn(
+        "h-full",
+        montserrat.variable,
+        cinzel.variable,
+        jetbrainsMono.variable,
+      )}
     >
       <body className="min-h-full flex flex-col antialiased">
         <a
@@ -57,14 +67,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <SmoothScrollProvider>
-          <Navbar />
-          <main id="main-content" className="flex-1">
-            {children}
-          </main>
-          <Footer />
-          <FloatingActions />
-        </SmoothScrollProvider>
+        <SiteShell nav={nav}>{children}</SiteShell>
       </body>
     </html>
   );

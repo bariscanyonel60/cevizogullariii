@@ -4,9 +4,9 @@ import CountUp from "react-countup";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 import { Reveal } from "@/components/molecules/Reveal";
-import { stats } from "@/data/content";
+import type { StatItem } from "@/types";
 
-export function StatsSection() {
+export function StatsSection({ stats = [] }: { stats?: StatItem[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-20%" });
 

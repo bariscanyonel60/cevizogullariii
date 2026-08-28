@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { OrmanUrunleriContent } from "@/components/organisms/orman-urunleri/OrmanUrunleriContent";
 import { JsonLd } from "@/components/atoms/JsonLd";
-import { ORMAN_URUNLERI_PAGES, getOrmanUrunleriPage } from "@/data/orman-urunleri";
+import { getOrmanPage, getOrmanPages, getProducts } from "@/lib/cms-store";
 import {
   breadcrumbJsonLd,
   buildMetadata,
@@ -9,16 +10,33 @@ import {
   webPageJsonLd,
 } from "@/lib/seo";
 
-const page = getOrmanUrunleriPage("index")!;
+export const revalidate = 60;
 
-export const metadata: Metadata = buildMetadata({
-  title: page.metaTitle,
-  description: page.metaDescription,
-  path: page.href,
-  keywords: page.keywords,
-});
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await getOrmanPage("index");
+  if (!page) {
+    return buildMetadata({
+      title: "Orman Ürünleri",
+      description: "Orman ürünleri",
+      path: "/orman-urunleri",
+    });
+  }
+  return buildMetadata({
+    title: page.metaTitle,
+    description: page.metaDescription,
+    path: page.href,
+    keywords: page.keywords,
+  });
+}
 
-export default function OrmanUrunleriIndexPage() {
+export default async function OrmanUrunleriIndexPage() {
+  const [page, ormanPages, products] = await Promise.all([
+    getOrmanPage("index"),
+    getOrmanPages(),
+    getProducts(),
+  ]);
+  if (!page) notFound();
+
   return (
     <>
       <JsonLd
@@ -35,14 +53,20 @@ export default function OrmanUrunleriIndexPage() {
           itemListJsonLd({
             path: "/orman-urunleri",
             name: "Orman Ürünleri",
-            items: ORMAN_URUNLERI_PAGES.filter((p) => p.slug !== "index").map((p) => ({
-              name: p.navLabel,
-              path: p.href,
-            })),
+            items: ormanPages
+              .filter((item) => item.slug !== "index")
+              .map((item) => ({
+                name: item.navLabel,
+                path: item.href,
+              })),
           }),
         ]}
       />
-      <OrmanUrunleriContent page={page} />
+      <OrmanUrunleriContent
+        page={page}
+        ormanPages={ormanPages}
+        products={products}
+      />
     </>
   );
 }

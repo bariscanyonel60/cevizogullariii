@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { CdnImage } from "@/components/atoms/CdnImage";
 import { useState } from "react";
 
 export function BeforeAfter({
@@ -16,13 +16,13 @@ export function BeforeAfter({
 
   return (
     <div className="relative aspect-[16/10] overflow-hidden rounded-3xl select-none">
-      <Image src={after} alt={`${title} sonrası`} fill className="object-cover" sizes="100vw" />
+      <CdnImage src={after} alt={`${title} sonrası`} fill className="object-cover" sizes="100vw" />
       <div
         className="absolute inset-0 overflow-hidden"
         style={{ width: `${pos}%` }}
       >
         <div className="relative h-full w-[100vw] max-w-none md:w-[80rem]">
-          <Image
+          <CdnImage
             src={before}
             alt={`${title} öncesi`}
             fill

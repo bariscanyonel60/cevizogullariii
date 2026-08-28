@@ -1,0 +1,338 @@
+{
+  "generatedAt": "2026-08-28T22:07:33.104Z",
+  "cloudName": "ymm7xvz0",
+  "folder": "cevizogullari",
+  "count": 55,
+  "assets": [
+    {
+      "local": "/about-project.jpg",
+      "publicId": "cevizogullari/about-project",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821494/cevizogullari/about-project.jpg",
+      "bytes": 213690
+    },
+    {
+      "local": "/favicon.png",
+      "publicId": "cevizogullari/favicon",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821495/cevizogullari/favicon.png",
+      "bytes": 21101
+    },
+    {
+      "local": "/hero-home.jpg",
+      "publicId": "cevizogullari/hero-home",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821496/cevizogullari/hero-home.jpg",
+      "bytes": 836479
+    },
+    {
+      "local": "/hero-project.jpg",
+      "publicId": "cevizogullari/hero-project",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821498/cevizogullari/hero-project.jpg",
+      "bytes": 202578
+    },
+    {
+      "local": "/logo.png",
+      "publicId": "cevizogullari/logo",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821499/cevizogullari/logo.png",
+      "bytes": 78827
+    },
+    {
+      "local": "/media/yapi-insaat/dis-cephe-ahsap-detay.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/dis-cephe-ahsap-detay",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954794/cevizogullari/media/yapi-insaat/dis-cephe-ahsap-detay.jpg",
+      "bytes": 275303
+    },
+    {
+      "local": "/media/yapi-insaat/gece-cephe-cvz-1.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/gece-cephe-cvz-1",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954795/cevizogullari/media/yapi-insaat/gece-cephe-cvz-1.jpg",
+      "bytes": 272500
+    },
+    {
+      "local": "/media/yapi-insaat/gece-cephe-cvz-2.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/gece-cephe-cvz-2",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954795/cevizogullari/media/yapi-insaat/gece-cephe-cvz-2.jpg",
+      "bytes": 303343
+    },
+    {
+      "local": "/media/yapi-insaat/ic-kapi-koridor.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/ic-kapi-koridor",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954796/cevizogullari/media/yapi-insaat/ic-kapi-koridor.jpg",
+      "bytes": 208885
+    },
+    {
+      "local": "/media/yapi-insaat/ic-kapi-lake.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/ic-kapi-lake",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954797/cevizogullari/media/yapi-insaat/ic-kapi-lake.jpg",
+      "bytes": 458021
+    },
+    {
+      "local": "/media/yapi-insaat/kaba-insaat-iskelet.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/kaba-insaat-iskelet",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954798/cevizogullari/media/yapi-insaat/kaba-insaat-iskelet.jpg",
+      "bytes": 507426
+    },
+    {
+      "local": "/media/yapi-insaat/kalip-ahsap.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/kalip-ahsap",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954799/cevizogullari/media/yapi-insaat/kalip-ahsap.jpg",
+      "bytes": 549803
+    },
+    {
+      "local": "/media/yapi-insaat/ova-apt-2-cephe-2.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/ova-apt-2-cephe-2",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954800/cevizogullari/media/yapi-insaat/ova-apt-2-cephe-2.jpg",
+      "bytes": 551440
+    },
+    {
+      "local": "/media/yapi-insaat/ova-apt-2-cephe-yakin.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/ova-apt-2-cephe-yakin",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954801/cevizogullari/media/yapi-insaat/ova-apt-2-cephe-yakin.jpg",
+      "bytes": 276471
+    },
+    {
+      "local": "/media/yapi-insaat/ova-apt-2-cephe.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/ova-apt-2-cephe",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954802/cevizogullari/media/yapi-insaat/ova-apt-2-cephe.jpg",
+      "bytes": 340204
+    },
+    {
+      "local": "/media/yapi-insaat/ova-apt-2-saha.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/ova-apt-2-saha",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954807/cevizogullari/media/yapi-insaat/ova-apt-2-saha.jpg",
+      "bytes": 512516
+    },
+    {
+      "local": "/media/yapi-insaat/ova-apt-alt-aci.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/ova-apt-alt-aci",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954809/cevizogullari/media/yapi-insaat/ova-apt-alt-aci.jpg",
+      "bytes": 583840
+    },
+    {
+      "local": "/media/yapi-insaat/ova-apt-cephe-3.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/ova-apt-cephe-3",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954811/cevizogullari/media/yapi-insaat/ova-apt-cephe-3.jpg",
+      "bytes": 533919
+    },
+    {
+      "local": "/media/yapi-insaat/ova-apt-cephe-4.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/ova-apt-cephe-4",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954812/cevizogullari/media/yapi-insaat/ova-apt-cephe-4.jpg",
+      "bytes": 566411
+    },
+    {
+      "local": "/media/yapi-insaat/ova-apt-cephe-5.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/ova-apt-cephe-5",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954813/cevizogullari/media/yapi-insaat/ova-apt-cephe-5.jpg",
+      "bytes": 607625
+    },
+    {
+      "local": "/media/yapi-insaat/ova-apt-giris.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/ova-apt-giris",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954814/cevizogullari/media/yapi-insaat/ova-apt-giris.jpg",
+      "bytes": 580781
+    },
+    {
+      "local": "/media/yapi-insaat/ova-apt-kose.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/ova-apt-kose",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954816/cevizogullari/media/yapi-insaat/ova-apt-kose.jpg",
+      "bytes": 601630
+    },
+    {
+      "local": "/media/yapi-insaat/ova-apt-tabela.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/ova-apt-tabela",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954818/cevizogullari/media/yapi-insaat/ova-apt-tabela.jpg",
+      "bytes": 741466
+    },
+    {
+      "local": "/media/yapi-insaat/santiye-iskele-ova.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/santiye-iskele-ova",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954819/cevizogullari/media/yapi-insaat/santiye-iskele-ova.jpg",
+      "bytes": 276849
+    },
+    {
+      "local": "/media/yapi-insaat/santiye-luks-daireler.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/santiye-luks-daireler",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954820/cevizogullari/media/yapi-insaat/santiye-luks-daireler.jpg",
+      "bytes": 310379
+    },
+    {
+      "local": "/media/yapi-insaat/santiye-saha-poster.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/santiye-saha-poster",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954821/cevizogullari/media/yapi-insaat/santiye-saha-poster.jpg",
+      "bytes": 162946
+    },
+    {
+      "local": "/media/yapi-insaat/satilik-apartman.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/satilik-apartman",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954822/cevizogullari/media/yapi-insaat/satilik-apartman.jpg",
+      "bytes": 536295
+    },
+    {
+      "local": "/media/yapi-insaat/satilik-daire-cephe.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/satilik-daire-cephe",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954824/cevizogullari/media/yapi-insaat/satilik-daire-cephe.jpg",
+      "bytes": 679530
+    },
+    {
+      "local": "/media/yapi-insaat/temel-beton-dokumu.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/temel-beton-dokumu",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954825/cevizogullari/media/yapi-insaat/temel-beton-dokumu.jpg",
+      "bytes": 308677
+    },
+    {
+      "local": "/media/yapi-insaat/villa-dis-cephe.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/villa-dis-cephe",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954827/cevizogullari/media/yapi-insaat/villa-dis-cephe.jpg",
+      "bytes": 594350
+    },
+    {
+      "local": "/og-default.jpg",
+      "publicId": "cevizogullari/og-default",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821499/cevizogullari/og-default.jpg",
+      "bytes": 202607
+    },
+    {
+      "local": "/products/asmolen-kopuk.jpg",
+      "publicId": "cevizogullari/products/asmolen-kopuk",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821500/cevizogullari/products/asmolen-kopuk.jpg",
+      "bytes": 193346
+    },
+    {
+      "local": "/products/boya-rulo.jpg",
+      "publicId": "cevizogullari/products/boya-rulo",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821501/cevizogullari/products/boya-rulo.jpg",
+      "bytes": 212802
+    },
+    {
+      "local": "/products/cephe-boyali.jpg",
+      "publicId": "cevizogullari/products/cephe-boyali",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821502/cevizogullari/products/cephe-boyali.jpg",
+      "bytes": 213690
+    },
+    {
+      "local": "/products/cimento-torbalar.jpg",
+      "publicId": "cevizogullari/products/cimento-torbalar",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821502/cevizogullari/products/cimento-torbalar.jpg",
+      "bytes": 267706
+    },
+    {
+      "local": "/products/dekoratif-cephe.jpg",
+      "publicId": "cevizogullari/products/dekoratif-cephe",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787828972/cevizogullari/products/dekoratif-cephe.jpg",
+      "bytes": 220979
+    },
+    {
+      "local": "/products/dis-cephe-ev.jpg",
+      "publicId": "cevizogullari/products/dis-cephe-ev",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787828973/cevizogullari/products/dis-cephe-ev.jpg",
+      "bytes": 265160
+    },
+    {
+      "local": "/products/eps-levha.jpg",
+      "publicId": "cevizogullari/products/eps-levha",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787828975/cevizogullari/products/eps-levha.jpg",
+      "bytes": 170943
+    },
+    {
+      "local": "/products/formwork.jpg",
+      "publicId": "cevizogullari/products/formwork",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821506/cevizogullari/products/formwork.jpg",
+      "bytes": 149545
+    },
+    {
+      "local": "/products/ic-boya-uygulama.jpg",
+      "publicId": "cevizogullari/products/ic-boya-uygulama",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821506/cevizogullari/products/ic-boya-uygulama.jpg",
+      "bytes": 94070
+    },
+    {
+      "local": "/products/izocam-yun.jpg",
+      "publicId": "cevizogullari/products/izocam-yun",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821507/cevizogullari/products/izocam-yun.jpg",
+      "bytes": 176322
+    },
+    {
+      "local": "/products/kereste-yigin.jpg",
+      "publicId": "cevizogullari/products/kereste-yigin",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821508/cevizogullari/products/kereste-yigin.jpg",
+      "bytes": 269369
+    },
+    {
+      "local": "/products/kiremit-kirmizi.jpg",
+      "publicId": "cevizogullari/products/kiremit-kirmizi",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821510/cevizogullari/products/kiremit-kirmizi.jpg",
+      "bytes": 327421
+    },
+    {
+      "local": "/products/mantolama-saha.jpg",
+      "publicId": "cevizogullari/products/mantolama-saha",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821510/cevizogullari/products/mantolama-saha.jpg",
+      "bytes": 165178
+    },
+    {
+      "local": "/products/membran-cati.jpg",
+      "publicId": "cevizogullari/products/membran-cati",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821511/cevizogullari/products/membran-cati.jpg",
+      "bytes": 189074
+    },
+    {
+      "local": "/products/nalbur-civata.jpg",
+      "publicId": "cevizogullari/products/nalbur-civata",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821512/cevizogullari/products/nalbur-civata.jpg",
+      "bytes": 132192
+    },
+    {
+      "local": "/products/nalbur-civi.jpg",
+      "publicId": "cevizogullari/products/nalbur-civi",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821513/cevizogullari/products/nalbur-civi.jpg",
+      "bytes": 230409
+    },
+    {
+      "local": "/products/nalbur-vida.jpg",
+      "publicId": "cevizogullari/products/nalbur-vida",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821514/cevizogullari/products/nalbur-vida.jpg",
+      "bytes": 123572
+    },
+    {
+      "local": "/products/osb-panel.jpg",
+      "publicId": "cevizogullari/products/osb-panel",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821515/cevizogullari/products/osb-panel.jpg",
+      "bytes": 184995
+    },
+    {
+      "local": "/products/pvc-borular.jpg",
+      "publicId": "cevizogullari/products/pvc-borular",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821516/cevizogullari/products/pvc-borular.jpg",
+      "bytes": 289291
+    },
+    {
+      "local": "/products/siva-macun.jpg",
+      "publicId": "cevizogullari/products/siva-macun",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821517/cevizogullari/products/siva-macun.jpg",
+      "bytes": 93552
+    },
+    {
+      "local": "/products/tugla-duvar.jpg",
+      "publicId": "cevizogullari/products/tugla-duvar",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821517/cevizogullari/products/tugla-duvar.jpg",
+      "bytes": 538441
+    },
+    {
+      "local": "/products/xps-board.jpg",
+      "publicId": "cevizogullari/products/xps-board",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821518/cevizogullari/products/xps-board.jpg",
+      "bytes": 77784
+    },
+    {
+      "local": "/projects/modern-konut-bahce.jpg",
+      "publicId": "cevizogullari/projects/modern-konut-bahce",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821519/cevizogullari/projects/modern-konut-bahce.jpg",
+      "bytes": 227197
+    },
+    {
+      "local": "/projects/modern-konut-cephe.jpg",
+      "publicId": "cevizogullari/projects/modern-konut-cephe",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821520/cevizogullari/projects/modern-konut-cephe.jpg",
+      "bytes": 202400
+    }
+  ]
+}

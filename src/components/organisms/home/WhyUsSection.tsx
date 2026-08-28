@@ -1,24 +1,27 @@
 import { ShieldCheck, Layers, Gem, Compass } from "lucide-react";
 import { Reveal } from "@/components/molecules/Reveal";
 import { SectionHeading } from "@/components/molecules/SectionHeading";
-import { whyUs } from "@/data/content";
 
 const icons = [ShieldCheck, Layers, Gem, Compass];
 
-export function WhyUsSection() {
+export function WhyUsSection({
+  items = [],
+}: {
+  items?: { title: string; description: string }[];
+}) {
   return (
     <section id="neden-biz" className="relative scroll-mt-28 overflow-hidden py-20 md:py-28">
       <div className="absolute inset-0 bg-gradient-to-b from-forest-50/80 via-transparent to-transparent" />
       <div className="container-wide relative">
         <Reveal>
           <SectionHeading
-            eyebrow="Neden Biz?"
-            title="Kurumsal kaliteyi hissedilir kılan farklar"
-            description="Her adımda güven, her projede prestij. Çalışma biçimimizi tanımlayan dört temel ilke."
+            eyebrow="Neden Cevizoğulları?"
+            title="Turhal’da yapı market gibi çalışan bir tedarikçi"
+            description="Reyon, stok ve şantiye teslimatı aynı yerde. Usta, müteahhit ve ev sahibine pratik çözüm."
           />
         </Reveal>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {whyUs.map((item, index) => {
+          {items.map((item, index) => {
             const Icon = icons[index] ?? ShieldCheck;
             return (
               <Reveal key={item.title} delay={index * 0.08}>

@@ -4,7 +4,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import { Quote, Star } from "lucide-react";
 import { Reveal } from "@/components/molecules/Reveal";
 import { SectionHeading } from "@/components/molecules/SectionHeading";
-import { testimonials } from "@/data/content";
+import type { Testimonial } from "@/types";
 
 function initials(name: string) {
   return name
@@ -15,9 +15,14 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-export function TestimonialsSection() {
+export function TestimonialsSection({
+  testimonials = [],
+}: {
+  testimonials?: Testimonial[];
+}) {
   const [emblaRef] = useEmblaCarousel({
     align: "start",
+    axis: "x",
     loop: true,
     skipSnaps: false,
     watchDrag: true,
@@ -30,12 +35,16 @@ export function TestimonialsSection() {
     >
       <Reveal>
         <SectionHeading
-          eyebrow="Müşteri Yorumları"
-          title="Google tarzı güven"
-          description="Birlikte çalıştığımız müşterilerin deneyimleri."
+          eyebrow="Sahadan"
+          title="Şantiye ve tadilattan dönen sözler"
+          description="Turhal mağazasından malzeme alan usta, müteahhit ve ev sahiplerinin anlattıkları."
         />
       </Reveal>
-      <div className="overflow-hidden touch-pan-y" ref={emblaRef}>
+      <div
+        className="overflow-hidden"
+        ref={emblaRef}
+        style={{ touchAction: "pan-y pinch-zoom" }}
+      >
         <div className="flex gap-5">
           {testimonials.map((item) => (
             <article

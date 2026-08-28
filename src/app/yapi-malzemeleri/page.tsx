@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FileText, PaintBucket, Shield, Home } from "lucide-react";
-import Image from "next/image";
+import { CdnImage } from "@/components/atoms/CdnImage";
 import { PageHero } from "@/components/organisms/shared/PageHero";
 import { ProductFilters } from "@/components/organisms/shared/ProductFilters";
 import { Button } from "@/components/atoms/Button";
 import { Reveal } from "@/components/molecules/Reveal";
+import { PRODUCT_CATEGORY_LABELS } from "@/data/products";
 import {
-  BRANDS,
-  CATEGORY_SHOWCASE,
-  EXTERIOR_PACKAGE,
-  PRODUCT_CATEGORY_LABELS,
-  products,
-} from "@/data/products";
+  getBrands,
+  getCategoryShowcase,
+  getExteriorPackage,
+  getProducts,
+} from "@/lib/cms-store";
 import { JsonLd } from "@/components/atoms/JsonLd";
 import {
   breadcrumbJsonLd,
@@ -37,6 +37,8 @@ export const metadata: Metadata = buildMetadata({
   ],
 });
 
+export const revalidate = 60;
+
 type Props = {
   searchParams: Promise<{ kategori?: string }>;
 };
@@ -53,6 +55,12 @@ function parseCategory(
 export default async function ProductsPage({ searchParams }: Props) {
   const { kategori } = await searchParams;
   const initialCategory = parseCategory(kategori);
+  const [products, brands, showcase, exterior] = await Promise.all([
+    getProducts(),
+    getBrands(),
+    getCategoryShowcase(),
+    getExteriorPackage(),
+  ]);
 
   return (
     <>
@@ -71,7 +79,7 @@ export default async function ProductsPage({ searchParams }: Props) {
           itemListJsonLd({
             path: "/yapi-malzemeleri",
             name: "Yapı malzemesi kategorileri",
-            items: CATEGORY_SHOWCASE.map((c) => ({
+            items: showcase.map((c) => ({
               name: c.label,
               path: `/yapi-malzemeleri?kategori=${c.key}`,
             })),
@@ -115,7 +123,7 @@ export default async function ProductsPage({ searchParams }: Props) {
                 </div>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
-                {EXTERIOR_PACKAGE.map((step) => (
+                {exterior.map((step) => (
                   <div
                     key={step.title}
                     className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm"
@@ -153,7 +161,7 @@ export default async function ProductsPage({ searchParams }: Props) {
             <PaintBucket className="hidden size-8 text-forest-700 sm:block" aria-hidden />
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {BRANDS.map((brand) => (
+            {brands.map((brand) => (
               <a
                 key={brand.name}
                 href="#urunler"
@@ -185,14 +193,14 @@ export default async function ProductsPage({ searchParams }: Props) {
             </h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {CATEGORY_SHOWCASE.map((cat) => (
+            {showcase.map((cat) => (
               <a
                 key={cat.key}
                 href={`?kategori=${cat.key}#urunler`}
                 className="group relative overflow-hidden rounded-3xl bg-white shadow-premium transition hover:-translate-y-1 hover:shadow-premium-hover"
               >
                 <div className="relative aspect-[4/3] overflow-hidden">
-                  <Image
+                  <CdnImage
                     src={cat.image}
                     alt={`${cat.label} kategorisi — Tokat Turhal yapı malzemeleri`}
                     fill

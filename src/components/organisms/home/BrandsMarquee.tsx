@@ -2,10 +2,10 @@
 
 import { Reveal } from "@/components/molecules/Reveal";
 import { SectionHeading } from "@/components/molecules/SectionHeading";
-import { BRANDS } from "@/data/products";
+import type { CmsBrand } from "@/lib/cms-types";
 
-export function BrandsMarquee() {
-  const row = [...BRANDS, ...BRANDS];
+export function BrandsMarquee({ brands = [] }: { brands?: CmsBrand[] }) {
+  const row = [...brands, ...brands];
 
   return (
     <section
@@ -15,9 +15,9 @@ export function BrandsMarquee() {
       <div className="container-wide">
         <Reveal>
           <SectionHeading
-            eyebrow="Markalar"
-            title="Güvenilir markalarla çalışıyoruz"
-            description="Yapı marketimizde bilinen üreticilerin ürün gamı."
+            eyebrow="Reyonda"
+            title="Permolit, İzocam, Weber ve diğerleri"
+            description="Boya, yalıtım ve sıva işinde ustanın tanıdığı markalar — Turhal stokunda."
             align="center"
           />
         </Reveal>

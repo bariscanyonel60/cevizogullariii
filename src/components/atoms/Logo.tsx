@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { CdnImage } from "@/components/atoms/CdnImage";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -25,7 +25,7 @@ export function Logo({ className, compact = false, inverted = false }: LogoProps
           compact ? "h-9 w-[7.5rem]" : "h-11 w-[9.5rem] md:h-12 md:w-44",
         )}
       >
-        <Image
+        <CdnImage
           src="/logo.png"
           alt="Cevizoğulları Yapı Market & İnşaat"
           fill

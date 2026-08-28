@@ -1,9 +1,11 @@
 import type { MetadataRoute } from "next";
-import { blogPosts } from "@/data/blog";
-import { ORMAN_URUNLERI_PAGES } from "@/data/orman-urunleri";
-import { products } from "@/data/products";
-import { projects } from "@/data/projects";
 import { SITE } from "@/lib/constants";
+import {
+  getBlogPosts,
+  getOrmanPages,
+  getProducts,
+  getProjects,
+} from "@/lib/cms-store";
 
 /** Sitemap yenileme tarihi — IA / içerik güncellemeleri sonrası güncelleyin */
 const SITE_LAST_MODIFIED = new Date("2026-07-25");
@@ -25,6 +27,7 @@ const STATIC_ROUTES: StaticRoute[] = [
   { path: "/orman-urunleri", priority: 0.9, changeFrequency: "weekly" },
   { path: "/yapi-insaat", priority: 0.9, changeFrequency: "weekly" },
   { path: "/projelerimiz", priority: 0.85, changeFrequency: "weekly" },
+  { path: "/galeri", priority: 0.8, changeFrequency: "weekly" },
   { path: "/teklif-al", priority: 0.85, changeFrequency: "monthly" },
   { path: "/iletisim", priority: 0.8, changeFrequency: "monthly" },
   { path: "/blog", priority: 0.75, changeFrequency: "weekly" },
@@ -49,7 +52,14 @@ function entry(
   };
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const [ormanPages, products, projects, blogPosts] = await Promise.all([
+    getOrmanPages(),
+    getProducts(),
+    getProjects(),
+    getBlogPosts(),
+  ]);
+
   const staticEntries = STATIC_ROUTES.map((route) =>
     entry(route.path, {
       priority: route.priority,
@@ -57,8 +67,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }),
   );
 
-  const ormanEntries = ORMAN_URUNLERI_PAGES.filter((p) => p.slug !== "index").map(
-    (page) =>
+  const ormanEntries = ormanPages
+    .filter((p) => p.slug !== "index")
+    .map((page) =>
       entry(page.href, {
         priority: 0.82,
         changeFrequency: "weekly",

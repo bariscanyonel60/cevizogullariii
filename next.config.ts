@@ -8,18 +8,18 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "images.unsplash.com",
-      },
-      {
-        protocol: "https",
-        hostname: "cevizogullari.com",
-        pathname: "/wp-content/uploads/**",
+        hostname: "res.cloudinary.com",
+        pathname: "/ymm7xvz0/**",
       },
     ],
     formats: ["image/avif", "image/webp"],
   },
   poweredByHeader: false,
   compress: true,
+  serverExternalPackages: ["exceljs", "pdfkit", "mysql2"],
+  outputFileTracingIncludes: {
+    "/api/admin/accounting/report": ["./src/lib/fonts/DejaVuSans.ttf"],
+  },
   async redirects() {
     return [
       {
@@ -73,7 +73,37 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
-        source: "/yapi-insaat/:slug",
+        source: "/projelerimiz/modern-konut-kompleksi",
+        destination: "/projelerimiz/ova-apartmani-2",
+        permanent: true,
+      },
+      {
+        source: "/projelerimiz/dis-cephe-uygulama-turhal",
+        destination: "/projelerimiz/ova-apt-dis-cephe",
+        permanent: true,
+      },
+      {
+        source: "/projelerimiz/santiye-malzeme-tedarik",
+        destination: "/projelerimiz/kaba-insaat-santiye",
+        permanent: true,
+      },
+      {
+        source: "/projelerimiz/cati-ve-yalitim",
+        destination: "/projelerimiz/gece-cephe-aydinlatma",
+        permanent: true,
+      },
+      {
+        source: "/projelerimiz/konut-tadilat-destegi",
+        destination: "/projelerimiz/ic-kapi-ince-is",
+        permanent: true,
+      },
+      {
+        source: "/projelerimiz/depo-ve-saha-calismalari",
+        destination: "/projelerimiz/satilik-daire-projesi",
+        permanent: true,
+      },
+      {
+        source: "/yapi-insaat/:slug([^./]+)",
         destination: "/yapi-insaat",
         permanent: true,
       },

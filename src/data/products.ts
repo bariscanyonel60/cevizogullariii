@@ -581,37 +581,37 @@ export const CATEGORY_SHOWCASE: {
   {
     key: "cimento",
     label: "Çimento",
-    description: "Torba çimento ve bağlayıcı malzemeler.",
+    description: "Torba çimento ve harç. Şantiye dökümü için dayanım sınıfına göre.",
     image: "/products/cimento-torbalar.jpg",
   },
   {
     key: "demir",
     label: "Demir",
-    description: "İnşaat demiri ve çelik ürünleri.",
+    description: "İnşaat demiri ve bağlama teli. Kaba inşaat listesine göre.",
     image: "/products/tugla-duvar.jpg",
   },
   {
     key: "cephe",
     label: "Tuğla & Cephe",
-    description: "Dış cephe ve duvar sistemleri.",
+    description: "Tuğla, cephe sıvası ve dış duvar kalemleri.",
     image: "/products/dis-cephe-ev.jpg",
   },
   {
     key: "cati",
     label: "Çatı Sistemleri",
-    description: "Kiremit, membran ve çatı detayları.",
+    description: "Kiremit, membran, oluk. Yağmur detayı için.",
     image: "/products/kiremit-kirmizi.jpg",
   },
   {
     key: "boya",
     label: "Boya",
-    description: "İç-dış cephe boya ve astar.",
+    description: "Permolit, Filli, Marshall — iç-dış boya ve astar.",
     image: "/products/boya-rulo.jpg",
   },
   {
     key: "izolasyon",
     label: "Yalıtım",
-    description: "EPS, XPS, taş yünü ve mantolama.",
+    description: "EPS, XPS, İzocam, file ve dübel. Mantolama seti.",
     image: "/products/eps-levha.jpg",
   },
   {
@@ -629,13 +629,13 @@ export const CATEGORY_SHOWCASE: {
   {
     key: "orman",
     label: "OSB & Levha",
-    description: "OSB, plywood ve orman ürünleri.",
+    description: "Çatı, kalıp ve zemin için OSB ve plywood.",
     image: "/products/osb-panel.jpg",
   },
   {
     key: "ahsap",
     label: "Orman Ürünleri",
-    description: "Çam, kavak kereste ve lambri.",
+    description: "Çam, kavak kereste ve lambri. Kuruluk ve kesit seçimi.",
     image: "/products/kereste-yigin.jpg",
   },
   {

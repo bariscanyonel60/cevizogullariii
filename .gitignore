@@ -32,11 +32,19 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
-# vercel / netlify
+# vercel
 .vercel
-.netlify
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local media store fallback
+.data
+
+# editor / agent local state
+.claude/
+.cursor/
+.kiro/

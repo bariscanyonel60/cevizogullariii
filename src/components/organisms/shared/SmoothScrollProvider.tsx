@@ -33,6 +33,7 @@ function LenisResizeBridge() {
     const timer2 = window.setTimeout(refresh, 1200);
     window.addEventListener("load", refresh);
     window.addEventListener("resize", refresh);
+    window.addEventListener("orientationchange", refresh);
 
     const ro = new ResizeObserver(refresh);
     ro.observe(document.body);
@@ -42,8 +43,30 @@ function LenisResizeBridge() {
       window.clearTimeout(timer2);
       window.removeEventListener("load", refresh);
       window.removeEventListener("resize", refresh);
+      window.removeEventListener("orientationchange", refresh);
       ro.disconnect();
     };
+  }, [lenis]);
+
+  // Menü kilidi sonrası Lenis’in takılı kalmasını önle
+  useEffect(() => {
+    if (!lenis) return;
+
+    const ensureRunning = () => {
+      if (document.body.dataset.mobileNav === "open") return;
+      if (document.documentElement.classList.contains("lenis-stopped")) {
+        lenis.start();
+        lenis.resize();
+      }
+    };
+
+    ensureRunning();
+    const observer = new MutationObserver(ensureRunning);
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["data-mobile-nav", "style"],
+    });
+    return () => observer.disconnect();
   }, [lenis]);
 
   return null;

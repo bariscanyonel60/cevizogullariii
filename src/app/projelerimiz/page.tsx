@@ -3,7 +3,7 @@ import { PageHero } from "@/components/organisms/shared/PageHero";
 import { ProjectGrid } from "@/components/organisms/shared/ProjectGrid";
 import { InstagramCta } from "@/components/organisms/shared/InstagramCta";
 import { JsonLd } from "@/components/atoms/JsonLd";
-import { projects } from "@/data/projects";
+import { getProjects } from "@/lib/cms-store";
 import { SITE } from "@/lib/constants";
 import {
   breadcrumbJsonLd,
@@ -23,7 +23,10 @@ export const metadata: Metadata = buildMetadata({
   ],
 });
 
-export default function ProjectsPage() {
+export const revalidate = 60;
+
+export default async function ProjectsPage() {
+  const projects = await getProjects();
   return (
     <>
       <JsonLd

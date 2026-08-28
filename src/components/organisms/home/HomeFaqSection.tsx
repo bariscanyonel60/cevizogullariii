@@ -4,10 +4,13 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { Reveal } from "@/components/molecules/Reveal";
 import { SectionHeading } from "@/components/molecules/SectionHeading";
-import { HOME_FAQS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-export function HomeFaqSection() {
+export function HomeFaqSection({
+  faqs = [],
+}: {
+  faqs?: { question: string; answer: string }[];
+}) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
@@ -20,7 +23,7 @@ export function HomeFaqSection() {
         />
       </Reveal>
       <div className="mx-auto max-w-3xl space-y-3">
-        {HOME_FAQS.map((faq, index) => {
+        {faqs.map((faq, index) => {
           const open = openIndex === index;
           return (
             <Reveal key={faq.question} delay={index * 0.05}>

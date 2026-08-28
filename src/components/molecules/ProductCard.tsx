@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { CdnImage } from "@/components/atoms/CdnImage";
 import { ArrowUpRight } from "lucide-react";
 import type { Product } from "@/types";
 import { Badge } from "@/components/atoms/Badge";
@@ -21,9 +21,9 @@ export function ProductCard({ product, className }: ProductCardProps) {
     >
       <Link href={`/yapi-malzemeleri/${product.slug}`} className="block">
         <div className="relative aspect-[5/4] overflow-hidden">
-          <Image
+          <CdnImage
             src={product.image}
-            alt={`${product.title} — ${product.brand} | Tokat Turhal yapı malzemeleri`}
+            alt={`${product.title} — Tokat yapı malzemeleri, ${product.brand} Turhal`}
             fill
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover transition duration-700 group-hover:scale-105"

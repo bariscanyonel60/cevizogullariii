@@ -14,15 +14,15 @@ export const testimonials: Testimonial[] = [
     name: "Hasan Yıldız",
     role: "Müteahhit · Turhal",
     quote:
-      "Toplu alımlarda zamanında teslimat ve doğru ürün önerisi sayesinde şantiye tempomuz hiç düşmedi. Güvenilir bir tedarikçi.",
+      "Şantiye listesini akşam atıyoruz, sabah palet hazır oluyor. Çimento, OSB ve mantolama aynı yükte çıktı; usta bekletmedik.",
     rating: 5,
   },
   {
     id: "2",
     name: "Fatma Aksoy",
-    role: "Ev Tadilatı",
+    role: "Ev tadilatı · Tokat",
     quote:
-      "Yalıtım ve çatı malzemelerinde ihtiyacımıza uygun yönlendirme aldık. Kaliteli ürün, uygun fiyat — memnun kaldık.",
+      "Dış cephe için EPS kalınlığı ve Permolit rengi konusunda net konuştular. Aldığım malzeme evde açıkta kalmadı, fazlası da yoktu.",
     rating: 5,
   },
   {
@@ -30,117 +30,117 @@ export const testimonials: Testimonial[] = [
     name: "Ali Demir",
     role: "Usta · Tokat",
     quote:
-      "Günlük şantiye ihtiyaçlarında hızlı hazırlık ve sürekli stok desteği çok işimize yarıyor. Tek noktadan çözüyoruz.",
+      "Nalbur, file, dübel, astar — eksik kalem çıkınca Turhal’dan tamamlıyoruz. Reyon bildikleri için yanlış ürün önermiyorlar.",
     rating: 5,
   },
 ];
 
 export const whyUs = [
   {
-    title: "Kaliteli Ürün",
+    title: "Turhal’da stoklu reyon",
     description:
-      "Orman ürünlerinden yalıtıma, temel inşaat malzemelerine kadar dayanıklı ve güvenilir ürün gamı.",
+      "Boya, mantolama, çimento, çatı, OSB ve nalbur aynı çatı altında. Listeyi getirin; raflardan toplayıp yükleriz.",
   },
   {
-    title: "Uygun Fiyat",
+    title: "Şantiye temposuna uyum",
     description:
-      "Bireysel müşteriden ustaya, müteahhitten büyük projelere kadar rekabetçi fiyatlandırma.",
+      "Toplu alımda palet hazırlar, talep olunca kendi aracımızla götürürüz. Usta beklesin diye işi uzatmayız.",
   },
   {
-    title: "Hızlı Tedarik",
+    title: "Doğru ürün, doğru iş",
     description:
-      "Stoklu ürün yapısı ve organize sevkiyat ile proje temposuna uyum sağlayan teslimat.",
+      "Hangi EPS, hangi astar, hangi kereste — kullanım yerini sorar, Tokat iklimine ve uygulamaya göre yönlendiririz.",
   },
   {
-    title: "Doğru Yönlendirme",
+    title: "Yerel, tekrar aranan adres",
     description:
-      "İhtiyaca uygun ürün seçimi, uygulama odaklı danışmanlık ve satış sonrası destek.",
+      "Aynı müteahhit ve ustalarla tekrar çalışırız. Bir kere satıp bitirmek değil; bir sonraki siparişte de bulunmak isteriz.",
   },
 ];
 
 export const services = [
   {
+    title: "Yapı Market",
+    description:
+      "Permolit boya, mantolama seti, çimento, çatı membranı ve nalbur. Turhal reyonundan Tokat şantiyesine tedarik.",
+    href: "/yapi-malzemeleri",
+  },
+  {
     title: "Orman Ürünleri",
     description:
-      "OSB, plywood (odek), laminat, çam kereste, lambri ve kavak kereste ile sağlam temel.",
+      "OSB, plywood (odek), çam-kavak kereste ve lambri. Çatı, kalıp ve tadilat için ölçüye göre levha.",
     href: "/orman-urunleri",
   },
   {
-    title: "Boya & Dış Cephe",
+    title: "Yalıtım & Dış Cephe",
     description:
-      "Permolit, Filli Boya ve Marshall ile iç-dış cephe boyası, astar ve dekoratif kaplama.",
+      "EPS/XPS, İzocam, Weber yapıştırıcı, file-dübel ve dış cephe sıvası. Mantolamayı sistem olarak kurarız.",
     href: "/yapi-malzemeleri",
   },
   {
-    title: "Yalıtım & Mantolama",
+    title: "Yapı - İnşaat",
     description:
-      "EPS, XPS, İzocam ve Weber sistemleri ile enerji verimli dış cephe yalıtımı.",
-    href: "/yapi-malzemeleri",
-  },
-  {
-    title: "Hızlı Tedarik",
-    description:
-      "Zamanında teslimat, geniş yelpaze ve müşteri memnuniyeti odaklı hizmet anlayışı.",
-    href: "/teklif-al",
+      "Konut, cephe ve tadilat uygulaması. Malzeme tedariki ile saha işini aynı ekipten yürütmek isteyenler için.",
+    href: "/yapi-insaat",
   },
 ];
 
 export const processSteps = [
   {
     step: "01",
-    title: "Keşif ve İhtiyaç Analizi",
+    title: "Listeyi alın",
     description:
-      "Talebinizi dinler, proje ihtiyaçlarını belirler ve en uygun malzeme çözümlerini sunarız.",
+      "Mağazaya gelin, WhatsApp’tan yazın veya teklif formunu doldurun. Ürün, miktar ve teslim yeri yeter.",
   },
   {
     step: "02",
-    title: "Planlama ve Ürün Seçimi",
+    title: "Stok ve ölçü",
     description:
-      "Orman ürünleri, yalıtım ve inşaat malzemeleri; doğru ürün, fiyat ve planlama ile netleşir.",
+      "Rafta ne var, hangisi sipariş, hangi kalınlık veya renk uygun — net konuşur, fiyatı söyleriz.",
   },
   {
     step: "03",
-    title: "Tedarik ve Hazırlık",
+    title: "Yükleme",
     description:
-      "Siparişler özenle hazırlanır; stok ve kalite kontrol süreçleri titizlikle yürütülür.",
+      "Torba, levha ve paleti mağaza veya depodan hazırlarız. Kırılmasın, eksik çıkmasın diye sayarız.",
   },
   {
     step: "04",
-    title: "Teslimat ve Destek",
+    title: "Teslim ve devam",
     description:
-      "Ürünler zamanında teslim edilir; satış sonrası destek ve danışmanlık sürer.",
+      "Turhal’dan alın veya talep edin, aracımızla götürelim. Eksik kalem olursa aynı gün tamamlarız.",
   },
 ];
 
 export const audienceSegments = [
   {
-    title: "Ticari Projeler",
+    title: "Müteahhit & şantiye",
     description:
-      "Depo, iş yeri ve büyük ölçekli projelerde süreklilik ve hızlı tedarik avantajı.",
+      "Toplu çimento, demir, OSB, yalıtım ve cephe malzemesinde süreklilik. Proje takvimine göre yük planlarız.",
     points: [
-      "Toplu alımlarda güçlü tedarik planı",
-      "Proje sürecine uygun zamanında teslimat",
-      "Geniş ürün çeşitliliğiyle tek noktadan çözüm",
+      "Paletli teslim ve şantiye listesine göre hazırlık",
+      "Mantolama ve çatı kalemlerini tek siparişte birleştirme",
+      "Erbaa, Niksar, Zile ve Pazar şantiyelerine sevkiyat",
     ],
   },
   {
-    title: "Bireysel Yapılar",
+    title: "Usta",
     description:
-      "Ev yapımı, tadilat ve yenilemede doğru malzeme seçimiyle uzun ömürlü çözümler.",
+      "Günlük ihtiyaç: astar, file, dübel, nalbur, sıva. Yanlış ürünle sahaya dönmeyin diye reyonu birlikte tararız.",
     points: [
-      "İhtiyaca uygun ürün yönlendirmesi",
-      "Yalıtım ve çatı çözümlerinde doğru seçim",
-      "Hızlı tedarik, güvenilir kalite",
+      "Eksik kalemi aynı gün tamamlama",
+      "Uygulamaya göre marka ve ölçü önerisi",
+      "Küçük alımda da mağazadan hızlı çıkış",
     ],
   },
   {
-    title: "Usta & Şantiye",
+    title: "Ev sahibi / tadilat",
     description:
-      "Günlük şantiye ihtiyaçlarına pratik, hızlı ve doğru malzeme desteği.",
+      "Daire veya müstakil ev boyası, mantolama, çatı ve iç mekan. Ne kadar malzeme gideceğini abartmadan hesaplarız.",
     points: [
-      "İhtiyaç listesine göre hızlı hazırlık",
-      "Uygulama odaklı ürün önerisi",
-      "Sürekli stok ve düzenli tedarik",
+      "Permolit iç-dış boya ve astar seçimi",
+      "EPS kalınlığı ve cephe sistemi yönlendirmesi",
+      "İsterseniz ürünü adrese götürme",
     ],
   },
 ];

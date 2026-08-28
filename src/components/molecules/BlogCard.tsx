@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { CdnImage } from "@/components/atoms/CdnImage";
 import type { BlogPost } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -18,7 +18,7 @@ export function BlogCard({ post, className }: BlogCardProps) {
     >
       <Link href={`/blog/${post.slug}`} className="block">
         <div className="relative aspect-[16/10] overflow-hidden">
-          <Image
+          <CdnImage
             src={post.coverImage}
             alt={`${post.title} — Cevizoğulları Blog | Tokat yapı market`}
             fill

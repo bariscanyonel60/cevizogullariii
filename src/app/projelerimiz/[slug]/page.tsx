@@ -6,7 +6,7 @@ import { ImageGallery } from "@/components/organisms/shared/ImageGallery";
 import { BeforeAfter } from "@/components/organisms/shared/BeforeAfter";
 import { InstagramCta } from "@/components/organisms/shared/InstagramCta";
 import { Button } from "@/components/atoms/Button";
-import { getProjectBySlug, projects } from "@/data/projects";
+import { getProjectBySlug, getProjects } from "@/lib/cms-store";
 import { SITE } from "@/lib/constants";
 import { JsonLd } from "@/components/atoms/JsonLd";
 import {
@@ -19,13 +19,16 @@ import {
 
 type Props = { params: Promise<{ slug: string }> };
 
+export const revalidate = 60;
+
 export async function generateStaticParams() {
+  const projects = await getProjects();
   return projects.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const project = getProjectBySlug(slug);
+  const project = await getProjectBySlug(slug);
   if (!project) {
     return buildMetadata({
       title: "Proje bulunamadı",
@@ -54,7 +57,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProjectDetailPage({ params }: Props) {
   const { slug } = await params;
-  const project = getProjectBySlug(slug);
+  const project = await getProjectBySlug(slug);
   if (!project) notFound();
 
   const schemas = [

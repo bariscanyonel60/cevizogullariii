@@ -67,13 +67,11 @@ export function HomeLocalSeoSection() {
               <strong className="font-semibold text-ink-800">
                 Tokat yapı malzemeleri
               </strong>
-              ,{" "}
-              <strong className="font-semibold text-ink-800">
-                Turhal yapı market
-              </strong>{" "}
-              ve orman ürünleri / yapı-inşaat arayanlar için Cevizoğulları; boya,
-              mantolama, yalıtım, çatı, OSB ve çimento gibi temel ürünleri tek
-              çatı altında toplar.
+              {" "}
+              arayanlar için Cevizoğulları; boya, mantolama, yalıtım, çatı, OSB
+              ve çimento gibi temel ürünleri Turhal yapı market stokunda tek
+              çatı altında toplar. Şantiye listesi veya tadilat ihtiyacında
+              Tokat yapı malzemeleri tedarikini yerelden, zamanında planlarız.
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
               <Button asChild>

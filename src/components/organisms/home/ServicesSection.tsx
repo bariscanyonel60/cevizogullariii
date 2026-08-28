@@ -2,9 +2,12 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Reveal } from "@/components/molecules/Reveal";
 import { SectionHeading } from "@/components/molecules/SectionHeading";
-import { services } from "@/data/content";
 
-export function ServicesSection() {
+export function ServicesSection({
+  services = [],
+}: {
+  services?: { title: string; description: string; href: string }[];
+}) {
   return (
     <section
       id="hizmetler"
@@ -12,9 +15,9 @@ export function ServicesSection() {
     >
       <Reveal>
         <SectionHeading
-          eyebrow="Hizmetler"
-          title="Tokat’ta uçtan uca yapı çözümleri"
-          description="Orman ürünlerinden yalıtıma, boyadan hızlı tedarike kadar Tokat ve Turhal’da yanınızdayız."
+          eyebrow="Üç iş, tek adres"
+          title="Yapı market, orman ürünleri, inşaat"
+          description="Tokat ve Turhal’da boya-yalıtımdan OSB’ye, konut cephesinden şantiye listesine kadar aynı çatı."
         />
       </Reveal>
       <div className="grid gap-4 md:grid-cols-2">

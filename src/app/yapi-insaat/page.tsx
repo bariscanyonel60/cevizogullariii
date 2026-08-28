@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { CdnImage } from "@/components/atoms/CdnImage";
 import Link from "next/link";
 import { Building2, HardHat, Layers, Ruler } from "lucide-react";
 import { PageHero } from "@/components/organisms/shared/PageHero";
@@ -7,7 +7,11 @@ import { ProjectCard } from "@/components/molecules/ProjectCard";
 import { Button } from "@/components/atoms/Button";
 import { Reveal } from "@/components/molecules/Reveal";
 import { JsonLd } from "@/components/atoms/JsonLd";
-import { getFeaturedProjects } from "@/data/projects";
+import { getFeaturedProjects } from "@/lib/cms-store";
+import { getPublicMedia } from "@/lib/media-store";
+import { GallerySection } from "@/components/organisms/shared/GallerySection";
+import { SiteVideoSection } from "@/components/organisms/shared/SiteVideoSection";
+import { YAPI_INSAAT_VIDEO } from "@/data/yapi-insaat-media";
 import {
   breadcrumbJsonLd,
   buildMetadata,
@@ -29,31 +33,34 @@ export const metadata: Metadata = buildMetadata({
   ],
 });
 
+export const revalidate = 60;
+
 const SERVICES = [
   {
     icon: Building2,
-    title: "Konut & Bina İnşaatı",
-    text: "Yeni konut ve çok katlı bina projelerinde kaba-ince işler, cephe ve bitiş uygulamaları.",
+    title: "Konut & kaba-ince",
+    text: "Temel üstü kaba iş, cephe ve bitiş. Malzeme listesini reyonla eşleştirip sahaya bağlarız.",
   },
   {
     icon: Layers,
-    title: "Dış Cephe & Mantolama",
-    text: "Isı yalıtımı, sıva ve boya sistemleriyle uzun ömürlü, enerji verimli cephe çözümleri.",
+    title: "Dış cephe & mantolama",
+    text: "EPS/XPS, file, dübel, sıva ve Permolit. Tokat kışına göre kalınlık; yağmura göre boya sistemi.",
   },
   {
     icon: HardHat,
-    title: "Şantiye Uygulama",
-    text: "Saha organizasyonu, doğru malzeme seçimi ve uygulama temposuna uygun ilerleme.",
+    title: "Şantiye uygulaması",
+    text: "İskele, tempo ve malzeme sırası. Usta beklemeyecek şekilde palet ve günlük kalem planlanır.",
   },
   {
     icon: Ruler,
-    title: "Tadilat & Güçlendirme",
-    text: "Mevcut yapılarda yenileme, güçlendirme ve detay odaklı tadilat desteği.",
+    title: "Tadilat & yenileme",
+    text: "Mevcut evde boya, yalıtım, çatı ve iç mekan. Metrekareye göre malzeme; fazla kova almayın.",
   },
 ] as const;
 
-export default function YapiInsaatPage() {
-  const featured = getFeaturedProjects().slice(0, 6);
+export default async function YapiInsaatPage() {
+  const featured = (await getFeaturedProjects()).slice(0, 6);
+  const { items: galleryItems } = await getPublicMedia("yapi-insaat");
 
   return (
     <>
@@ -81,7 +88,7 @@ export default function YapiInsaatPage() {
       />
       <PageHero
         title="Yapı - İnşaat"
-        description="Konut ve bina inşa ediyoruz. Turhal / Tokat’ta sahadan bitişe güvenilir yapı uygulamaları."
+        description="Konut, cephe ve tadilat. Turhal’da malzeme tedariki ile saha uygulamasını aynı ekipten yürütün."
         crumbs={[
           { label: "Ana Sayfa", href: "/" },
           { label: "Yapı - İnşaat" },
@@ -92,9 +99,9 @@ export default function YapiInsaatPage() {
         <Reveal>
           <div className="grid items-center gap-8 overflow-hidden rounded-[2rem] border border-earth-400/10 bg-white shadow-premium lg:grid-cols-2">
             <div className="relative min-h-64 lg:min-h-full">
-              <Image
-                src="/projects/modern-konut-cephe.jpg"
-                alt="Tokat Turhal konut inşaatı — Cevizoğulları Yapı İnşaat"
+              <CdnImage
+                src="/media/yapi-insaat/ova-apt-2-saha.jpg"
+                alt="CVZ Yapı İnşaat Ova Apt. 2 projesi — Tokat Turhal konut inşaatı"
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"
@@ -106,12 +113,13 @@ export default function YapiInsaatPage() {
                 İnşaat & Uygulama
               </p>
               <h2 className="font-display text-3xl font-bold text-ink-900 md:text-4xl">
-                Konut ve bina inşa ediyoruz
+                Konut ve cepheyi yerinde kuruyoruz
               </h2>
               <p className="text-ink-500 leading-relaxed">
-                Cevizoğulları Yapı - İnşaat olarak Tokat ve Turhal’da konut,
-                bina ve dış cephe uygulamaları gerçekleştiriyoruz. Malzeme
-                tedarikinden saha uygulamasına kadar süreci birlikte yönetiriz.
+                Cevizoğulları Yapı - İnşaat, Turhal yapı marketinin saha koludur.
+                Ova Apt. 2, kaba inşaat ve ince iş kareleri bu sayfada. Malzeme
+                reyonundan çıkar, uygulama ekibiyle duvara gider — ayrı
+                tedarikçi, ayrı usta beklemek zorunda değilsiniz.
               </p>
               <div className="flex flex-wrap gap-3 pt-2">
                 <Button asChild>
@@ -133,7 +141,7 @@ export default function YapiInsaatPage() {
               Hizmetler
             </p>
             <h2 className="mt-2 font-display text-3xl font-bold text-ink-900">
-              Ne inşa ediyoruz?
+              Ne iş alıyoruz?
             </h2>
           </div>
         </Reveal>
@@ -156,6 +164,21 @@ export default function YapiInsaatPage() {
           ))}
         </div>
       </section>
+
+      <SiteVideoSection
+        src={YAPI_INSAAT_VIDEO.src}
+        poster={YAPI_INSAAT_VIDEO.poster}
+        title={YAPI_INSAAT_VIDEO.title}
+        description={YAPI_INSAAT_VIDEO.description}
+      />
+
+      <GallerySection
+        id="santiye-galeri"
+        items={galleryItems}
+        eyebrow="Şantiye galerisi"
+        title="Uygulama ve saha görselleri"
+        description="Ova Apt, villa cephe, ahşap kalıp, temel beton ve iç kapı bitişi — CVZ Yapı İnşaat sahasından güncel kareler."
+      />
 
       <section className="container-wide pb-16 md:pb-24">
         <Reveal>

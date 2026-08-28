@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { CdnImage } from "@/components/atoms/CdnImage";
 import { PageHero } from "@/components/organisms/shared/PageHero";
 import { Reveal } from "@/components/molecules/Reveal";
-import { audienceSegments } from "@/data/content";
+import { getSiteCards } from "@/lib/cms-store";
 import { buildMetadata } from "@/lib/seo";
 import { SITE } from "@/lib/constants";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Hakkımızda · Turhal Tokat Cevizoğulları",
-  description: `${SITE.name}: Turhal / Tokat’ta orman ürünleri, yalıtım, boya ve inşaat malzemeleri tedariki. Yerel güvenilir yapı market.`,
+  title: "Hakkımızda · Turhal Yapı Market",
+  description: `Turhal Pazar Mahallesi’nde yapı market, orman ürünleri ve yapı-inşaat. ${SITE.name} — stok, usta yönlendirmesi, şantiye teslimatı.`,
   path: "/kurumsal",
   keywords: [
     "Cevizoğulları hakkında",
@@ -17,12 +17,15 @@ export const metadata: Metadata = buildMetadata({
   ],
 });
 
-export default function CorporatePage() {
+export const revalidate = 60;
+
+export default async function CorporatePage() {
+  const audienceSegments = await getSiteCards("audience");
   return (
     <>
       <PageHero
         title="Hakkımızda"
-        description="Turhal’da yılların tecrübesiyle yapı malzemeleri ve inşaat tedarikinde güvenilir çözüm ortağınız."
+        description="Turhal’da reyonu olan bir yapı marketiz: boya, yalıtım, kereste ve inşaat malzemesi. Aynı çatı altında uygulama da yaparız."
         crumbs={[
           { label: "Ana Sayfa", href: "/" },
           { label: "Hakkımızda" },
@@ -33,7 +36,7 @@ export default function CorporatePage() {
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <Reveal>
             <div className="relative aspect-[5/4] overflow-hidden rounded-[2rem] shadow-premium">
-              <Image
+              <CdnImage
                 src="/projects/modern-konut-bahce.jpg"
                 alt="Cevizoğulları Turhal Tokat yapı market ve proje alanı"
                 fill
@@ -47,21 +50,25 @@ export default function CorporatePage() {
               Hakkımızda
             </p>
             <h2 className="mt-3 font-display text-3xl font-bold text-ink-900 md:text-4xl">
-              Güvenin ve kalitenin adresi
+              Turhal’dan Tokat şantiyesine malzeme
             </h2>
             <p className="mt-5 leading-relaxed text-ink-500">
-              Cevizoğulları olarak; orman ürünleri, çatı ve ısı yalıtım
-              malzemeleri ile inşaat sektörünün temel yapı taşlarını tek çatı
-              altında sunuyoruz. Yılların verdiği tecrübe ve sektör bilgisiyle,
-              hem bireysel müşterilerimize hem de profesyonel ustalarımıza
-              güvenilir çözümler sağlıyoruz.
+              Cevizoğulları, Pazar Mahallesi Yeşilırmak Sokak’taki yapı
+              marketinden boya, mantolama, çimento, çatı, OSB ve kereste satar.
+              Usta ve müteahhit günlük listeyle gelir; ev sahibi tadilat için
+              renk ve kalınlık sorar. Biz raftan toplar, sayar, isterse kendi
+              aracımızla götürürüz.
             </p>
             <p className="mt-4 leading-relaxed text-ink-500">
-              Turhal / Tokat’ta hizmet veren {SITE.shortName}, kaliteli ürün –
-              uygun fiyat – hızlı tedarik prensibiyle çalışır. Projelerinizde
-              sağlam bir temel atmak için doğru adrestesiniz.
+              Üç işi ayırmadan yürüyoruz: yapı market reyonu, orman ürünleri
+              (OSB, plywood, çam-kavak) ve yapı-inşaat uygulaması. Böylece
+              “malzemeyi aldım, usta yok” veya “ustam var, palet yarın gelir”
+              kopukluğu azalır. Tokat merkez, Zile, Erbaa, Niksar ve Pazar’daki
+              işlerde aynı tedarik mantığı geçerlidir.
             </p>
-            <p className="mt-4 text-sm text-ink-400">{SITE.address}</p>
+            <p className="mt-4 text-sm text-ink-400">
+              {SITE.address} · {SITE.hours}
+            </p>
           </Reveal>
         </div>
 
@@ -76,7 +83,7 @@ export default function CorporatePage() {
                   {item.description}
                 </p>
                 <ul className="mt-4 space-y-2">
-                  {item.points.map((point) => (
+                  {item.points?.map((point) => (
                     <li
                       key={point}
                       className="flex gap-2 text-sm text-ink-600"
@@ -94,16 +101,16 @@ export default function CorporatePage() {
         <div className="mt-12 grid gap-5 md:grid-cols-3">
           {[
             {
-              title: "Vizyon",
-              text: "Bölgede yapı malzemeleri tedarikinde güven ve kalite standardı olmak.",
+              title: "Ne yapmak isteriz",
+              text: "Tokat’ta yapı malzemesi arayanın Turhal’da duracağı net bir reyon olmak: stok doğru, yönlendirme açık, teslim sözünde.",
             },
             {
-              title: "Misyon",
-              text: "Doğru ürün, uygun fiyat ve hızlı tedarikle projelerinize sağlam temel sunmak.",
+              title: "Nasıl çalışırız",
+              text: "Listeyi dinler, raftan çıkarır, eksik kalemi söyleriz. Toplu yükte palet hazırlar; talep olunca kendi aracımızla götürürüz.",
             },
             {
-              title: "Değerler",
-              text: "Güven, kalite, müşteri memnuniyeti ve zamanında teslimat.",
+              title: "Nelere dikkat ederiz",
+              text: "Yanlış EPS, eksik dübel, ıslak kereste sahayı durdurur. Ürünü işe göre seçer, sayarak teslim ederiz.",
             },
           ].map((item, index) => (
             <Reveal key={item.title} delay={index * 0.08}>

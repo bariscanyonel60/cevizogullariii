@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { CdnImage } from "@/components/atoms/CdnImage";
 import Link from "next/link";
 import { CheckCircle2, Truck } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
@@ -6,8 +6,7 @@ import { ProductCard } from "@/components/molecules/ProductCard";
 import { Reveal } from "@/components/molecules/Reveal";
 import { PageHero } from "@/components/organisms/shared/PageHero";
 import type { OrmanUrunleriPage } from "@/data/orman-urunleri";
-import { ORMAN_URUNLERI_PAGES } from "@/data/orman-urunleri";
-import { getProductBySlug, products } from "@/data/products";
+import type { Product } from "@/types";
 
 const applications = [
   "Çatı altı kaplama",
@@ -32,12 +31,18 @@ const deliverySteps = [
 
 type OrmanUrunleriContentProps = {
   page: OrmanUrunleriPage;
+  ormanPages: OrmanUrunleriPage[];
+  products: Product[];
 };
 
-export function OrmanUrunleriContent({ page }: OrmanUrunleriContentProps) {
+export function OrmanUrunleriContent({
+  page,
+  ormanPages,
+  products,
+}: OrmanUrunleriContentProps) {
   const related = page.relatedSlugs
-    .map((slug) => getProductBySlug(slug))
-    .filter(Boolean);
+    .map((slug) => products.find((item) => item.slug === slug))
+    .filter((item): item is Product => Boolean(item));
 
   const categoryProducts = page.relatedCategories
     ? products
@@ -47,7 +52,7 @@ export function OrmanUrunleriContent({ page }: OrmanUrunleriContentProps) {
     : [];
 
   const showcase = [...related, ...categoryProducts].slice(0, 3);
-  const subLinks = ORMAN_URUNLERI_PAGES.filter((item) => item.slug !== "index");
+  const subLinks = ormanPages.filter((item) => item.slug !== "index");
   const gallery = [
     page.image,
     "/products/osb-panel.jpg",
@@ -89,7 +94,7 @@ export function OrmanUrunleriContent({ page }: OrmanUrunleriContentProps) {
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <Reveal>
             <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-premium">
-              <Image
+              <CdnImage
                 src={page.image}
                 alt={page.title}
                 fill
@@ -158,7 +163,7 @@ export function OrmanUrunleriContent({ page }: OrmanUrunleriContentProps) {
                 className="mb-4 break-inside-avoid overflow-hidden rounded-2xl"
               >
                 <div className="relative aspect-[4/5]">
-                  <Image
+                  <CdnImage
                     src={src}
                     alt={`${page.title} galeri ${index + 1}`}
                     fill

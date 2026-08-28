@@ -1,9 +1,9 @@
 export const SITE = {
   name: "Cevizoğulları Yapı Market & İnşaat",
   shortName: "Cevizoğulları",
-  tagline: "Tokat & Turhal’da yapı malzemeleri ve inşaat tedariki",
+  tagline: "Turhal’da yapı market, orman ürünleri ve inşaat tedariki",
   description:
-    "Tokat / Turhal’da yapı market, mantolama, boya, yalıtım, orman ürünleri, OSB ve yapı-inşaat. Deprem koşullarına uygun ürün seçimi, hızlı tedarik — Zile, Erbaa, Niksar, Pazar ve yakın illere hizmet.",
+    "Cevizoğulları: Turhal / Tokat’ta boya, mantolama, çimento, OSB, kereste ve yapı-inşaat. Stoklu reyon, usta yönlendirmesi, talep olunca kendi aracımızla teslimat — Zile, Erbaa, Niksar, Pazar ve yakın illere.",
   url: "https://cevizogullari.com",
   locale: "tr_TR",
   phone: "+90 535 573 01 15",
@@ -49,9 +49,9 @@ export const SITE = {
 /** Anasayfa SSS — FAQPage şeması ile birlikte kullanılır (Google People Also Ask uyumlu) */
 export const HOME_FAQS = [
   {
-    question: "Tokat’ta yapı malzemesi nereden alınır?",
+    question: "Tokat yapı malzemeleri nereden alınır?",
     answer:
-      "Tokat yapı malzemeleri için Cevizoğulları Yapı Market, Turhal’da boya, mantolama, yalıtım, çatı, çimento, OSB ve nalbur ürünlerini stoklu satar. Tokat merkez ile Zile, Erbaa, Niksar ve Pazar’a hızlı tedarik sunar.",
+      "Tokat yapı malzemeleri için Cevizoğulları Yapı Market, Turhal Pazar Mahallesi’nde boya, mantolama, çatı, çimento, OSB ve nalbur satar. Listeyi getirin veya yazın; stoktaysa yükler, talep olursa kendi aracımızla götürürüz.",
   },
   {
     question: "Turhal’da mantolama ve ısı yalıtım malzemesi satılıyor mu?",
@@ -77,6 +77,29 @@ export const HOME_FAQS = [
     question: "Tokat yapı market’ten teklif nasıl alınır?",
     answer:
       "Teklif Al formundan veya WhatsApp (+90 535 573 01 15) hattımızdan ürün listesi ve miktarı iletin. Turhal mağazamız Pzt–Cmt 08:00–19:00 açıktır; hızlı fiyat ve stok dönüşü yapılır.",
+  },
+] as const;
+
+export const TOKAT_FAQS = [
+  {
+    question: "Tokat’ta mantolama malzemesi nereden alınır?",
+    answer:
+      "Cevizoğulları Yapı Market, Turhal’da EPS/XPS, file, dübel, yapıştırıcı ve dış cephe sıvasını stoklu sunar. Tokat mantolama projeleriniz için ürün seçimi ve tedarik desteği sağlarız.",
+  },
+  {
+    question: "Turhal’da dış cephe boyası satıyor musunuz?",
+    answer:
+      "Evet. Permolit, Filli Boya ve Marshall dış cephe boyası ile astarları Turhal mağazamızda bulabilirsiniz. Renk ve yüzey tipine göre yönlendirme yapıyoruz.",
+  },
+  {
+    question: "Tokat strafor / ısı yalıtım ürünleri var mı?",
+    answer:
+      "Tokat ısı yalıtım ihtiyacı için strafor (EPS), karbonlu EPS, XPS ve İzocam ürünlerini tedarik ediyoruz. Kalınlık ve kullanım alanına göre öneri veriyoruz.",
+  },
+  {
+    question: "Erbaa, Niksar, Zile ve Pazar’a malzeme götürüyor musunuz?",
+    answer:
+      "Turhal merkezliyiz; Tokat merkez, Erbaa, Niksar, Zile, Pazar ve Amasya, Yozgat, Sivas, Çorum, Samsun’daki şantiye / tadilat işlerine ürün tedariki sunuyoruz. Detay için teklif alın.",
   },
 ] as const;
 
@@ -116,6 +139,7 @@ export const NAV_LINKS: readonly NavItem[] = [
   },
   { href: "/yapi-insaat", label: "Yapı - İnşaat" },
   { href: "/projelerimiz", label: "Projeler" },
+  { href: "/galeri", label: "Galeri" },
   { href: "/iletisim", label: "İletişim" },
 ];
 
@@ -125,7 +149,7 @@ export const BUSINESS_AREAS = [
     label: "Yapı Market",
     title: "Yapı Malzemeleri",
     description:
-      "Boya, yalıtım, çimento, çatı ve nalbur ürünleri — stoklu, hızlı tedarik.",
+      "Permolit boya, mantolama, çimento, çatı ve nalbur — Turhal reyonundan şantiye listesine.",
     image: "/products/boya-rulo.jpg",
   },
   {
@@ -133,7 +157,7 @@ export const BUSINESS_AREAS = [
     label: "Orman Ürünleri",
     title: "Orman Ürünleri",
     description:
-      "Kereste, OSB, plywood ve lambri — şantiye ve tadilat için doğru levha.",
+      "OSB, plywood, çam-kavak kereste ve lambri. Çatı, kalıp ve tadilat için stoklu levha.",
     image: "/products/kereste-yigin.jpg",
   },
   {
@@ -141,8 +165,8 @@ export const BUSINESS_AREAS = [
     label: "Yapı - İnşaat",
     title: "Yapı - İnşaat",
     description:
-      "Konut ve bina inşaatı, dış cephe ve şantiye uygulamaları — Turhal / Tokat.",
-    image: "/projects/modern-konut-cephe.jpg",
+      "Konut ve bina, dış cephe mantolama ve tadilat. Malzeme ile uygulamayı aynı ekipten yürütün.",
+    image: "/media/yapi-insaat/ova-apt-2-saha.jpg",
   },
 ] as const;
 

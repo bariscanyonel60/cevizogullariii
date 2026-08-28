@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { OrmanUrunleriContent } from "@/components/organisms/orman-urunleri/OrmanUrunleriContent";
 import { JsonLd } from "@/components/atoms/JsonLd";
-import { ORMAN_URUNLERI_PAGES, getOrmanUrunleriPage } from "@/data/orman-urunleri";
+import { getOrmanPage, getOrmanPages, getProducts } from "@/lib/cms-store";
 import {
   breadcrumbJsonLd,
   buildMetadata,
@@ -13,19 +13,20 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-const ALLOWED = new Set(
-  ORMAN_URUNLERI_PAGES.filter((page) => page.slug !== "index").map((page) => page.slug),
-);
+export const revalidate = 60;
 
-export function generateStaticParams() {
-  return [...ALLOWED].map((slug) => ({ slug }));
+export async function generateStaticParams() {
+  const pages = await getOrmanPages();
+  return pages
+    .filter((page) => page.slug !== "index")
+    .map((page) => ({ slug: page.slug }));
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const page = getOrmanUrunleriPage(slug);
+  const page = await getOrmanPage(slug);
   if (!page || page.slug === "index") {
     return buildMetadata({
       title: "Orman Ürünleri",
@@ -44,8 +45,12 @@ export async function generateMetadata({
 
 export default async function OrmanUrunleriSlugPage({ params }: PageProps) {
   const { slug } = await params;
-  const page = getOrmanUrunleriPage(slug);
-  if (!page || page.slug === "index" || !ALLOWED.has(slug)) notFound();
+  const [page, ormanPages, products] = await Promise.all([
+    getOrmanPage(slug),
+    getOrmanPages(),
+    getProducts(),
+  ]);
+  if (!page || page.slug === "index") notFound();
 
   return (
     <>
@@ -63,7 +68,11 @@ export default async function OrmanUrunleriSlugPage({ params }: PageProps) {
           ]),
         ]}
       />
-      <OrmanUrunleriContent page={page} />
+      <OrmanUrunleriContent
+        page={page}
+        ormanPages={ormanPages}
+        products={products}
+      />
     </>
   );
 }

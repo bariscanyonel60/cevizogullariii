@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { CdnImage } from "@/components/atoms/CdnImage";
 import Link from "next/link";
 import {
   Flame,
@@ -13,6 +13,7 @@ import { Button } from "@/components/atoms/Button";
 import { Reveal } from "@/components/molecules/Reveal";
 import { PageHero } from "@/components/organisms/shared/PageHero";
 import { SITE } from "@/lib/constants";
+import { getFaqs } from "@/lib/cms-store";
 import { JsonLd } from "@/components/atoms/JsonLd";
 import {
   breadcrumbJsonLd,
@@ -115,30 +116,10 @@ const districts = [
   },
 ] as const;
 
-const tokatFaqs = [
-  {
-    question: "Tokat’ta mantolama malzemesi nereden alınır?",
-    answer:
-      "Cevizoğulları Yapı Market, Turhal’da EPS/XPS, file, dübel, yapıştırıcı ve dış cephe sıvasını stoklu sunar. Tokat mantolama projeleriniz için ürün seçimi ve tedarik desteği sağlarız.",
-  },
-  {
-    question: "Turhal’da dış cephe boyası satıyor musunuz?",
-    answer:
-      "Evet. Permolit, Filli Boya ve Marshall dış cephe boyası ile astarları Turhal mağazamızda bulabilirsiniz. Renk ve yüzey tipine göre yönlendirme yapıyoruz.",
-  },
-  {
-    question: "Tokat strafor / ısı yalıtım ürünleri var mı?",
-    answer:
-      "Tokat ısı yalıtım ihtiyacı için strafor (EPS), karbonlu EPS, XPS ve İzocam ürünlerini tedarik ediyoruz. Kalınlık ve kullanım alanına göre öneri veriyoruz.",
-  },
-  {
-    question: "Erbaa, Niksar, Zile ve Pazar’a malzeme götürüyor musunuz?",
-    answer:
-      "Turhal merkezliyiz; Tokat merkez, Erbaa, Niksar, Zile, Pazar ve Amasya, Yozgat, Sivas, Çorum, Samsun’daki şantiye / tadilat işlerine ürün tedariki sunuyoruz. Detay için teklif alın.",
-  },
-] as const;
+export const revalidate = 60;
 
-export default function TokatPage() {
+export default async function TokatPage() {
+  const tokatFaqs = await getFaqs("tokat");
   return (
     <>
       <JsonLd
@@ -170,7 +151,7 @@ export default function TokatPage() {
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <Reveal>
             <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-premium">
-              <Image
+              <CdnImage
                 src="/projects/modern-konut-cephe.jpg"
                 alt="Tokat dış cephe mantolama ve boya uygulaması örneği"
                 fill
@@ -313,7 +294,7 @@ export default function TokatPage() {
                 </p>
               </div>
               <div className="relative mt-8 aspect-[16/10] overflow-hidden rounded-[1.75rem] shadow-premium">
-                <Image
+                <CdnImage
                   src="/projects/modern-konut-bahce.jpg"
                   alt="Tokat modern konut dış cephe ve peyzaj uygulaması"
                   fill

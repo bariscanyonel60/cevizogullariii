@@ -55,8 +55,8 @@ export const ORMAN_URUNLERI_PAGES: OrmanUrunleriPage[] = [
       },
     ],
     body: [
-      "Cevizoğulları Yapı Market olarak Turhal’da kereste ve orman ürünlerini şantiye temposuna uygun şekilde stoklarız. İster çatı kaplaması, ister kalıp veya iç mekân uygulaması — doğru levhayı birlikte seçeriz.",
-      "Aşağıdaki başlıklardan ihtiyacınıza uygun ürün grubuna geçebilir; teklif formundan ölçü ve adet iletebilirsiniz.",
+      "Cevizoğulları Yapı Market, Turhal’da kereste ve levhayı şantiye temposuna göre stoklar. Çatı kaplaması, kalıp veya lambri — kesiti ve kuruluğu birlikte seçeriz.",
+      "Aşağıdaki başlıklardan grubu açın; ölçü ve adedi teklif formundan veya WhatsApp’tan yazın. Palet hazırsa yükleriz.",
     ],
     relatedSlugs: ["osb-levha", "plywood-odek", "cam-kereste-lambri"],
     relatedCategories: ["orman", "ahsap"],

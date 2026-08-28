@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { CdnImage } from "@/components/atoms/CdnImage";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Link2 } from "lucide-react";
@@ -12,10 +12,10 @@ import {
   XIcon,
 } from "@/components/atoms/SocialIcons";
 import {
-  blogPosts,
+  getBlogPosts,
   getPostBySlug,
   getRelatedPosts,
-} from "@/data/blog";
+} from "@/lib/cms-store";
 import { SITE } from "@/lib/constants";
 import { JsonLd } from "@/components/atoms/JsonLd";
 import {
@@ -27,13 +27,16 @@ import {
 
 type Props = { params: Promise<{ slug: string }> };
 
+export const revalidate = 60;
+
 export async function generateStaticParams() {
-  return blogPosts.map((p) => ({ slug: p.slug }));
+  const posts = await getBlogPosts();
+  return posts.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
   if (!post) {
     return buildMetadata({
       title: "Yazı bulunamadı",
@@ -67,10 +70,10 @@ function extractToc(content: string) {
 
 export default async function BlogDetailPage({ params }: Props) {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
   if (!post) notFound();
 
-  const related = getRelatedPosts(slug);
+  const related = await getRelatedPosts(slug);
   const toc = extractToc(post.content);
   const shareUrl = `${SITE.url}/blog/${post.slug}`;
   const schemas = [
@@ -98,7 +101,7 @@ export default async function BlogDetailPage({ params }: Props) {
       <article className="container-wide grid gap-10 py-12 md:py-16 lg:grid-cols-[1fr_280px]">
         <div>
           <div className="relative mb-8 aspect-[16/9] overflow-hidden rounded-[2rem]">
-            <Image
+            <CdnImage
               src={post.coverImage}
               alt={`${post.title} — Tokat Turhal Cevizoğulları blog kapak görseli`}
               fill

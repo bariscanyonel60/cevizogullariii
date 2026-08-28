@@ -3,10 +3,10 @@ import { Button } from "@/components/atoms/Button";
 import { ProjectCard } from "@/components/molecules/ProjectCard";
 import { Reveal } from "@/components/molecules/Reveal";
 import { SectionHeading } from "@/components/molecules/SectionHeading";
-import { getFeaturedProjects } from "@/data/projects";
+import type { Project } from "@/types";
 
-export function FeaturedProjects() {
-  const items = getFeaturedProjects();
+export function FeaturedProjects({ projects = [] }: { projects?: Project[] }) {
+  const items = projects;
 
   return (
     <section
@@ -16,8 +16,8 @@ export function FeaturedProjects() {
       <Reveal>
         <SectionHeading
           eyebrow="Yapı - İnşaat"
-          title="İmzamızı taşıyan işler"
-          description="Modern konut, dış cephe, şantiye ve tadilat uygulamalarından seçilmiş örnekler."
+          title="Tokat ve Turhal’daki işlerden örnekler"
+          description="Konut cephesi, mantolama, çatı ve şantiye tedariki — sahada kullandığımız malzeme ve uygulamalar."
           action={
             <Button asChild variant="secondary">
               <Link href="/projelerimiz">Tüm Projeler</Link>

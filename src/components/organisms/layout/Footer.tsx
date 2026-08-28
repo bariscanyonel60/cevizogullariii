@@ -10,6 +10,7 @@ const corporateLinks = [
   { href: "/tokat", label: "Tokat" },
   { href: "/blog", label: "Blog" },
   { href: "/projelerimiz", label: "Projeler" },
+  { href: "/galeri", label: "Galeri" },
   { href: "/kvkk", label: "KVKK" },
   { href: "/#sss", label: "SSS" },
 ];

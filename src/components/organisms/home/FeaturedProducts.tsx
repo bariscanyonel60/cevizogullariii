@@ -3,10 +3,10 @@ import { Button } from "@/components/atoms/Button";
 import { ProductCard } from "@/components/molecules/ProductCard";
 import { Reveal } from "@/components/molecules/Reveal";
 import { SectionHeading } from "@/components/molecules/SectionHeading";
-import { getFeaturedProducts } from "@/data/products";
+import type { Product } from "@/types";
 
-export function FeaturedProducts() {
-  const products = getFeaturedProducts().slice(0, 3);
+export function FeaturedProducts({ products = [] }: { products?: Product[] }) {
+  const items = products.slice(0, 3);
 
   return (
     <section
@@ -17,8 +17,8 @@ export function FeaturedProducts() {
         <Reveal>
           <SectionHeading
             eyebrow="Yapı Market"
-            title="Tokat’ta kaliteli yapı malzemeleri"
-            description="Permolit boya, mantolama, yalıtım ve dış cephe malzemelerinde Turhal stoklu çözümler."
+            title="Tokat yapı malzemeleri stokta"
+            description="Tokat yapı malzemeleri kataloğunda Permolit boya, mantolama, yalıtım ve dış cephe — Turhal’da stoklu çözümler."
             action={
               <Button asChild variant="secondary">
                 <Link href="/yapi-malzemeleri#urunler">Yapı Market</Link>
@@ -27,7 +27,7 @@ export function FeaturedProducts() {
           />
         </Reveal>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {products.map((product, index) => (
+          {items.map((product, index) => (
             <Reveal key={product.id} delay={index * 0.08}>
               <ProductCard product={product} />
             </Reveal>

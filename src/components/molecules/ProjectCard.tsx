@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { CdnImage } from "@/components/atoms/CdnImage";
 import type { Project } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -19,7 +19,7 @@ export function ProjectCard({ project, className, tall }: ProjectCardProps) {
       )}
     >
       <Link href={`/projelerimiz/${project.slug}`} className="absolute inset-0">
-        <Image
+        <CdnImage
           src={project.images[0]}
           alt={`${project.title} — ${project.location} proje görseli`}
           fill

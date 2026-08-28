@@ -6,7 +6,6 @@ import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react"
 import { createPortal } from "react-dom";
 import {
   ChevronDown,
-  Clock,
   MapPin,
   Menu,
   Phone,
@@ -21,12 +20,12 @@ import { WhatsAppIcon } from "@/components/atoms/SocialIcons";
 import { MegaMenu } from "@/components/organisms/layout/MegaMenu";
 import { TopBar } from "@/components/organisms/layout/TopBar";
 import {
-  BUSINESS_AREAS,
   NAV_LINKS,
   SITE,
   type NavItem,
   whatsappUrl,
 } from "@/lib/constants";
+import type { NavCms } from "@/lib/cms-types";
 import { cn } from "@/lib/utils";
 
 function isNavActive(pathname: string, link: NavItem) {
@@ -187,7 +186,7 @@ function getServerFalse() {
   return false;
 }
 
-export function Navbar() {
+export function Navbar({ nav }: { nav: NavCms }) {
   const pathname = usePathname();
   const lenis = useLenis();
   const [scrolled, setScrolled] = useState(false);
@@ -220,22 +219,39 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
-    if (open) {
-      lenis?.stop();
-      document.documentElement.style.overflow = "hidden";
-      document.body.style.overflow = "hidden";
-      document.body.dataset.mobileNav = "open";
-    } else {
-      lenis?.start();
-      document.documentElement.style.overflow = "";
+    // Önceki oturumdan kalan overflow kilidini temizle
+    document.documentElement.style.overflow = "";
+    if (document.body.dataset.mobileNav !== "open") {
       document.body.style.overflow = "";
-      delete document.body.dataset.mobileNav;
     }
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const body = document.body;
+    const scrollY = window.scrollY;
+
+    lenis?.stop();
+    body.dataset.mobileNav = "open";
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+
     return () => {
-      lenis?.start();
-      document.documentElement.style.overflow = "";
-      document.body.style.overflow = "";
-      delete document.body.dataset.mobileNav;
+      body.style.position = "";
+      body.style.top = "";
+      body.style.left = "";
+      body.style.right = "";
+      body.style.width = "";
+      delete body.dataset.mobileNav;
+      window.scrollTo(0, scrollY);
+      requestAnimationFrame(() => {
+        lenis?.start();
+        lenis?.resize();
+      });
     };
   }, [open, lenis]);
 
@@ -365,6 +381,8 @@ export function Navbar() {
             <MegaMenu
               activeLabel={megaActive}
               onClose={() => setMegaActive(null)}
+              categories={nav.categories}
+              ormanPages={nav.ormanPages}
             />
           </nav>
 
@@ -408,67 +426,75 @@ export function Navbar() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.22 }}
-                className="fixed inset-0 z-100 flex h-dvh max-h-dvh flex-col bg-ivory-50 xl:hidden"
+                transition={{ duration: 0.2 }}
+                className="fixed inset-0 z-100 flex h-dvh max-h-dvh flex-col xl:hidden"
                 style={{
                   paddingTop: "env(safe-area-inset-top)",
                   paddingBottom: "env(safe-area-inset-bottom)",
                 }}
                 data-lenis-prevent
               >
-                {/* Menü üst bar */}
-                <div className="shrink-0 border-b border-earth-400/10 bg-white/90 backdrop-blur-xl">
-                  <div className="container-wide flex h-16 items-center justify-between gap-3 sm:h-[4.25rem]">
+                {/* Atmosfer */}
+                <div className="absolute inset-0 bg-ivory-50" aria-hidden />
+                <div
+                  className="pointer-events-none absolute inset-0 opacity-90"
+                  aria-hidden
+                  style={{
+                    background:
+                      "radial-gradient(ellipse 80% 50% at 100% -10%, color-mix(in oklab, var(--forest-500) 18%, transparent), transparent 55%), radial-gradient(ellipse 60% 40% at 0% 100%, color-mix(in oklab, var(--gold-400) 14%, transparent), transparent 50%)",
+                  }}
+                />
+
+                {/* Üst bar */}
+                <div className="relative shrink-0 border-b border-earth-400/10 bg-ivory-50/80 backdrop-blur-xl">
+                  <div className="container-wide flex h-14 items-center justify-between gap-3 sm:h-16">
                     <Logo compact />
-                    <div className="flex items-center gap-2">
-                      <a
-                        href={SITE.phoneHref}
-                        className="inline-flex size-10 items-center justify-center rounded-full border border-earth-400/15 bg-forest-50 text-forest-800"
-                        aria-label="Telefon"
-                      >
-                        <Phone className="size-4" />
-                      </a>
-                      <button
-                        type="button"
-                        className="inline-flex size-10 items-center justify-center rounded-full bg-forest-800 text-white shadow-premium sm:size-11"
-                        aria-label="Menüyü kapat"
-                        onClick={() => setOpen(false)}
-                      >
-                        <X className="size-5" />
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      className="inline-flex size-10 items-center justify-center rounded-full border border-earth-400/15 bg-white text-ink-900 shadow-sm transition active:scale-95"
+                      aria-label="Menüyü kapat"
+                      onClick={() => setOpen(false)}
+                    >
+                      <X className="size-5" />
+                    </button>
                   </div>
                 </div>
 
                 <div
-                  className="min-h-0 flex-1 overflow-y-auto overscroll-contain touch-pan-y"
+                  className="relative min-h-0 flex-1 overflow-y-auto overscroll-y-contain touch-pan-y [-webkit-overflow-scrolling:touch]"
                   data-lenis-prevent
                 >
-                  <div className="container-wide flex flex-col pb-4">
-                    {/* Navigasyon */}
-                    <nav
-                      className="flex flex-col gap-1 py-5 sm:py-6"
-                      aria-label="Mobil menü"
-                    >
-                      <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-gold-600">
-                        Menü
-                      </p>
-                      {NAV_LINKS.map((link) => {
+                  <div className="container-wide flex flex-col pb-6 pt-6">
+                    <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-gold-600">
+                      Keşfet
+                    </p>
+
+                    <nav className="flex flex-col" aria-label="Mobil menü">
+                      {NAV_LINKS.map((link, index) => {
+                        const active = isNavActive(pathname, link);
+                        const delay = 0.04 + index * 0.035;
+
                         if (link.children?.length) {
-                          const active = isNavActive(pathname, link);
                           const sectionOpen = mobileOpenLabel === link.label;
                           return (
-                            <div
+                            <motion.div
                               key={link.label}
-                              className="overflow-hidden rounded-2xl border border-transparent bg-white/70"
+                              initial={{ opacity: 0, y: 12 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{
+                                duration: 0.35,
+                                delay,
+                                ease: [0.22, 1, 0.36, 1],
+                              }}
+                              className="border-b border-earth-400/10"
                             >
                               <button
                                 type="button"
                                 className={cn(
-                                  "flex w-full items-center justify-between px-4 py-3.5 text-left text-[15px] font-medium sm:py-4 sm:text-base",
+                                  "flex w-full items-center justify-between gap-3 py-4 text-left transition",
                                   active
-                                    ? "bg-forest-800 text-white"
-                                    : "text-ink-800",
+                                    ? "text-forest-800"
+                                    : "text-ink-900",
                                 )}
                                 aria-expanded={sectionOpen}
                                 onClick={() =>
@@ -477,14 +503,25 @@ export function Navbar() {
                                   )
                                 }
                               >
-                                {link.label}
-                                <ChevronDown
+                                <span className="font-display text-xl font-semibold tracking-tight sm:text-2xl">
+                                  {link.label}
+                                </span>
+                                <span
                                   className={cn(
-                                    "size-4 shrink-0 transition",
-                                    sectionOpen && "rotate-180",
+                                    "inline-flex size-8 shrink-0 items-center justify-center rounded-full border transition",
+                                    sectionOpen
+                                      ? "border-forest-800 bg-forest-800 text-white"
+                                      : "border-earth-400/20 bg-white text-ink-500",
                                   )}
-                                  aria-hidden
-                                />
+                                >
+                                  <ChevronDown
+                                    className={cn(
+                                      "size-4 transition duration-300",
+                                      sectionOpen && "rotate-180",
+                                    )}
+                                    aria-hidden
+                                  />
+                                </span>
                               </button>
                               <AnimatePresence initial={false}>
                                 {sectionOpen && (
@@ -492,92 +529,83 @@ export function Navbar() {
                                     initial={{ height: 0, opacity: 0 }}
                                     animate={{ height: "auto", opacity: 1 }}
                                     exit={{ height: 0, opacity: 0 }}
-                                    transition={{ duration: 0.2 }}
+                                    transition={{ duration: 0.22 }}
                                     className="overflow-hidden"
                                   >
-                                    <div className="grid gap-1 bg-mist-100/80 px-2 pb-3 pt-1 sm:grid-cols-2">
-                                      {link.children.map((child) => (
-                                        <Link
-                                          key={child.href}
-                                          href={child.href}
-                                          onClick={() => setOpen(false)}
-                                          className="rounded-xl px-3 py-2.5 text-sm font-medium text-ink-700 transition hover:bg-white hover:text-forest-800"
-                                        >
-                                          {child.label}
-                                        </Link>
-                                      ))}
+                                    <div className="mb-4 ml-1 space-y-0.5 border-l-2 border-gold-400/50 pl-4">
+                                      {link.children.map((child) => {
+                                        const childActive =
+                                          pathname === child.href ||
+                                          pathname.startsWith(
+                                            `${child.href}/`,
+                                          );
+                                        return (
+                                          <Link
+                                            key={child.href}
+                                            href={child.href}
+                                            onClick={() => setOpen(false)}
+                                            className={cn(
+                                              "block rounded-lg py-2.5 text-[15px] font-medium transition",
+                                              childActive
+                                                ? "text-forest-800"
+                                                : "text-ink-500 hover:text-forest-800",
+                                            )}
+                                          >
+                                            {child.label}
+                                          </Link>
+                                        );
+                                      })}
                                     </div>
                                   </motion.div>
                                 )}
                               </AnimatePresence>
-                            </div>
+                            </motion.div>
                           );
                         }
 
-                        const active = isNavActive(pathname, link);
                         return (
-                          <Link
+                          <motion.div
                             key={link.href}
-                            href={link.href}
-                            onClick={() => setOpen(false)}
-                            className={cn(
-                              "rounded-2xl px-4 py-3.5 text-[15px] font-medium transition sm:py-4 sm:text-base",
-                              active
-                                ? "bg-forest-800 text-white"
-                                : "bg-white/70 text-ink-800 hover:bg-forest-50",
-                            )}
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{
+                              duration: 0.35,
+                              delay,
+                              ease: [0.22, 1, 0.36, 1],
+                            }}
+                            className="border-b border-earth-400/10"
                           >
-                            {link.label}
-                          </Link>
+                            <Link
+                              href={link.href}
+                              onClick={() => setOpen(false)}
+                              className={cn(
+                                "group flex items-center justify-between gap-3 py-4 transition",
+                                active
+                                  ? "text-forest-800"
+                                  : "text-ink-900 hover:text-forest-800",
+                              )}
+                            >
+                              <span className="font-display text-xl font-semibold tracking-tight sm:text-2xl">
+                                {link.label}
+                              </span>
+                              {active ? (
+                                <span
+                                  className="size-1.5 shrink-0 rounded-full bg-gold-500"
+                                  aria-hidden
+                                />
+                              ) : null}
+                            </Link>
+                          </motion.div>
                         );
                       })}
                     </nav>
-
-                    {/* İş alanları — menünün altında */}
-                    <div className="border-t border-earth-400/10 py-5 sm:py-6">
-                      <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-gold-600">
-                        İş Alanları
-                      </p>
-                      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-                        {BUSINESS_AREAS.map((area) => (
-                          <Link
-                            key={area.href}
-                            href={area.href}
-                            onClick={() => setOpen(false)}
-                            className="rounded-2xl border border-earth-400/10 bg-white px-4 py-3.5 shadow-sm transition active:scale-[0.99] hover:border-forest-800/20 hover:shadow-premium"
-                          >
-                            <p className="font-display text-base font-semibold text-forest-900">
-                              {area.label}
-                            </p>
-                            <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-ink-500">
-                              {area.description}
-                            </p>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Alt bilgi */}
-                    <div className="space-y-4 border-t border-earth-400/10 py-5 sm:py-6">
-                      <div className="grid gap-2 text-sm text-ink-500 sm:grid-cols-2">
-                        <p className="inline-flex items-center gap-2">
-                          <MapPin className="size-4 text-gold-600" aria-hidden />
-                          {SITE.city} / {SITE.district}
-                        </p>
-                        <p className="inline-flex items-center gap-2">
-                          <Clock className="size-4 text-gold-600" aria-hidden />
-                          {SITE.hours}
-                        </p>
-                      </div>
-                      <MediaCredit className="justify-center rounded-2xl border border-orange-500/25 bg-orange-50 px-4 py-3 sm:justify-start" />
-                    </div>
                   </div>
                 </div>
 
-                {/* Yapışkan CTA — mobil + tablet */}
-                <div className="shrink-0 border-t border-earth-400/10 bg-white/95 p-3 backdrop-blur-xl sm:p-4">
-                  <div className="container-wide grid grid-cols-2 gap-2 sm:grid-cols-3">
-                    <Button asChild className="col-span-2 h-12 sm:col-span-1">
+                {/* Alt CTA */}
+                <div className="relative shrink-0 border-t border-earth-400/10 bg-ivory-50/95 p-3 backdrop-blur-xl sm:p-4">
+                  <div className="container-wide grid grid-cols-2 gap-2">
+                    <Button asChild className="h-12">
                       <Link href="/teklif-al" onClick={() => setOpen(false)}>
                         Teklif Al
                       </Link>
@@ -592,12 +620,16 @@ export function Navbar() {
                         WhatsApp
                       </a>
                     </Button>
-                    <Button asChild variant="secondary" className="h-12">
-                      <a href={SITE.phoneHref}>
-                        <Phone className="size-4" />
-                        Ara
-                      </a>
-                    </Button>
+                  </div>
+                  <a
+                    href={SITE.phoneHref}
+                    className="mt-2.5 flex h-11 items-center justify-center gap-2 rounded-full text-sm font-semibold text-forest-800 transition hover:bg-forest-50"
+                  >
+                    <Phone className="size-3.5" />
+                    {SITE.phone}
+                  </a>
+                  <div className="mt-3 flex justify-center border-t border-earth-400/10 pt-3">
+                    <MediaCredit />
                   </div>
                 </div>
               </motion.div>

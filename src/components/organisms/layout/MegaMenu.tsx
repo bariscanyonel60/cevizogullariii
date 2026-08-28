@@ -1,17 +1,19 @@
 "use client";
 
-import Image from "next/image";
+import { CdnImage } from "@/components/atoms/CdnImage";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { BUSINESS_AREAS, NAV_LINKS } from "@/lib/constants";
-import { CATEGORY_SHOWCASE } from "@/data/products";
-import { ORMAN_URUNLERI_PAGES } from "@/data/orman-urunleri";
+import type { CmsCategoryShowcase } from "@/lib/cms-types";
+import type { OrmanUrunleriPage } from "@/data/orman-urunleri";
 import { cn } from "@/lib/utils";
 
 type MegaMenuProps = {
   activeLabel: string | null;
   onClose: () => void;
+  categories: CmsCategoryShowcase[];
+  ormanPages: OrmanUrunleriPage[];
 };
 
 const YAPI_MARKET_KEYS = new Set([
@@ -33,10 +35,15 @@ type MegaCard = {
   image: string;
 };
 
-function cardsForLabel(label: string): MegaCard[] {
+function cardsForLabel(
+  label: string,
+  categories: CmsCategoryShowcase[],
+  ormanPages: OrmanUrunleriPage[],
+): MegaCard[] {
   switch (label) {
     case "Yapı Market":
-      return CATEGORY_SHOWCASE.filter((c) => YAPI_MARKET_KEYS.has(c.key))
+      return categories
+        .filter((c) => YAPI_MARKET_KEYS.has(c.key))
         .slice(0, 6)
         .map((c) => ({
           href: `/yapi-malzemeleri?kategori=${c.key}#urunler`,
@@ -45,12 +52,14 @@ function cardsForLabel(label: string): MegaCard[] {
           image: c.image,
         }));
     case "Orman Ürünleri":
-      return ORMAN_URUNLERI_PAGES.filter((p) => p.slug !== "index").map((p) => ({
-        href: p.href,
-        title: p.navLabel,
-        description: p.description,
-        image: p.image,
-      }));
+      return ormanPages
+        .filter((p) => p.slug !== "index")
+        .map((p) => ({
+          href: p.href,
+          title: p.navLabel,
+          description: p.description,
+          image: p.image,
+        }));
     case "Yapı - İnşaat":
       return [
         {
@@ -58,13 +67,13 @@ function cardsForLabel(label: string): MegaCard[] {
           title: "Konut & Bina İnşaatı",
           description:
             "Yeni konut ve bina projelerinde kaba-ince işler ve uygulama.",
-          image: "/projects/modern-konut-cephe.jpg",
+          image: "/media/yapi-insaat/ova-apt-2-saha.jpg",
         },
         {
           href: "/projelerimiz",
           title: "Uygulama Örnekleri",
           description: "Dış cephe, şantiye ve konut uygulamalarından örnekler.",
-          image: "/projects/modern-konut-bahce.jpg",
+          image: "/media/yapi-insaat/ova-apt-tabela.jpg",
         },
         {
           href: "/teklif-al",
@@ -94,8 +103,15 @@ function hubHref(label: string) {
   return BUSINESS_AREAS.find((a) => a.label === label)?.href ?? "/";
 }
 
-export function MegaMenu({ activeLabel, onClose }: MegaMenuProps) {
-  const cards = activeLabel ? cardsForLabel(activeLabel) : [];
+export function MegaMenu({
+  activeLabel,
+  onClose,
+  categories,
+  ormanPages,
+}: MegaMenuProps) {
+  const cards = activeLabel
+    ? cardsForLabel(activeLabel, categories, ormanPages)
+    : [];
   const area = BUSINESS_AREAS.find((a) => a.label === activeLabel);
 
   return (
@@ -152,7 +168,7 @@ export function MegaMenu({ activeLabel, onClose }: MegaMenuProps) {
                     )}
                   >
                     <div className="relative aspect-[16/10] overflow-hidden">
-                      <Image
+                      <CdnImage
                         src={card.image}
                         alt={`${card.title} — Tokat Turhal Cevizoğulları`}
                         fill

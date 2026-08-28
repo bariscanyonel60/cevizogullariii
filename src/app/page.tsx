@@ -12,7 +12,10 @@ import { HomeLocalSeoSection } from "@/components/organisms/home/HomeLocalSeoSec
 import { HomeFaqSection } from "@/components/organisms/home/HomeFaqSection";
 import { BlogPreview } from "@/components/organisms/home/BlogPreview";
 import { ContactCta } from "@/components/organisms/home/ContactCta";
-import { HOME_FAQS } from "@/lib/constants";
+import { ProjectWallSection } from "@/components/organisms/home/ProjectWallSection";
+import { pickPreviewMedia } from "@/lib/media";
+import { getPublicMedia } from "@/lib/media-store";
+import { getCmsSnapshot } from "@/lib/cms-store";
 import { JsonLd } from "@/components/atoms/JsonLd";
 import {
   buildMetadata,
@@ -30,6 +33,9 @@ export const metadata: Metadata = buildMetadata({
   keywords: [...HOME_SEO.keywords],
 });
 
+/** Galeri Blobs/local güncellemelerinin görünmesi için */
+export const revalidate = 60;
+
 const StatsSection = dynamic(
   () =>
     import("@/components/organisms/home/StatsSection").then(
@@ -46,24 +52,53 @@ const TestimonialsSection = dynamic(
   { ssr: true },
 );
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [gallery, yapiInsaat, cms] = await Promise.all([
+    getPublicMedia("gallery"),
+    getPublicMedia("yapi-insaat"),
+    getCmsSnapshot(),
+  ]);
+  const wallItems = pickPreviewMedia(
+    [...gallery.items, ...yapiInsaat.items],
+    6,
+  );
+  const homeFaqs = (cms.faqs ?? []).filter((item) => item.page === "home");
+  const whyUs = (cms.cards ?? []).filter((item) => item.kind === "why_us");
+  const services = (cms.cards ?? [])
+    .filter((item) => item.kind === "services")
+    .map((item) => ({
+      title: item.title,
+      description: item.description,
+      href: item.href || "/teklif-al",
+    }));
+  const processSteps = (cms.cards ?? [])
+    .filter((item) => item.kind === "process")
+    .map((item, index) => ({
+      step: item.step || String(index + 1).padStart(2, "0"),
+      title: item.title,
+      description: item.description,
+    }));
+  const featuredProducts = (cms.products ?? []).filter((item) => item.featured);
+  const featuredProjects = (cms.projects ?? []).filter((item) => item.featured);
+
   return (
     <>
-      <JsonLd data={[websiteJsonLd(), serviceJsonLd(), faqJsonLd(HOME_FAQS)]} />
+      <JsonLd data={[websiteJsonLd(), serviceJsonLd(), faqJsonLd(homeFaqs)]} />
 
       <HeroSection />
-      <StatsSection />
+      <StatsSection stats={cms.stats} />
       <BusinessAreasSection />
-      <WhyUsSection />
-      <ProcessSection />
-      <ServicesSection />
-      <FeaturedProducts />
-      <FeaturedProjects />
-      <BrandsMarquee />
-      <TestimonialsSection />
+      <WhyUsSection items={whyUs} />
+      <ProcessSection steps={processSteps} />
+      <ServicesSection services={services} />
+      <FeaturedProducts products={featuredProducts} />
+      <FeaturedProjects projects={featuredProjects} />
+      <ProjectWallSection items={wallItems} />
+      <BrandsMarquee brands={cms.brands} />
+      <TestimonialsSection testimonials={cms.testimonials} />
       <HomeLocalSeoSection />
-      <HomeFaqSection />
-      <BlogPreview />
+      <HomeFaqSection faqs={homeFaqs} />
+      <BlogPreview posts={cms.posts} />
       <ContactCta />
     </>
   );

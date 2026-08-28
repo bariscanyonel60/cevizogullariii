@@ -1,18 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
+import { CdnImage } from "@/components/atoms/CdnImage";
 import { PageHero } from "@/components/organisms/shared/PageHero";
 import { QuoteForm } from "@/components/organisms/shared/QuoteForm";
 import { Badge } from "@/components/atoms/Badge";
 import { Button } from "@/components/atoms/Button";
 import { JsonLd } from "@/components/atoms/JsonLd";
-import {
-  getProductBySlug,
-  PRODUCT_CATEGORY_LABELS,
-  products,
-  USE_CASE_LABELS,
-} from "@/data/products";
+import { PRODUCT_CATEGORY_LABELS, USE_CASE_LABELS } from "@/data/products";
+import { getProductBySlug, getProducts } from "@/lib/cms-store";
 import {
   breadcrumbJsonLd,
   buildMetadata,
@@ -23,13 +19,16 @@ import {
 
 type Props = { params: Promise<{ slug: string }> };
 
+export const revalidate = 60;
+
 export async function generateStaticParams() {
+  const products = await getProducts();
   return products.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlug(slug);
   if (!product) {
     return buildMetadata({
       title: "Ürün bulunamadı",
@@ -58,7 +57,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlug(slug);
   if (!product) notFound();
 
   const schemas = [
@@ -84,7 +83,7 @@ export default async function ProductDetailPage({ params }: Props) {
       />
       <section className="container-wide grid gap-10 py-12 md:py-16 lg:grid-cols-2">
         <div className="relative aspect-[5/4] overflow-hidden rounded-[2rem] shadow-premium">
-          <Image
+          <CdnImage
             src={product.image}
             alt={productImageAlt(product)}
             fill
