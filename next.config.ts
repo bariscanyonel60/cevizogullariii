@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
   },
+  // Hostinger CDN (hcdn) Next.js ISR `stale-while-revalidate` degerini yoksa ~1 yil
+  // tutuyor. Yeni deploy sonrasi eski HTML eski CSS/JS hash'lerine baglaniyor.
+  expireTime: 300,
   images: {
     remotePatterns: [
       {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import { Search, Trash2 } from "lucide-react";
+import { FileDown, Search, Trash2 } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
@@ -37,6 +37,8 @@ type Props = {
   onCreateCredit: (payload: Record<string, unknown>) => Promise<boolean>;
   onDeleteCustomer: (id: string) => Promise<boolean>;
   onDeleteCredit: (id: string) => Promise<boolean>;
+  onError: (message: string | null) => void;
+  onMessage: (message: string | null) => void;
 };
 
 type CustomerDraft = {
@@ -73,6 +75,8 @@ export function AccountingCustomersPanel({
   onCreateCredit,
   onDeleteCustomer,
   onDeleteCredit,
+  onError,
+  onMessage,
 }: Props) {
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(
@@ -90,6 +94,7 @@ export function AccountingCustomersPanel({
   const [payAmount, setPayAmount] = useState("");
   const [payMethod, setPayMethod] = useState<PaymentMethod>("nakit");
   const [payNote, setPayNote] = useState("");
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   const selected = store.customers.find((item) => item.id === selectedId) ?? null;
 
@@ -152,6 +157,40 @@ export function AccountingCustomersPanel({
   function selectCustomer(customer: Customer) {
     setSelectedId(customer.id);
     setEditDraft(draftFrom(customer));
+  }
+
+  async function downloadCreditPdf() {
+    if (!selected) return;
+    setPdfBusy(true);
+    onError(null);
+    onMessage(null);
+    try {
+      const res = await fetch(
+        `/api/admin/accounting/customer-pdf?id=${encodeURIComponent(selected.id)}`,
+        { cache: "no-store" },
+      );
+      if (!res.ok) {
+        const data = (await res.json()) as { error?: string };
+        throw new Error(data.error ?? "PDF indirilemedi");
+      }
+      const blob = await res.blob();
+      const header = res.headers.get("Content-Disposition") ?? "";
+      const match = header.match(/filename="([^"]+)"/);
+      const filename = match?.[1] ?? "cevizogullari-veresiye.pdf";
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      onMessage("Hesap hareketleri PDF indirildi");
+    } catch (err) {
+      onError(err instanceof Error ? err.message : "PDF indirilemedi");
+    } finally {
+      setPdfBusy(false);
+    }
   }
 
   async function submitCustomer(event: React.FormEvent) {
@@ -358,15 +397,27 @@ export function AccountingCustomersPanel({
                     </span>
                   </p>
                 </div>
-                <button
-                  type="button"
-                  className="rounded-lg p-2 text-red-600 hover:bg-red-50 disabled:opacity-40"
-                  disabled={busy}
-                  onClick={() => void onDeleteCustomer(selected.id)}
-                  aria-label="Müşteri kartını sil"
-                >
-                  <Trash2 className="size-4" />
-                </button>
+                <div className="flex items-center gap-1">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    disabled={busy || pdfBusy}
+                    onClick={() => void downloadCreditPdf()}
+                  >
+                    <FileDown className="size-4" />
+                    {pdfBusy ? "PDF…" : "Hesap PDF"}
+                  </Button>
+                  <button
+                    type="button"
+                    className="rounded-lg p-2 text-red-600 hover:bg-red-50 disabled:opacity-40"
+                    disabled={busy || pdfBusy}
+                    onClick={() => void onDeleteCustomer(selected.id)}
+                    aria-label="Müşteri kartını sil"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                </div>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>

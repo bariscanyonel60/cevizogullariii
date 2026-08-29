@@ -356,6 +356,8 @@ export function AccountingDashboard() {
           onDeleteCredit={(id) =>
             removeRecord("credit", id, "Bu veresiye hareketi silinsin mi?")
           }
+          onError={setError}
+          onMessage={setMessage}
         />
       ) : (
         <AccountingReportsPanel

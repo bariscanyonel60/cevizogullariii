@@ -1,24 +1,8 @@
-import { existsSync } from "node:fs";
-import { join } from "node:path";
 import PDFDocument from "pdfkit";
 import { formatQuantity, formatTry } from "@/lib/accounting-money";
 import type { MonthlyReport } from "@/lib/accounting-report";
 import { SITE } from "@/lib/constants";
-
-const FONT_CANDIDATES = [
-  join(process.cwd(), "src/lib/fonts/DejaVuSans.ttf"),
-  join(process.cwd(), "DejaVuSans.ttf"),
-];
-
-function fontPath() {
-  const match = FONT_CANDIDATES.find((candidate) => existsSync(candidate));
-  if (!match) {
-    throw new Error("Rapor yazı tipi bulunamadı");
-  }
-  return match;
-}
-
-type PdfDoc = InstanceType<typeof PDFDocument>;
+import { drawBrandHeader, pdfFontPath, type PdfDoc } from "@/lib/pdf-brand";
 
 function drawSummaryRow(
   doc: PdfDoc,
@@ -99,7 +83,7 @@ function table(
 }
 
 export async function buildMonthlyPdf(report: MonthlyReport): Promise<Buffer> {
-  const font = fontPath();
+  const font = pdfFontPath();
   const doc = new PDFDocument({
     size: "A4",
     layout: "landscape",
@@ -119,11 +103,11 @@ export async function buildMonthlyPdf(report: MonthlyReport): Promise<Buffer> {
   });
 
   const pageWidth = doc.page.width;
-  doc.fontSize(18).fillColor("#295B2D").text(`${SITE.name} — Aylık muhasebe raporu`);
-  doc.moveDown(0.3);
-  doc.fontSize(11).fillColor("#374151").text(`Dönem: ${report.label}`);
-  doc.text(`Rapor tarihi: ${report.generatedAt}`);
-  doc.moveDown(0.8);
+  await drawBrandHeader(
+    doc,
+    "Aylık muhasebe raporu",
+    `Dönem: ${report.label}  ·  Rapor tarihi: ${report.generatedAt}`,
+  );
 
   const summary: [string, string][] = [
     ["Satış adedi", String(report.salesTotals.count)],
