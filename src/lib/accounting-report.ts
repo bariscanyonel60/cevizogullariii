@@ -1,7 +1,9 @@
-import { customerBalance, roundMoney, saleGross, splitVat } from "@/lib/accounting-money";
+import { customerBalance, customerCreditStatus, monthCashSummary, roundMoney, saleGross, splitVat } from "@/lib/accounting-money";
 import {
   creditKindLabel,
   customerFullName,
+  expenseCategoryLabel,
+  formatIsoDateTr,
   formatYearMonthTr,
   istanbulIsoDate,
   paymentMethodLabel,
@@ -37,6 +39,7 @@ export type ReportCreditRow = {
   amount: number;
   vatLabel: string;
   paymentMethod: string;
+  dueDate: string;
   note: string;
 };
 
@@ -48,6 +51,19 @@ export type ReportCustomerRow = {
   periodPurchases: number;
   periodPayments: number;
   balance: number;
+  nextDueDate: string;
+  overdueAmount: number;
+  overdueDays: number;
+};
+
+export type ReportExpenseRow = {
+  date: string;
+  category: string;
+  title: string;
+  amount: number;
+  vatLabel: string;
+  paymentMethod: string;
+  note: string;
 };
 
 export type MonthlyReport = {
@@ -62,6 +78,7 @@ export type MonthlyReport = {
     vat: number;
     cash: number;
     card: number;
+    transfer: number;
   };
   advances: ReportAdvanceRow[];
   advanceTotal: number;
@@ -72,6 +89,21 @@ export type MonthlyReport = {
   };
   customers: ReportCustomerRow[];
   outstanding: number;
+  overdueTotal: number;
+  overdueCount: number;
+  expenses: ReportExpenseRow[];
+  expenseTotals: {
+    count: number;
+    total: number;
+    cash: number;
+    card: number;
+    transfer: number;
+  };
+  cash: {
+    cashIn: number;
+    cashOut: number;
+    cashNet: number;
+  };
 };
 
 function inMonth(date: string, yearMonth: string) {
@@ -106,17 +138,32 @@ export function buildMonthlyReport(
     };
   });
 
-  const salesTotals = saleRows.reduce(
-    (acc, row) => {
+  const salesTotals = monthSales.reduce(
+    (acc, sale) => {
+      const gross = saleGross(sale.quantity, sale.unitPrice);
+      const parts = splitVat(gross, sale.vatRate);
       acc.count += 1;
-      acc.gross += row.gross;
-      acc.net += row.net;
-      acc.vat += row.vatAmount;
-      if (row.paymentMethod === "Nakit") acc.cash += row.gross;
-      if (row.paymentMethod === "Kart") acc.card += row.gross;
+      acc.gross += parts.gross;
+      acc.net += parts.net;
+      acc.vat += parts.vatAmount;
+      switch (sale.paymentMethod) {
+        case "nakit":
+          acc.cash += parts.gross;
+          break;
+        case "kart":
+          acc.card += parts.gross;
+          break;
+        case "havale":
+          acc.transfer += parts.gross;
+          break;
+        default: {
+          const _exhaustive: never = sale.paymentMethod;
+          return _exhaustive;
+        }
+      }
       return acc;
     },
-    { count: 0, gross: 0, net: 0, vat: 0, cash: 0, card: 0 },
+    { count: 0, gross: 0, net: 0, vat: 0, cash: 0, card: 0, transfer: 0 },
   );
 
   const monthAdvances = sortByDate(
@@ -149,6 +196,9 @@ export function buildMonthlyReport(
       paymentMethod: entry.paymentMethod
         ? paymentMethodLabel(entry.paymentMethod)
         : "—",
+      dueDate: entry.kind === "purchase" && entry.dueDate
+        ? formatIsoDateTr(entry.dueDate)
+        : "—",
       note: entry.note,
     };
   });
@@ -172,6 +222,7 @@ export function buildMonthlyReport(
     { purchases: 0, payments: 0 },
   );
 
+  const asOf = istanbulIsoDate();
   const customerRows: ReportCustomerRow[] = store.customers
     .map((customer) => {
       const allEntries = store.creditEntries.filter(
@@ -186,6 +237,7 @@ export function buildMonthlyReport(
       const periodPayments = periodEntries
         .filter((entry) => entry.kind === "payment")
         .reduce((sum, entry) => sum + entry.amount, 0);
+      const status = customerCreditStatus(allEntries, asOf);
       return {
         name: customerFullName(customer),
         tc: customer.tc,
@@ -193,7 +245,14 @@ export function buildMonthlyReport(
         address: customer.address,
         periodPurchases: roundMoney(periodPurchases),
         periodPayments: roundMoney(periodPayments),
-        balance: customerBalance(allEntries),
+        balance: status.balance,
+        nextDueDate: status.nextDueDate
+          ? formatIsoDateTr(status.nextDueDate)
+          : status.isOverdue
+            ? "Gecikmiş"
+            : "—",
+        overdueAmount: status.overdueAmount,
+        overdueDays: status.overdueDays,
       };
     })
     .filter(
@@ -202,7 +261,51 @@ export function buildMonthlyReport(
         row.periodPayments > 0 ||
         row.balance !== 0,
     )
-    .sort((a, b) => b.balance - a.balance);
+    .sort((a, b) => {
+      if (b.overdueAmount !== a.overdueAmount) {
+        return b.overdueAmount - a.overdueAmount;
+      }
+      return b.balance - a.balance;
+    });
+
+  const overdueRows = customerRows.filter((row) => row.overdueAmount > 0);
+
+  const monthExpenses = sortByDate(
+    store.expenses.filter((item) => inMonth(item.date, yearMonth)),
+  );
+  const expenseRows: ReportExpenseRow[] = monthExpenses.map((item) => ({
+    date: item.date,
+    category: expenseCategoryLabel(item.category),
+    title: item.title,
+    amount: item.amount,
+    vatLabel: item.vatRate ? `%${item.vatRate}` : "—",
+    paymentMethod: paymentMethodLabel(item.paymentMethod),
+    note: item.note,
+  }));
+  const expenseTotals = monthExpenses.reduce(
+    (acc, item) => {
+      acc.count += 1;
+      acc.total += item.amount;
+      switch (item.paymentMethod) {
+        case "nakit":
+          acc.cash += item.amount;
+          break;
+        case "kart":
+          acc.card += item.amount;
+          break;
+        case "havale":
+          acc.transfer += item.amount;
+          break;
+        default: {
+          const _exhaustive: never = item.paymentMethod;
+          return _exhaustive;
+        }
+      }
+      return acc;
+    },
+    { count: 0, total: 0, cash: 0, card: 0, transfer: 0 },
+  );
+  const cash = monthCashSummary(store, yearMonth);
 
   return {
     yearMonth,
@@ -216,6 +319,7 @@ export function buildMonthlyReport(
       vat: roundMoney(salesTotals.vat),
       cash: roundMoney(salesTotals.cash),
       card: roundMoney(salesTotals.card),
+      transfer: roundMoney(salesTotals.transfer),
     },
     advances: advanceRows,
     advanceTotal: roundMoney(
@@ -239,6 +343,23 @@ export function buildMonthlyReport(
         );
       }, 0),
     ),
+    overdueTotal: roundMoney(
+      overdueRows.reduce((sum, row) => sum + row.overdueAmount, 0),
+    ),
+    overdueCount: overdueRows.length,
+    expenses: expenseRows,
+    expenseTotals: {
+      count: expenseTotals.count,
+      total: roundMoney(expenseTotals.total),
+      cash: roundMoney(expenseTotals.cash),
+      card: roundMoney(expenseTotals.card),
+      transfer: roundMoney(expenseTotals.transfer),
+    },
+    cash: {
+      cashIn: cash.cashIn,
+      cashOut: cash.cashOut,
+      cashNet: cash.cashNet,
+    },
   };
 }
 

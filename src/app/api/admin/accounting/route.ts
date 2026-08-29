@@ -2,13 +2,16 @@ import { NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import {
   createAdvance,
+  createCashZero,
   createCreditEntry,
   createCustomer,
+  createExpense,
   createSale,
   createStaff,
   deleteAdvance,
   deleteCreditEntry,
   deleteCustomer,
+  deleteExpense,
   deleteSale,
   deleteStaff,
   getAccountingStore,
@@ -90,6 +93,17 @@ export async function POST(request: Request) {
           ok: true,
           store: await createCreditEntry(body),
         });
+      case "expense":
+        if (body.zeroDayCash === true) {
+          return NextResponse.json({
+            ok: true,
+            store: await createCashZero(body),
+          });
+        }
+        return NextResponse.json({
+          ok: true,
+          store: await createExpense(body),
+        });
       default: {
         const _exhaustive: never = body.entity;
         return _exhaustive;
@@ -163,6 +177,11 @@ export async function DELETE(request: Request) {
         return NextResponse.json({
           ok: true,
           store: await deleteCreditEntry(id),
+        });
+      case "expense":
+        return NextResponse.json({
+          ok: true,
+          store: await deleteExpense(id),
         });
       default: {
         const _exhaustive: never = entity;

@@ -1,17 +1,11 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import type PDFDocument from "pdfkit";
+import PDFDocument from "pdfkit";
 import { SITE } from "@/lib/constants";
 
-const FONT_CANDIDATES = [
-  join(process.cwd(), "src/lib/fonts/DejaVuSans.ttf"),
-  join(process.cwd(), "DejaVuSans.ttf"),
-];
-
-const LOGO_CANDIDATES = [
-  join(process.cwd(), "src", "lib", "fonts", "logo.png"),
-  join(process.cwd(), "public", "logo.png"),
-];
+const FONTS_DIR = join(process.cwd(), "src/lib/fonts");
+const FONT_FILE = join(FONTS_DIR, "DejaVuSans.ttf");
+const LOGO_FILE = join(FONTS_DIR, "logo.png");
 
 const LOGO_REMOTE =
   "https://res.cloudinary.com/ymm7xvz0/image/upload/f_png,q_auto,w_400/cevizogullari/logo.png";
@@ -20,22 +14,22 @@ let logoCache: Buffer | null | undefined;
 
 export type PdfDoc = InstanceType<typeof PDFDocument>;
 
+export const PDF_MARGIN = 40;
+export const PDF_CONTINUATION_Y = 56;
+
 export function pdfFontPath() {
-  const match = FONT_CANDIDATES.find((candidate) => existsSync(candidate));
-  if (!match) {
+  if (!existsSync(/*turbopackIgnore: true*/ FONT_FILE)) {
     throw new Error("Rapor yazı tipi bulunamadı");
   }
-  return match;
+  return FONT_FILE;
 }
 
 export async function loadPdfLogo(): Promise<Buffer | null> {
   if (logoCache !== undefined) return logoCache;
 
-  for (const candidate of LOGO_CANDIDATES) {
-    if (existsSync(candidate)) {
-      logoCache = readFileSync(candidate);
-      return logoCache;
-    }
+  if (existsSync(/*turbopackIgnore: true*/ LOGO_FILE)) {
+    logoCache = readFileSync(/*turbopackIgnore: true*/ LOGO_FILE);
+    return logoCache;
   }
 
   try {
@@ -68,7 +62,6 @@ export async function drawBrandHeader(
     const boxHeight = 44;
     doc.image(logo, margin, top, {
       fit: [boxWidth, boxHeight],
-      align: "left",
       valign: "center",
     });
     textX = margin + boxWidth + 14;
@@ -100,4 +93,60 @@ export async function drawBrandHeader(
       .text(subtitle, margin, doc.y, { width: pageWidth - margin * 2 });
   }
   doc.moveDown(0.6);
+}
+
+function drawContinuationHeader(doc: PdfDoc, logo: Buffer | null) {
+  doc.font(pdfFontPath());
+  const margin = PDF_MARGIN;
+  const top = 14;
+  let textX = margin;
+  if (logo) {
+    doc.image(logo, margin, top, {
+      fit: [72, 28],
+      valign: "center",
+    });
+    textX = margin + 84;
+  }
+  doc
+    .fontSize(9)
+    .fillColor("#295B2D")
+    .text(SITE.shortName, textX, top + 8, {
+      width: doc.page.width - textX - margin,
+      lineBreak: false,
+    });
+  doc.y = PDF_CONTINUATION_Y;
+}
+
+export async function createBrandedPdf(options: {
+  title: string;
+  subtitle?: string;
+  layout?: "portrait" | "landscape";
+  infoTitle: string;
+}): Promise<{ doc: PdfDoc; done: Promise<Buffer> }> {
+  const font = pdfFontPath();
+  const logo = await loadPdfLogo();
+  const doc = new PDFDocument({
+    size: "A4",
+    layout: options.layout ?? "portrait",
+    margin: PDF_MARGIN,
+    info: {
+      Title: options.infoTitle,
+      Author: SITE.name,
+    },
+  });
+  doc.font(font);
+
+  const chunks: Buffer[] = [];
+  const done = new Promise<Buffer>((resolve, reject) => {
+    doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+  });
+
+  doc.on("pageAdded", () => {
+    drawContinuationHeader(doc, logo);
+  });
+
+  await drawBrandHeader(doc, options.title, options.subtitle);
+  return { doc, done };
 }

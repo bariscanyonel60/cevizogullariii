@@ -6,7 +6,9 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { Select } from "@/components/atoms/Select";
-import { formatTry } from "@/lib/accounting-money";
+import { MoneyInput } from "@/components/atoms/MoneyInput";
+import { AccountingPdfButton } from "@/components/organisms/admin/AccountingPdfButton";
+import { formatTry, parseMoneyInput } from "@/lib/accounting-money";
 import {
   istanbulIsoDate,
   istanbulYearMonth,
@@ -20,6 +22,8 @@ type Props = {
   onCreateAdvance: (payload: Record<string, unknown>) => Promise<boolean>;
   onDeleteStaff: (id: string) => Promise<boolean>;
   onDeleteAdvance: (id: string) => Promise<boolean>;
+  onError: (message: string | null) => void;
+  onMessage: (message: string | null) => void;
 };
 
 export function AccountingStaffPanel({
@@ -29,6 +33,8 @@ export function AccountingStaffPanel({
   onCreateAdvance,
   onDeleteStaff,
   onDeleteAdvance,
+  onError,
+  onMessage,
 }: Props) {
   const [name, setName] = useState("");
   const [staffId, setStaffId] = useState(store.staff[0]?.id ?? "");
@@ -69,7 +75,7 @@ export function AccountingStaffPanel({
     const saved = await onCreateAdvance({
       staffId,
       date,
-      amount: Number(amount),
+      amount: parseMoneyInput(amount),
       note,
     });
     if (saved) {
@@ -143,13 +149,11 @@ export function AccountingStaffPanel({
             </div>
             <div>
               <Label htmlFor="advance-amount">Tutar</Label>
-              <Input
+              <MoneyInput
                 id="advance-amount"
-                type="number"
-                min="0.01"
-                step="0.01"
                 value={amount}
-                onChange={(event) => setAmount(event.target.value)}
+                onValueChange={setAmount}
+                placeholder="1.000"
                 required
               />
             </div>
@@ -182,13 +186,22 @@ export function AccountingStaffPanel({
                 : " · bu ay avans alan yok"}
             </p>
           </div>
-          <div className="w-full sm:w-56">
-            <Label htmlFor="advance-month">Ay</Label>
-            <Input
-              id="advance-month"
-              type="month"
-              value={month}
-              onChange={(event) => setMonth(event.target.value)}
+          <div className="flex w-full flex-wrap items-end gap-3 sm:w-auto">
+            <div className="w-full sm:w-56">
+              <Label htmlFor="advance-month">Ay</Label>
+              <Input
+                id="advance-month"
+                type="month"
+                value={month}
+                onChange={(event) => setMonth(event.target.value)}
+              />
+            </div>
+            <AccountingPdfButton
+              kind="staff"
+              month={month}
+              disabled={busy}
+              onError={onError}
+              onMessage={onMessage}
             />
           </div>
         </div>

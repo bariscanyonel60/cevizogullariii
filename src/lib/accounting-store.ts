@@ -2,14 +2,20 @@ import { createCipheriv, createDecipheriv, createHash, randomBytes, randomUUID }
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { get, put } from "@vercel/blob";
+import { dayCashSummary, monthCashSummary, parseMoneyInput } from "@/lib/accounting-money";
 import {
   readAccountingFromMysql,
   writeAccountingToMysql,
 } from "@/lib/db/accounting-sql";
 import { isDatabaseConfigured } from "@/lib/db/pool";
 import {
+  CASH_ZERO_MONTH_NOTE,
+  CASH_ZERO_NOTE,
+  CASH_ZERO_TITLE,
   emptyAccountingStore,
+  isCashZeroScope,
   isCreditKind,
+  isExpenseCategory,
   isIsoDate,
   isPaymentMethod,
   isValidPhone,
@@ -18,6 +24,7 @@ import {
   type Advance,
   type CreditEntry,
   type Customer,
+  type Expense,
   type Sale,
   type StaffMember,
 } from "@/lib/accounting-types";
@@ -85,7 +92,10 @@ function parseStore(data: unknown): AccountingStore {
       ? record.customers.filter(isCustomer)
       : [],
     creditEntries: Array.isArray(record.creditEntries)
-      ? record.creditEntries.filter(isCreditEntry)
+      ? record.creditEntries.filter(isCreditEntry).map(withDueDate)
+      : [],
+    expenses: Array.isArray(record.expenses)
+      ? record.expenses.filter(isExpense)
       : [],
   };
 }
@@ -132,6 +142,16 @@ function isCustomer(value: unknown): value is Customer {
   );
 }
 
+function withDueDate(item: CreditEntry): CreditEntry {
+  const dueDate =
+    item.kind === "purchase" &&
+    typeof item.dueDate === "string" &&
+    isIsoDate(item.dueDate)
+      ? item.dueDate
+      : null;
+  return { ...item, dueDate };
+}
+
 function isCreditEntry(value: unknown): value is CreditEntry {
   if (!value || typeof value !== "object") return false;
   const item = value as CreditEntry;
@@ -141,6 +161,21 @@ function isCreditEntry(value: unknown): value is CreditEntry {
     isCreditKind(item.kind) &&
     isIsoDate(item.date) &&
     Number.isFinite(item.amount)
+  );
+}
+
+function isExpense(value: unknown): value is Expense {
+  if (!value || typeof value !== "object") return false;
+  const item = value as Expense;
+  const vatOk = item.vatRate === null || isVatRate(item.vatRate);
+  return (
+    typeof item.id === "string" &&
+    isIsoDate(item.date) &&
+    isExpenseCategory(item.category) &&
+    typeof item.title === "string" &&
+    Number.isFinite(item.amount) &&
+    vatOk &&
+    isPaymentMethod(item.paymentMethod)
   );
 }
 
@@ -270,7 +305,8 @@ function requiredDate(value: unknown, label = "Tarih"): string {
 }
 
 function requiredAmount(value: unknown, label: string): number {
-  const amount = asNumber(value);
+  const amount =
+    typeof value === "string" ? parseMoneyInput(value) : asNumber(value);
   if (!Number.isFinite(amount) || amount <= 0) {
     throw new Error(`${label} 0’dan büyük olmalı`);
   }
@@ -283,7 +319,7 @@ export async function createSale(input: unknown): Promise<AccountingStore> {
   const paymentMethod = body.paymentMethod;
   if (!isVatRate(vatRate)) throw new Error("KDV oranı 1, 10 veya 20 olmalı");
   if (!isPaymentMethod(paymentMethod)) {
-    throw new Error("Ödeme nakit veya kart olmalı");
+    throw new Error("Ödeme nakit, kart veya havale olmalı");
   }
 
   const sale: Sale = {
@@ -452,6 +488,8 @@ export async function createCreditEntry(
   let productName = "";
   let vatRate: CreditEntry["vatRate"] = null;
   let paymentMethod: CreditEntry["paymentMethod"] = null;
+  let dueDate: string | null = null;
+  const date = requiredDate(body.date);
 
   switch (kind) {
     case "purchase": {
@@ -460,11 +498,15 @@ export async function createCreditEntry(
         throw new Error("KDV oranı 1, 10 veya 20 olmalı");
       }
       vatRate = body.vatRate;
+      dueDate = optionalIsoDate(body.dueDate);
+      if (dueDate && dueDate < date) {
+        throw new Error("Vade, satış tarihinden önce olamaz");
+      }
       break;
     }
     case "payment": {
       if (!isPaymentMethod(body.paymentMethod)) {
-        throw new Error("Tahsilat nakit veya kart olmalı");
+        throw new Error("Tahsilat nakit, kart veya havale olmalı");
       }
       paymentMethod = body.paymentMethod;
       break;
@@ -479,7 +521,8 @@ export async function createCreditEntry(
     id: randomUUID(),
     customerId,
     kind,
-    date: requiredDate(body.date),
+    date,
+    dueDate,
     productName,
     amount: requiredAmount(body.amount, "Tutar"),
     vatRate,
@@ -499,6 +542,94 @@ export async function deleteCreditEntry(id: string): Promise<AccountingStore> {
     throw new Error("Kayıt bulunamadı");
   }
   store.creditEntries = next;
+  await saveAccountingStore(store);
+  return store;
+}
+
+function optionalIsoDate(value: unknown): string | null {
+  if (value === null || value === undefined || value === "") return null;
+  if (typeof value !== "string" || !isIsoDate(value)) {
+    throw new Error("Vade tarihi geçersiz");
+  }
+  return value;
+}
+
+function optionalVatRate(value: unknown): Expense["vatRate"] {
+  if (value === null || value === undefined || value === "") return null;
+  if (!isVatRate(value)) throw new Error("KDV oranı 1, 10 veya 20 olmalı");
+  return value;
+}
+
+export async function createCashZero(input: unknown): Promise<AccountingStore> {
+  const body = (input ?? {}) as Record<string, unknown>;
+  const date = requiredDate(body.date);
+  const scope = isCashZeroScope(body.scope) ? body.scope : "day";
+  const store = await getAccountingStore();
+  let net = 0;
+  switch (scope) {
+    case "day":
+      net = dayCashSummary(store, date).cashNet;
+      break;
+    case "month":
+      net = monthCashSummary(store, date.slice(0, 7)).cashNet;
+      break;
+    default: {
+      const _exhaustive: never = scope;
+      return _exhaustive;
+    }
+  }
+  if (net <= 0) {
+    throw new Error("Sıfırlanacak nakit kasa yok");
+  }
+
+  const expense: Expense = {
+    id: randomUUID(),
+    date,
+    category: "diger",
+    title: CASH_ZERO_TITLE,
+    amount: net,
+    vatRate: null,
+    paymentMethod: "nakit",
+    note: scope === "month" ? CASH_ZERO_MONTH_NOTE : CASH_ZERO_NOTE,
+    createdAt: new Date().toISOString(),
+  };
+  store.expenses = [expense, ...(store.expenses ?? [])];
+  await saveAccountingStore(store);
+  return store;
+}
+
+export async function createExpense(input: unknown): Promise<AccountingStore> {
+  const body = (input ?? {}) as Record<string, unknown>;
+  const category = body.category;
+  const paymentMethod = body.paymentMethod;
+  if (!isExpenseCategory(category)) throw new Error("Gider kategorisi geçersiz");
+  if (!isPaymentMethod(paymentMethod)) {
+    throw new Error("Ödeme nakit, kart veya havale olmalı");
+  }
+
+  const expense: Expense = {
+    id: randomUUID(),
+    date: requiredDate(body.date),
+    category,
+    title: requiredText(body.title, "Açıklama", 2),
+    amount: requiredAmount(body.amount, "Tutar"),
+    vatRate: optionalVatRate(body.vatRate),
+    paymentMethod,
+    note: asString(body.note).trim(),
+    createdAt: new Date().toISOString(),
+  };
+
+  const store = await getAccountingStore();
+  store.expenses = [expense, ...(store.expenses ?? [])];
+  await saveAccountingStore(store);
+  return store;
+}
+
+export async function deleteExpense(id: string): Promise<AccountingStore> {
+  const store = await getAccountingStore();
+  const next = store.expenses.filter((item) => item.id !== id);
+  if (next.length === store.expenses.length) throw new Error("Gider bulunamadı");
+  store.expenses = next;
   await saveAccountingStore(store);
   return store;
 }

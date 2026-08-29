@@ -21,7 +21,18 @@ const nextConfig: NextConfig = {
   compress: true,
   serverExternalPackages: ["exceljs", "pdfkit", "mysql2"],
   outputFileTracingIncludes: {
-    "/api/admin/accounting/report": ["./src/lib/fonts/DejaVuSans.ttf"],
+    "/api/admin/accounting/report": [
+      "./src/lib/fonts/DejaVuSans.ttf",
+      "./src/lib/fonts/logo.png",
+    ],
+    "/api/admin/accounting/section-pdf": [
+      "./src/lib/fonts/DejaVuSans.ttf",
+      "./src/lib/fonts/logo.png",
+    ],
+    "/api/admin/accounting/customer-pdf": [
+      "./src/lib/fonts/DejaVuSans.ttf",
+      "./src/lib/fonts/logo.png",
+    ],
   },
   async redirects() {
     return [

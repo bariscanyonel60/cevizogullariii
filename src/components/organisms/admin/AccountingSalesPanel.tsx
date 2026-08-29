@@ -6,8 +6,11 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { Select } from "@/components/atoms/Select";
-import { formatQuantity, formatTry, saleGross, splitVat } from "@/lib/accounting-money";
+import { MoneyInput } from "@/components/atoms/MoneyInput";
+import { AccountingPdfButton } from "@/components/organisms/admin/AccountingPdfButton";
+import { formatQuantity, formatTry, parseMoneyInput, saleGross, splitVat } from "@/lib/accounting-money";
 import {
+  PAYMENT_METHODS,
   VAT_RATES,
   istanbulIsoDate,
   paymentMethodLabel,
@@ -21,9 +24,18 @@ type Props = {
   busy: boolean;
   onCreate: (payload: Record<string, unknown>) => Promise<boolean>;
   onDelete: (id: string) => Promise<boolean>;
+  onError: (message: string | null) => void;
+  onMessage: (message: string | null) => void;
 };
 
-export function AccountingSalesPanel({ store, busy, onCreate, onDelete }: Props) {
+export function AccountingSalesPanel({
+  store,
+  busy,
+  onCreate,
+  onDelete,
+  onError,
+  onMessage,
+}: Props) {
   const [date, setDate] = useState(istanbulIsoDate());
   const [productName, setProductName] = useState("");
   const [quantity, setQuantity] = useState("1");
@@ -51,9 +63,10 @@ export function AccountingSalesPanel({ store, busy, onCreate, onDelete }: Props)
         acc.vat += parts.vatAmount;
         if (sale.paymentMethod === "nakit") acc.cash += parts.gross;
         if (sale.paymentMethod === "kart") acc.card += parts.gross;
+        if (sale.paymentMethod === "havale") acc.transfer += parts.gross;
         return acc;
       },
-      { gross: 0, net: 0, vat: 0, cash: 0, card: 0 },
+      { gross: 0, net: 0, vat: 0, cash: 0, card: 0, transfer: 0 },
     );
   }, [daySales]);
 
@@ -63,7 +76,7 @@ export function AccountingSalesPanel({ store, busy, onCreate, onDelete }: Props)
       date,
       productName,
       quantity: Number(quantity),
-      unitPrice: Number(unitPrice),
+      unitPrice: parseMoneyInput(unitPrice),
       vatRate,
       paymentMethod,
       note,
@@ -86,7 +99,7 @@ export function AccountingSalesPanel({ store, busy, onCreate, onDelete }: Props)
           Satış ekle
         </h3>
         <p className="text-sm text-ink-500">
-          Birim fiyat KDV dahildir. Nakit veya kart olarak kasa hareketine işlenir.
+          Birim fiyat KDV dahildir. Nakit kasaya, kart ve havale ayrı izlenir.
         </p>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <div>
@@ -129,13 +142,11 @@ export function AccountingSalesPanel({ store, busy, onCreate, onDelete }: Props)
           </div>
           <div>
             <Label htmlFor="sale-price">Birim fiyat (KDV dahil)</Label>
-            <Input
+            <MoneyInput
               id="sale-price"
-              type="number"
-              min="0.01"
-              step="0.01"
               value={unitPrice}
-              onChange={(event) => setUnitPrice(event.target.value)}
+              onValueChange={setUnitPrice}
+              placeholder="1.000"
               required
             />
           </div>
@@ -164,8 +175,11 @@ export function AccountingSalesPanel({ store, busy, onCreate, onDelete }: Props)
                 setPaymentMethod(event.target.value as PaymentMethod)
               }
             >
-              <option value="nakit">Nakit</option>
-              <option value="kart">Kart</option>
+              {PAYMENT_METHODS.map((method) => (
+                <option key={method} value={method}>
+                  {paymentMethodLabel(method)}
+                </option>
+              ))}
             </Select>
           </div>
           <div className="lg:col-span-2">
@@ -188,22 +202,32 @@ export function AccountingSalesPanel({ store, busy, onCreate, onDelete }: Props)
           <h3 className="font-display text-xl font-semibold text-ink-900">
             Günün satışları ({daySales.length})
           </h3>
-          <div className="w-full sm:w-56">
-            <Label htmlFor="sale-filter-date">Gün seç</Label>
-            <Input
-              id="sale-filter-date"
-              type="date"
-              value={date}
-              onChange={(event) => setDate(event.target.value)}
+          <div className="flex w-full flex-wrap items-end gap-3 sm:w-auto">
+            <div className="w-full sm:w-56">
+              <Label htmlFor="sale-filter-date">Gün seç</Label>
+              <Input
+                id="sale-filter-date"
+                type="date"
+                value={date}
+                onChange={(event) => setDate(event.target.value)}
+              />
+            </div>
+            <AccountingPdfButton
+              kind="sales"
+              date={date}
+              disabled={busy}
+              onError={onError}
+              onMessage={onMessage}
             />
           </div>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           <MiniStat label="Toplam" value={formatTry(totals.gross)} />
           <MiniStat label="Net" value={formatTry(totals.net)} />
           <MiniStat label="KDV" value={formatTry(totals.vat)} />
           <MiniStat label="Nakit" value={formatTry(totals.cash)} />
           <MiniStat label="Kart" value={formatTry(totals.card)} />
+          <MiniStat label="Havale" value={formatTry(totals.transfer)} />
         </div>
         {daySales.length === 0 ? (
           <p className="rounded-2xl bg-white p-8 text-center text-sm text-ink-500 shadow-sm">

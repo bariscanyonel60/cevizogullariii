@@ -59,10 +59,17 @@ export async function buildMonthlyExcel(report: MonthlyReport): Promise<Buffer> 
     ["KDV", report.salesTotals.vat],
     ["Nakit satış", report.salesTotals.cash],
     ["Kart satış", report.salesTotals.card],
+    ["Havale satış", report.salesTotals.transfer],
+    ["Gider toplam", report.expenseTotals.total],
+    ["Nakit kasa giren", report.cash.cashIn],
+    ["Nakit kasa çıkan", report.cash.cashOut],
+    ["Net nakit kasa", report.cash.cashNet],
     ["Personel avansı", report.advanceTotal],
     ["Veresiye satış (dönem)", report.creditTotals.purchases],
     ["Veresiye tahsilat (dönem)", report.creditTotals.payments],
     ["Açık veresiye (güncel)", report.outstanding],
+    ["Geciken veresiye", report.overdueTotal],
+    ["Geciken müşteri", String(report.overdueCount)],
   ];
   summaryRows.forEach((item, index) => {
     const rowNumber = 5 + index;
@@ -73,9 +80,9 @@ export async function buildMonthlyExcel(report: MonthlyReport): Promise<Buffer> 
       summary.getCell(rowNumber, 2).value = item[1];
     }
   });
-  summary.getCell("A16").value =
-    "Satış tutarları KDV dahildir. Bu rapor yalnızca yönetici paneli içindir.";
-  summary.getCell("A16").font = { italic: true, size: 9, color: { argb: "FF6B7280" } };
+  summary.getCell("A20").value =
+    "Satış tutarları KDV dahildir. Net nakit kasa = nakit satış + nakit tahsilat − nakit gider − avans. Bu rapor yalnızca yönetici paneli içindir.";
+  summary.getCell("A20").font = { italic: true, size: 9, color: { argb: "FF6B7280" } };
 
   const sales = workbook.addWorksheet("Satışlar");
   sales.columns = [
@@ -150,6 +157,7 @@ export async function buildMonthlyExcel(report: MonthlyReport): Promise<Buffer> 
     { header: "Tutar", key: "amount", width: 14 },
     { header: "KDV", key: "vatLabel", width: 10 },
     { header: "Ödeme", key: "paymentMethod", width: 12 },
+    { header: "Vade", key: "dueDate", width: 12 },
     { header: "Not", key: "note", width: 24 },
   ];
   styleHeader(credit.getRow(1));
@@ -167,6 +175,9 @@ export async function buildMonthlyExcel(report: MonthlyReport): Promise<Buffer> 
     { header: "Dönem borç", key: "periodPurchases", width: 14 },
     { header: "Dönem tahsilat", key: "periodPayments", width: 16 },
     { header: "Güncel bakiye", key: "balance", width: 16 },
+    { header: "Sonraki vade", key: "nextDueDate", width: 14 },
+    { header: "Geciken tutar", key: "overdueAmount", width: 16 },
+    { header: "Gecikme (gün)", key: "overdueDays", width: 14 },
   ];
   styleHeader(customers.getRow(1));
   report.customers.forEach((row) => {
@@ -174,7 +185,37 @@ export async function buildMonthlyExcel(report: MonthlyReport): Promise<Buffer> 
     added.getCell("periodPurchases").numFmt = MONEY_FMT;
     added.getCell("periodPayments").numFmt = MONEY_FMT;
     added.getCell("balance").numFmt = MONEY_FMT;
+    added.getCell("overdueAmount").numFmt = MONEY_FMT;
   });
+
+  const expenses = workbook.addWorksheet("Giderler");
+  expenses.columns = [
+    { header: "Tarih", key: "date", width: 14 },
+    { header: "Kategori", key: "category", width: 18 },
+    { header: "Açıklama", key: "title", width: 32 },
+    { header: "Tutar", key: "amount", width: 14 },
+    { header: "KDV", key: "vatLabel", width: 10 },
+    { header: "Ödeme", key: "paymentMethod", width: 14 },
+    { header: "Not", key: "note", width: 24 },
+  ];
+  styleHeader(expenses.getRow(1));
+  report.expenses.forEach((row) => {
+    const added = expenses.addRow(row);
+    added.getCell("amount").numFmt = MONEY_FMT;
+  });
+  if (report.expenses.length > 0) {
+    const total = expenses.addRow({
+      date: "",
+      category: "",
+      title: "TOPLAM",
+      amount: report.expenseTotals.total,
+      vatLabel: "",
+      paymentMethod: "",
+      note: "",
+    });
+    total.font = { bold: true };
+    total.getCell("amount").numFmt = MONEY_FMT;
+  }
 
   const buffer = await workbook.xlsx.writeBuffer();
   return Buffer.from(buffer);

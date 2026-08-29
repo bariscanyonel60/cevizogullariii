@@ -1,19 +1,25 @@
-import PDFDocument from "pdfkit";
 import {
   creditLedgerNewestFirst,
   customerBalance,
+  customerCreditStatus,
   formatTry,
 } from "@/lib/accounting-money";
 import {
   creditKindLabel,
   customerFullName,
+  formatIsoDateTr,
   istanbulIsoDate,
   paymentMethodLabel,
   type CreditEntry,
   type Customer,
 } from "@/lib/accounting-types";
 import { SITE } from "@/lib/constants";
-import { drawBrandHeader, pdfFontPath, type PdfDoc } from "@/lib/pdf-brand";
+import {
+  PDF_CONTINUATION_Y,
+  PDF_MARGIN,
+  createBrandedPdf,
+  type PdfDoc,
+} from "@/lib/pdf-brand";
 
 function formatDateTr(iso: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso;
@@ -66,6 +72,9 @@ function entryLabel(entry: CreditEntry) {
 
 function entryDetail(entry: CreditEntry) {
   const parts = [entry.productName, entry.note].filter(Boolean);
+  if (entry.kind === "purchase" && entry.dueDate) {
+    parts.push(`Vade ${formatIsoDateTr(entry.dueDate)}`);
+  }
   return parts.join(" — ") || "—";
 }
 
@@ -102,33 +111,13 @@ export async function buildCustomerCreditPdf(
   customer: Customer,
   entries: CreditEntry[],
 ): Promise<Buffer> {
-  const font = pdfFontPath();
-  const doc = new PDFDocument({
-    size: "A4",
-    layout: "portrait",
-    margin: 40,
-    info: {
-      Title: `${SITE.shortName} veresiye — ${customerFullName(customer)}`,
-      Author: SITE.name,
-    },
-  });
-  doc.font(font);
-
-  const chunks: Buffer[] = [];
-  const done = new Promise<Buffer>((resolve, reject) => {
-    doc.on("data", (chunk: Buffer) => chunks.push(chunk));
-    doc.on("end", () => resolve(Buffer.concat(chunks)));
-    doc.on("error", reject);
+  const { doc, done } = await createBrandedPdf({
+    title: "Veresiye hesap özeti",
+    subtitle: `Çıktı tarihi: ${formatDateTr(istanbulIsoDate())}`,
+    infoTitle: `${SITE.shortName} veresiye — ${customerFullName(customer)}`,
   });
 
-  const printed = formatDateTr(istanbulIsoDate());
-  await drawBrandHeader(
-    doc,
-    "Veresiye hesap özeti",
-    `Çıktı tarihi: ${printed}`,
-  );
-
-  const margin = 40;
+  const margin = PDF_MARGIN;
   const pageWidth = doc.page.width;
   const inner = pageWidth - margin * 2;
   let y = doc.y;
@@ -149,12 +138,19 @@ export async function buildCustomerCreditPdf(
     .filter((entry) => entry.kind === "payment")
     .reduce((sum, entry) => sum + entry.amount, 0);
   const balance = customerBalance(entries);
+  const status = customerCreditStatus(entries, istanbulIsoDate());
+  const dueLabel = status.isOverdue
+    ? `Gecikmiş ${status.overdueDays} gün`
+    : status.nextDueDate
+      ? formatIsoDateTr(status.nextDueDate)
+      : "—";
   const cards: [string, string][] = [
     ["Toplam alış", formatTry(purchases)],
     ["Toplam tahsilat", formatTry(payments)],
     ["Güncel borç", formatDebt(balance)],
+    ["Vade / gecikme", dueLabel],
   ];
-  const cardWidth = (inner - 16) / 3;
+  const cardWidth = (inner - 24) / 4;
   cards.forEach((card, index) => {
     const x = margin + index * (cardWidth + 8);
     doc.roundedRect(x, y, cardWidth, 44, 8).fillAndStroke("#FFFFFF", "#D7E4D8");
@@ -174,7 +170,7 @@ export async function buildCustomerCreditPdf(
   const ensureSpace = (needed: number) => {
     if (y + needed > doc.page.height - 48) {
       doc.addPage();
-      y = 40;
+      y = PDF_CONTINUATION_Y;
     }
   };
 
@@ -203,7 +199,7 @@ export async function buildCustomerCreditPdf(
   } else {
     rows.forEach((row, rowIndex) => {
       ensureSpace(18);
-      if (y === 40) drawTableHeader();
+      if (y === PDF_CONTINUATION_Y) drawTableHeader();
       if (rowIndex % 2 === 0) {
         doc.rect(margin, y - 2, inner, 16).fill("#F3F8F3");
       }

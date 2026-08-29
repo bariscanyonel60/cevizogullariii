@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS sales (
   quantity DECIMAL(12, 3) NOT NULL,
   unit_price DECIMAL(12, 3) NOT NULL,
   vat_rate TINYINT NOT NULL,
-  payment_method ENUM('nakit', 'kart') NOT NULL,
+  payment_method ENUM('nakit', 'kart', 'havale') NOT NULL,
   note TEXT NOT NULL,
   created_at DATETIME(3) NOT NULL,
   INDEX idx_sales_date (date),
@@ -51,15 +51,30 @@ CREATE TABLE IF NOT EXISTS credit_entries (
   customer_id CHAR(36) NOT NULL,
   kind ENUM('purchase', 'payment') NOT NULL,
   date DATE NOT NULL,
+  due_date DATE NULL,
   product_name VARCHAR(255) NOT NULL DEFAULT '',
   amount DECIMAL(12, 3) NOT NULL,
   vat_rate TINYINT NULL,
-  payment_method ENUM('nakit', 'kart') NULL,
+  payment_method ENUM('nakit', 'kart', 'havale') NULL,
   note TEXT NOT NULL,
   created_at DATETIME(3) NOT NULL,
   CONSTRAINT fk_credit_customer FOREIGN KEY (customer_id) REFERENCES customers (id),
   INDEX idx_credit_customer (customer_id),
   INDEX idx_credit_date (date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS expenses (
+  id CHAR(36) NOT NULL PRIMARY KEY,
+  date DATE NOT NULL,
+  category ENUM('kira', 'elektrik', 'su', 'yakit', 'tedarik', 'bakim', 'diger') NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  amount DECIMAL(12, 3) NOT NULL,
+  vat_rate TINYINT NULL,
+  payment_method ENUM('nakit', 'kart', 'havale') NOT NULL,
+  note TEXT NOT NULL,
+  created_at DATETIME(3) NOT NULL,
+  INDEX idx_expenses_date (date),
+  INDEX idx_expenses_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS media_collections (

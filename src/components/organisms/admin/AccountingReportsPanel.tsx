@@ -76,8 +76,8 @@ export function AccountingReportsPanel({
               Aylık rapor
             </h3>
             <p className="mt-1 text-sm text-ink-500">
-              Seçilen ayın satış, avans ve veresiye özetini Excel veya PDF olarak
-              indirin.
+              Seçilen ayın satış, gider, kasa, avans ve veresiye özetini Excel
+              veya PDF olarak indirin.
             </p>
           </div>
           <div className="w-full sm:w-56">
@@ -118,8 +118,13 @@ export function AccountingReportsPanel({
           hint={`${report.salesTotals.count} işlem · KDV ${formatTry(report.salesTotals.vat)}`}
         />
         <PreviewCard
-          label="Nakit / kart"
-          value={`${formatTry(report.salesTotals.cash)} / ${formatTry(report.salesTotals.card)}`}
+          label="Nakit / kart / havale"
+          value={`${formatTry(report.salesTotals.cash)} / ${formatTry(report.salesTotals.card)} / ${formatTry(report.salesTotals.transfer)}`}
+        />
+        <PreviewCard
+          label="Gider / net kasa"
+          value={formatTry(report.expenseTotals.total)}
+          hint={`Net nakit kasa ${formatTry(report.cash.cashNet)}`}
         />
         <PreviewCard
           label="Personel avansı"
@@ -130,6 +135,11 @@ export function AccountingReportsPanel({
           label="Açık veresiye"
           value={formatTry(report.outstanding)}
           hint={`Dönem borç ${formatTry(report.creditTotals.purchases)}`}
+        />
+        <PreviewCard
+          label="Geciken veresiye"
+          value={formatTry(report.overdueTotal)}
+          hint={`${report.overdueCount} müşteri`}
         />
       </section>
 

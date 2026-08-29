@@ -3,18 +3,30 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   Banknote,
-  CreditCard,
   FileBarChart,
+  Landmark,
   NotebookTabs,
   Receipt,
   Users,
   Wallet,
 } from "lucide-react";
+import { Button } from "@/components/atoms/Button";
 import { AccountingCustomersPanel } from "@/components/organisms/admin/AccountingCustomersPanel";
+import { AccountingExpensesPanel } from "@/components/organisms/admin/AccountingExpensesPanel";
+import { AccountingPdfButton } from "@/components/organisms/admin/AccountingPdfButton";
 import { AccountingReportsPanel } from "@/components/organisms/admin/AccountingReportsPanel";
 import { AccountingSalesPanel } from "@/components/organisms/admin/AccountingSalesPanel";
 import { AccountingStaffPanel } from "@/components/organisms/admin/AccountingStaffPanel";
-import { customerBalance, formatTry, splitVat } from "@/lib/accounting-money";
+import {
+  customerBalance,
+  customerCreditStatus,
+  cashZeroConfirmMessage,
+  cashZeroMonthConfirmMessage,
+  dayCashSummary,
+  formatTry,
+  monthCashSummary,
+  splitVat,
+} from "@/lib/accounting-money";
 import {
   emptyAccountingStore,
   istanbulIsoDate,
@@ -24,13 +36,20 @@ import {
   type AccountingStore,
 } from "@/lib/accounting-types";
 
-type AccountingTab = "summary" | "sales" | "staff" | "customers" | "reports";
+type AccountingTab =
+  | "summary"
+  | "sales"
+  | "staff"
+  | "customers"
+  | "expenses"
+  | "reports";
 
 const TABS: { id: AccountingTab; label: string; icon: typeof Wallet }[] = [
   { id: "summary", label: "Özet", icon: Wallet },
   { id: "sales", label: "Günlük satış", icon: Receipt },
   { id: "staff", label: "Personel / avans", icon: Users },
   { id: "customers", label: "Veresiye kartları", icon: NotebookTabs },
+  { id: "expenses", label: "Gider / kasa", icon: Landmark },
   { id: "reports", label: "Aylık rapor", icon: FileBarChart },
 ];
 
@@ -75,6 +94,7 @@ export function AccountingDashboard() {
   async function createRecord(
     entity: AccountingEntity,
     payload: Record<string, unknown>,
+    successMessage = "Kayıt eklendi",
   ) {
     setBusy(true);
     setError(null);
@@ -86,7 +106,7 @@ export function AccountingDashboard() {
         body: JSON.stringify({ entity, ...payload }),
       });
       setStore(await parseStoreResponse(res));
-      setMessage("Kayıt eklendi");
+      setMessage(successMessage);
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Kayıt eklenemedi");
@@ -94,6 +114,26 @@ export function AccountingDashboard() {
     } finally {
       setBusy(false);
     }
+  }
+
+  async function zeroDayCash(date: string, amount: number) {
+    if (amount <= 0) return false;
+    if (!window.confirm(cashZeroConfirmMessage(amount))) return false;
+    return createRecord(
+      "expense",
+      { zeroDayCash: true, scope: "day", date },
+      "Kasa sıfırlandı",
+    );
+  }
+
+  async function zeroMonthCash(amount: number) {
+    if (amount <= 0) return false;
+    if (!window.confirm(cashZeroMonthConfirmMessage(amount))) return false;
+    return createRecord(
+      "expense",
+      { zeroDayCash: true, scope: "month", date: today },
+      "Kasa sıfırlandı",
+    );
   }
 
   async function updateCustomer(id: string, payload: Record<string, unknown>) {
@@ -158,9 +198,10 @@ export function AccountingDashboard() {
           acc.vat += vatAmount;
           if (sale.paymentMethod === "nakit") acc.cash += gross;
           if (sale.paymentMethod === "kart") acc.card += gross;
+          if (sale.paymentMethod === "havale") acc.transfer += gross;
           return acc;
         },
-        { gross: 0, vat: 0, cash: 0, card: 0 },
+        { gross: 0, vat: 0, cash: 0, card: 0, transfer: 0 },
       );
     }
 
@@ -172,6 +213,19 @@ export function AccountingDashboard() {
         )
       );
     }, 0);
+
+    const creditCards = store.customers.map((customer) =>
+      customerCreditStatus(
+        store.creditEntries.filter((entry) => entry.customerId === customer.id),
+        today,
+      ),
+    );
+    const debtorCount = creditCards.filter((item) => item.balance > 0).length;
+    const overdueCount = creditCards.filter((item) => item.isOverdue).length;
+    const overdueTotal = creditCards.reduce(
+      (sum, item) => sum + item.overdueAmount,
+      0,
+    );
 
     const staffAdvances = store.staff
       .map((member) => ({
@@ -190,7 +244,11 @@ export function AccountingDashboard() {
       monthAdvanceTotal: monthAdvances.reduce((sum, item) => sum + item.amount, 0),
       staffAdvances,
       outstanding,
-      customerCount: store.customers.length,
+      overdueTotal,
+      overdueCount,
+      debtorCount,
+      todayCash: dayCashSummary(store, today),
+      monthCash: monthCashSummary(store, month),
     };
   }, [month, store, today]);
 
@@ -206,7 +264,7 @@ export function AccountingDashboard() {
         </p>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {TABS.map((item) => {
           const Icon = item.icon;
           return (
@@ -252,26 +310,60 @@ export function AccountingDashboard() {
         <p className="text-sm text-ink-500">Kayıtlar yükleniyor…</p>
       ) : tab === "summary" ? (
         <section className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-ink-500">
+              Bugünün ve bu ayın özeti. PDF’de logo ve aynı rakamlar yer alır.
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                disabled={busy || summary.todayCash.cashNet <= 0}
+                onClick={() =>
+                  void zeroDayCash(today, summary.todayCash.cashNet)
+                }
+              >
+                Bugünkü kasayı 0’la
+              </Button>
+              <AccountingPdfButton
+                kind="summary"
+                disabled={busy}
+                onError={setError}
+                onMessage={setMessage}
+              />
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             <SummaryCard
               label="Bugünkü satış"
               value={formatTry(summary.today.gross)}
               hint={`${summary.todayCount} işlem · KDV ${formatTry(summary.today.vat)}`}
             />
             <SummaryCard
-              label="Bugün nakit"
-              value={formatTry(summary.today.cash)}
+              label="Bugün net nakit kasa"
+              value={formatTry(summary.todayCash.cashNet)}
+              hint={`Giren ${formatTry(summary.todayCash.cashIn)} · Çıkan ${formatTry(summary.todayCash.cashOut)}`}
               icon={<Banknote className="size-4" />}
             />
             <SummaryCard
-              label="Bugün kart"
-              value={formatTry(summary.today.card)}
-              icon={<CreditCard className="size-4" />}
+              label="Bugünkü gider"
+              value={formatTry(summary.todayCash.expenseTotal)}
+              icon={<Landmark className="size-4" />}
             />
             <SummaryCard
               label="Açık veresiye"
               value={formatTry(summary.outstanding)}
-              hint={`${summary.customerCount} müşteri kartı`}
+              hint={`${summary.debtorCount} borçlu · ${summary.overdueCount} gecikmiş`}
+            />
+            <SummaryCard
+              label="Geciken veresiye"
+              value={formatTry(summary.overdueTotal)}
+              hint={
+                summary.overdueCount === 0
+                  ? "Vadesi geçmiş borç yok"
+                  : `${summary.overdueCount} müşteri kartı`
+              }
             />
           </div>
           <div className="grid gap-4 lg:grid-cols-2">
@@ -281,10 +373,32 @@ export function AccountingDashboard() {
               </h3>
               <dl className="mt-4 space-y-2 text-sm">
                 <Row label="Toplam satış" value={formatTry(summary.month.gross)} />
-                <Row label="Nakit" value={formatTry(summary.month.cash)} />
-                <Row label="Kart" value={formatTry(summary.month.card)} />
-                <Row label="KDV" value={formatTry(summary.month.vat)} />
+                <Row label="Nakit satış" value={formatTry(summary.month.cash)} />
+                <Row label="Kart satış" value={formatTry(summary.month.card)} />
+                <Row
+                  label="Havale satış"
+                  value={formatTry(summary.month.transfer)}
+                />
+                <Row
+                  label="Net nakit kasa"
+                  value={formatTry(summary.monthCash.cashNet)}
+                />
+                <Row
+                  label="Toplam gider"
+                  value={formatTry(summary.monthCash.expenseTotal)}
+                />
+                <Row label="KDV (satış)" value={formatTry(summary.month.vat)} />
               </dl>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="mt-4"
+                disabled={busy || summary.monthCash.cashNet <= 0}
+                onClick={() => void zeroMonthCash(summary.monthCash.cashNet)}
+              >
+                Bu ayın kasasını 0’la
+              </Button>
             </article>
             <article className="rounded-3xl border border-earth-400/10 bg-white p-6 shadow-sm">
               <h3 className="font-display text-lg font-semibold text-ink-900">
@@ -314,7 +428,8 @@ export function AccountingDashboard() {
           </div>
           <p className="text-xs text-ink-400">
             Tutarlar KDV dahil. Tarihler Türkiye saatiyle tutulur. Ödeme
-            yöntemi: {paymentMethodLabel("nakit")} / {paymentMethodLabel("kart")}.
+            yöntemi: {paymentMethodLabel("nakit")} / {paymentMethodLabel("kart")}{" "}
+            / {paymentMethodLabel("havale")}.
           </p>
         </section>
       ) : tab === "sales" ? (
@@ -325,6 +440,8 @@ export function AccountingDashboard() {
           onDelete={(id) =>
             removeRecord("sale", id, "Bu satış kaydı silinsin mi?")
           }
+          onError={setError}
+          onMessage={setMessage}
         />
       ) : tab === "staff" ? (
         <AccountingStaffPanel
@@ -338,6 +455,8 @@ export function AccountingDashboard() {
           onDeleteAdvance={(id) =>
             removeRecord("advance", id, "Bu avans kaydı silinsin mi?")
           }
+          onError={setError}
+          onMessage={setMessage}
         />
       ) : tab === "customers" ? (
         <AccountingCustomersPanel
@@ -359,13 +478,30 @@ export function AccountingDashboard() {
           onError={setError}
           onMessage={setMessage}
         />
-      ) : (
+      ) : tab === "expenses" ? (
+        <AccountingExpensesPanel
+          store={store}
+          busy={busy}
+          onCreate={(payload) => createRecord("expense", payload)}
+          onZeroCash={(date, amount) => zeroDayCash(date, amount)}
+          onDelete={(id) =>
+            removeRecord("expense", id, "Bu gider kaydı silinsin mi?")
+          }
+          onError={setError}
+          onMessage={setMessage}
+        />
+      ) : tab === "reports" ? (
         <AccountingReportsPanel
           store={store}
           busy={busy}
           onError={setError}
           onMessage={setMessage}
         />
+      ) : (
+        (() => {
+          const _exhaustive: never = tab;
+          return _exhaustive;
+        })()
       )}
     </div>
   );

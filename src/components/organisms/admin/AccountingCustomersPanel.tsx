@@ -7,17 +7,23 @@ import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { Select } from "@/components/atoms/Select";
 import { Textarea } from "@/components/atoms/Textarea";
+import { MoneyInput } from "@/components/atoms/MoneyInput";
+import { AccountingPdfButton } from "@/components/organisms/admin/AccountingPdfButton";
 import {
   creditLedgerNewestFirst,
-  customerBalance,
+  customerCreditStatus,
+  formatCreditDueHint,
   formatOpenBalance,
   formatTry,
+  parseMoneyInput,
   splitVat,
 } from "@/lib/accounting-money";
 import {
+  PAYMENT_METHODS,
   VAT_RATES,
   creditKindLabel,
   customerFullName,
+  formatIsoDateTr,
   istanbulIsoDate,
   paymentMethodLabel,
   type AccountingStore,
@@ -48,6 +54,29 @@ type CustomerDraft = {
   phone: string;
   address: string;
 };
+
+type ListFilter = "debtors" | "overdue" | "all";
+
+const LIST_FILTERS: { id: ListFilter; label: string }[] = [
+  { id: "debtors", label: "Borçlular" },
+  { id: "overdue", label: "Gecikenler" },
+  { id: "all", label: "Tümü" },
+];
+
+function emptyListMessage(filter: ListFilter): string {
+  switch (filter) {
+    case "debtors":
+      return "Açık borcu olan müşteri yok.";
+    case "overdue":
+      return "Vadesi geçmiş borç yok.";
+    case "all":
+      return "Müşteri kartı yok.";
+    default: {
+      const _exhaustive: never = filter;
+      return _exhaustive;
+    }
+  }
+}
 
 const emptyDraft: CustomerDraft = {
   firstName: "",
@@ -95,6 +124,10 @@ export function AccountingCustomersPanel({
   const [payMethod, setPayMethod] = useState<PaymentMethod>("nakit");
   const [payNote, setPayNote] = useState("");
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [dueDate, setDueDate] = useState("");
+  const [listFilter, setListFilter] = useState<ListFilter>("debtors");
+  const [selectNewest, setSelectNewest] = useState(false);
+  const today = istanbulIsoDate();
 
   const selected = store.customers.find((item) => item.id === selectedId) ?? null;
 
@@ -112,27 +145,63 @@ export function AccountingCustomersPanel({
     setEditDraft(emptyDraft);
   }, [selectedId, store.customers]);
 
-  const filtered = useMemo(() => {
+  useEffect(() => {
+    if (!selectNewest) return;
+    const next = store.customers[0];
+    if (next) {
+      setSelectedId(next.id);
+      setEditDraft(draftFrom(next));
+    }
+    setSelectNewest(false);
+  }, [selectNewest, store.customers]);
+
+  const cards = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("tr-TR");
     return store.customers
       .map((customer) => {
         const entries = store.creditEntries.filter(
           (entry) => entry.customerId === customer.id,
         );
-        return {
-          customer,
-          balance: customerBalance(entries),
-        };
+        const status = customerCreditStatus(entries, today);
+        return { customer, status };
       })
-      .filter(({ customer }) => {
-        if (!needle) return true;
-        const haystack =
-          `${customerFullName(customer)} ${customer.tc} ${customer.phone} ${customer.address}`.toLocaleLowerCase(
-            "tr-TR",
-          );
-        return haystack.includes(needle);
+      .filter(({ customer, status }) => {
+        if (needle) {
+          const haystack =
+            `${customerFullName(customer)} ${customer.tc} ${customer.phone} ${customer.address}`.toLocaleLowerCase(
+              "tr-TR",
+            );
+          if (!haystack.includes(needle)) return false;
+        }
+        switch (listFilter) {
+          case "debtors":
+            return status.balance > 0 || customer.id === selectedId;
+          case "overdue":
+            return status.isOverdue || customer.id === selectedId;
+          case "all":
+            return true;
+          default: {
+            const _exhaustive: never = listFilter;
+            return _exhaustive;
+          }
+        }
+      })
+      .sort((a, b) => {
+        if (a.status.isOverdue !== b.status.isOverdue) {
+          return a.status.isOverdue ? -1 : 1;
+        }
+        if (b.status.overdueAmount !== a.status.overdueAmount) {
+          return b.status.overdueAmount - a.status.overdueAmount;
+        }
+        if (b.status.balance !== a.status.balance) {
+          return b.status.balance - a.status.balance;
+        }
+        return customerFullName(a.customer).localeCompare(
+          customerFullName(b.customer),
+          "tr-TR",
+        );
       });
-  }, [query, store.creditEntries, store.customers]);
+  }, [listFilter, query, selectedId, store.creditEntries, store.customers, today]);
 
   const ledger = useMemo(() => {
     if (!selected) return [];
@@ -141,7 +210,15 @@ export function AccountingCustomersPanel({
     );
   }, [selected, store.creditEntries]);
 
-  const balance = selected ? customerBalance(ledger) : 0;
+  const selectedStatus = useMemo(() => {
+    if (!selected) return null;
+    return customerCreditStatus(
+      store.creditEntries.filter((entry) => entry.customerId === selected.id),
+      today,
+    );
+  }, [selected, store.creditEntries, today]);
+
+  const balance = selectedStatus?.balance ?? 0;
 
   const productSuggestions = useMemo(() => {
     return [
@@ -198,6 +275,8 @@ export function AccountingCustomersPanel({
     const saved = await onCreateCustomer(createDraft);
     if (saved) {
       setCreateDraft(emptyDraft);
+      setListFilter("all");
+      setSelectNewest(true);
     }
   }
 
@@ -214,8 +293,9 @@ export function AccountingCustomersPanel({
       customerId: selected.id,
       kind: "purchase",
       date,
+      dueDate: dueDate || null,
       productName,
-      amount: Number(amount),
+      amount: parseMoneyInput(amount),
       vatRate,
       note,
     });
@@ -223,6 +303,7 @@ export function AccountingCustomersPanel({
       setProductName("");
       setAmount("");
       setNote("");
+      setDueDate("");
     }
   }
 
@@ -233,7 +314,7 @@ export function AccountingCustomersPanel({
       customerId: selected.id,
       kind: "payment",
       date,
-      amount: Number(payAmount),
+      amount: parseMoneyInput(payAmount),
       paymentMethod: payMethod,
       note: payNote,
     });
@@ -332,8 +413,33 @@ export function AccountingCustomersPanel({
         </Button>
       </form>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,18rem)_1fr]">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,20rem)_1fr]">
         <aside className="space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap gap-1 rounded-2xl bg-white p-1 shadow-sm">
+              {LIST_FILTERS.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setListFilter(item.id)}
+                  className={`flex-1 rounded-xl px-3 py-2 text-xs font-semibold transition ${
+                    listFilter === item.id
+                      ? "bg-forest-800 text-white"
+                      : "text-ink-500 hover:bg-forest-50"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+            <AccountingPdfButton
+              kind="customers"
+              disabled={busy || pdfBusy}
+              onError={onError}
+              onMessage={onMessage}
+              label="Liste PDF"
+            />
+          </div>
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-400" />
             <Input
@@ -343,36 +449,72 @@ export function AccountingCustomersPanel({
               className="pl-10"
             />
           </div>
-          {filtered.length === 0 ? (
+          {cards.length === 0 ? (
             <p className="rounded-2xl bg-white p-6 text-sm text-ink-500 shadow-sm">
-              Müşteri kartı yok.
+              {emptyListMessage(listFilter)}
             </p>
           ) : (
             <ul className="space-y-2">
-              {filtered.map(({ customer, balance: cardBalance }) => (
-                <li key={customer.id}>
-                  <button
-                    type="button"
-                    onClick={() => selectCustomer(customer)}
-                    className={`w-full rounded-2xl border p-4 text-left transition ${
-                      selected?.id === customer.id
-                        ? "border-forest-700 bg-forest-800 text-white"
-                        : "border-earth-400/10 bg-white hover:border-forest-800/25"
-                    }`}
-                  >
-                    <span className="block font-semibold">
-                      {customerFullName(customer)}
-                    </span>
-                    <span
-                      className={`mt-1 block text-xs ${
-                        selected?.id === customer.id ? "text-white/70" : "text-ink-400"
+              {cards.map(({ customer, status }) => {
+                const selectedCard = selected?.id === customer.id;
+                const hint = formatCreditDueHint(status);
+                return (
+                  <li key={customer.id}>
+                    <button
+                      type="button"
+                      onClick={() => selectCustomer(customer)}
+                      className={`w-full rounded-2xl border p-4 text-left transition ${
+                        selectedCard
+                          ? "border-forest-700 bg-forest-800 text-white"
+                          : status.isOverdue
+                            ? "border-red-200 bg-red-50 hover:border-red-300"
+                            : "border-earth-400/10 bg-white hover:border-forest-800/25"
                       }`}
                     >
-                      {formatOpenBalance(cardBalance)}
-                    </span>
-                  </button>
-                </li>
-              ))}
+                      <span className="flex items-start justify-between gap-2">
+                        <span className="block font-semibold">
+                          {customerFullName(customer)}
+                        </span>
+                        {status.isOverdue ? (
+                          <span
+                            className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                              selectedCard
+                                ? "bg-white/15 text-white"
+                                : "bg-red-100 text-red-700"
+                            }`}
+                          >
+                            Gecikmiş
+                          </span>
+                        ) : null}
+                      </span>
+                      <span
+                        className={`mt-1 block text-xs ${
+                          selectedCard
+                            ? "text-white/80"
+                            : status.isOverdue
+                              ? "text-red-700"
+                              : "text-ink-400"
+                        }`}
+                      >
+                        {formatOpenBalance(status.balance)}
+                      </span>
+                      {hint ? (
+                        <span
+                          className={`mt-0.5 block text-xs ${
+                            selectedCard
+                              ? "text-white/70"
+                              : status.isOverdue
+                                ? "text-red-600"
+                                : "text-ink-400"
+                          }`}
+                        >
+                          {hint}
+                        </span>
+                      ) : null}
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </aside>
@@ -396,6 +538,16 @@ export function AccountingCustomersPanel({
                         : formatTry(balance)}
                     </span>
                   </p>
+                  {selectedStatus?.isOverdue ? (
+                    <p className="mt-1 text-sm font-medium text-red-700">
+                      Gecikmiş {selectedStatus.overdueDays} gün ·{" "}
+                      {formatTry(selectedStatus.overdueAmount)}
+                    </p>
+                  ) : selectedStatus?.nextDueDate ? (
+                    <p className="mt-1 text-sm text-ink-500">
+                      Sonraki vade: {formatIsoDateTr(selectedStatus.nextDueDate)}
+                    </p>
+                  ) : null}
                 </div>
                 <div className="flex items-center gap-1">
                   <Button
@@ -528,14 +680,27 @@ export function AccountingCustomersPanel({
                     />
                   </div>
                   <div>
-                    <Label htmlFor="credit-amount">Tutar (KDV dahil)</Label>
+                    <Label htmlFor="credit-due">
+                      Vade{" "}
+                      <span className="font-normal text-ink-400">
+                        (isteğe bağlı)
+                      </span>
+                    </Label>
                     <Input
+                      id="credit-due"
+                      type="date"
+                      min={date}
+                      value={dueDate}
+                      onChange={(event) => setDueDate(event.target.value)}
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Label htmlFor="credit-amount">Tutar (KDV dahil)</Label>
+                    <MoneyInput
                       id="credit-amount"
-                      type="number"
-                      min="0.01"
-                      step="0.01"
                       value={amount}
-                      onChange={(event) => setAmount(event.target.value)}
+                      onValueChange={setAmount}
+                      placeholder="1.000"
                       required
                     />
                   </div>
@@ -576,13 +741,11 @@ export function AccountingCustomersPanel({
                 <h4 className="font-semibold text-ink-900">Tahsilat</h4>
                 <div>
                   <Label htmlFor="pay-amount">Alınan tutar</Label>
-                  <Input
+                  <MoneyInput
                     id="pay-amount"
-                    type="number"
-                    min="0.01"
-                    step="0.01"
                     value={payAmount}
-                    onChange={(event) => setPayAmount(event.target.value)}
+                    onValueChange={setPayAmount}
+                    placeholder="1.000"
                     required
                   />
                 </div>
@@ -595,8 +758,11 @@ export function AccountingCustomersPanel({
                       setPayMethod(event.target.value as PaymentMethod)
                     }
                   >
-                    <option value="nakit">Nakit</option>
-                    <option value="kart">Kart</option>
+                    {PAYMENT_METHODS.map((method) => (
+                      <option key={method} value={method}>
+                        {paymentMethodLabel(method)}
+                      </option>
+                    ))}
                   </Select>
                 </div>
                 <div>
@@ -629,6 +795,7 @@ export function AccountingCustomersPanel({
                         <th className="px-4 py-3">Tarih</th>
                         <th className="px-4 py-3">İşlem</th>
                         <th className="px-4 py-3">Ürün / not</th>
+                        <th className="px-4 py-3">Vade</th>
                         <th className="px-4 py-3">Tutar</th>
                         <th className="px-4 py-3">Güncel borç</th>
                         <th className="px-4 py-3" />
@@ -641,8 +808,21 @@ export function AccountingCustomersPanel({
                             ? splitVat(entry.amount, entry.vatRate)
                             : null;
                         const isPayment = entry.kind === "payment";
+                        const remaining =
+                          selectedStatus?.remainingById[entry.id] ?? 0;
+                        const due = entry.dueDate;
+                        const rowOverdue =
+                          entry.kind === "purchase" &&
+                          remaining > 0 &&
+                          due !== null &&
+                          due < today;
                         return (
-                          <tr key={entry.id} className="border-t border-earth-400/10">
+                          <tr
+                            key={entry.id}
+                            className={`border-t border-earth-400/10 ${
+                              rowOverdue ? "bg-red-50/70" : ""
+                            }`}
+                          >
                             <td className="px-4 py-3">{entry.date}</td>
                             <td className="px-4 py-3">
                               {creditKindLabel(entry.kind)}
@@ -662,6 +842,22 @@ export function AccountingCustomersPanel({
                               {entry.note ? (
                                 <p className="text-xs text-ink-400">{entry.note}</p>
                               ) : null}
+                            </td>
+                            <td className="px-4 py-3 text-sm">
+                              {entry.kind === "purchase" && entry.dueDate ? (
+                                <span
+                                  className={
+                                    rowOverdue
+                                      ? "font-medium text-red-700"
+                                      : "text-ink-700"
+                                  }
+                                >
+                                  {formatIsoDateTr(entry.dueDate)}
+                                  {rowOverdue ? " · gecikmiş" : ""}
+                                </span>
+                              ) : (
+                                "—"
+                              )}
                             </td>
                             <td
                               className={`px-4 py-3 font-semibold ${
