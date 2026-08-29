@@ -43,7 +43,7 @@ type CustomerRow = RowDataPacket & {
   id: string;
   first_name: string;
   last_name: string;
-  tc: string;
+  tc: string | null;
   address: string;
   phone: string;
   created_at: string;
@@ -104,7 +104,7 @@ function mapCustomer(row: CustomerRow): Customer {
     id: row.id,
     firstName: row.first_name,
     lastName: row.last_name,
-    tc: row.tc,
+    tc: (row.tc ?? "").trim(),
     address: row.address,
     phone: row.phone,
     createdAt: fromMysqlDateTime(row.created_at),
@@ -163,9 +163,28 @@ export async function readAccountingFromMysql(): Promise<AccountingStore> {
   };
 }
 
+let customersTcNullablePromise: Promise<void> | null = null;
+
+async function ensureCustomersTcNullable(): Promise<void> {
+  if (!customersTcNullablePromise) {
+    customersTcNullablePromise = (async () => {
+      const pool = getPool();
+      await pool.query("ALTER TABLE customers MODIFY tc VARCHAR(64) NULL");
+      await pool.query(
+        "UPDATE customers SET tc = NULL WHERE tc IS NOT NULL AND TRIM(tc) = ''",
+      );
+    })().catch((error) => {
+      customersTcNullablePromise = null;
+      throw error;
+    });
+  }
+  await customersTcNullablePromise;
+}
+
 export async function writeAccountingToMysql(
   store: AccountingStore,
 ): Promise<void> {
+  await ensureCustomersTcNullable();
   const pool = getPool();
   const conn = await pool.getConnection();
   try {
@@ -209,7 +228,7 @@ export async function writeAccountingToMysql(
           item.id,
           item.firstName,
           item.lastName,
-          item.tc,
+          item.tc.trim() || null,
           item.address,
           item.phone,
           toMysqlDateTime(item.createdAt),

@@ -20,7 +20,15 @@ export function configureCloudinary() {
   configured = true;
 }
 
-export function cloudinaryFolder(collection: "gallery" | "yapi-insaat") {
+export type CloudinaryAssetFolder =
+  | "gallery"
+  | "yapi-insaat"
+  | "products"
+  | "blog"
+  | "projects"
+  | "orman";
+
+export function cloudinaryFolder(collection: CloudinaryAssetFolder) {
   return `cevizogullari/${collection}`;
 }
 

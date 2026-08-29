@@ -88,12 +88,15 @@ export default async function ProductsPage({ searchParams }: Props) {
       />
       <PageHero
         title="Yapı Malzemeleri & Ürünler"
-        description="Evinizin dışı için boyadan mantolamaya, çatıdan sıvaya kadar her şey. Permolit ve diğer büyük markalar — Tokat / Turhal stok."
         crumbs={[
           { label: "Ana Sayfa", href: "/" },
           { label: "Yapı Market" },
         ]}
       />
+
+      <section id="urunler" className="container-wide scroll-mt-28 py-10 md:py-14">
+        <ProductFilters items={products} initialCategory={initialCategory} />
+      </section>
 
       <section className="container-wide py-12 md:py-16">
         <Reveal>
@@ -115,10 +118,10 @@ export default async function ProductsPage({ searchParams }: Props) {
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <Button asChild variant="gold">
-                    <a href="#urunler">Ürünlere Git</a>
+                    <Link href="/teklif-al">Dış Cephe Teklifi Al</Link>
                   </Button>
                   <Button asChild variant="outline">
-                    <Link href="/teklif-al">Dış Cephe Teklifi Al</Link>
+                    <Link href="/iletisim">İletişime Geç</Link>
                   </Button>
                 </div>
               </div>
@@ -214,7 +217,7 @@ export default async function ProductsPage({ searchParams }: Props) {
                     </p>
                     <p className="mt-1 text-xs text-white/75">{cat.description}</p>
                     <span className="mt-3 inline-block text-xs font-semibold uppercase tracking-wider text-gold-300">
-                      Ürünleri gör →
+                      Ürünleri gör
                     </span>
                   </div>
                 </div>
@@ -224,7 +227,7 @@ export default async function ProductsPage({ searchParams }: Props) {
         </Reveal>
       </section>
 
-      <section className="container-wide pb-8">
+      <section className="container-wide pb-16 md:pb-24">
         <div className="flex flex-col gap-4 rounded-3xl bg-forest-950 p-6 text-white md:flex-row md:items-center md:justify-between md:p-8">
           <div className="flex items-start gap-4">
             <div className="grid size-12 place-items-center rounded-2xl bg-gold-400/15 text-gold-300">
@@ -249,10 +252,6 @@ export default async function ProductsPage({ searchParams }: Props) {
             </Button>
           </div>
         </div>
-      </section>
-
-      <section id="urunler" className="container-wide scroll-mt-28 pb-16 md:pb-24">
-        <ProductFilters items={products} initialCategory={initialCategory} />
       </section>
     </>
   );

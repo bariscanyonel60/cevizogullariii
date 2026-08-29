@@ -7,7 +7,13 @@ import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { Select } from "@/components/atoms/Select";
 import { Textarea } from "@/components/atoms/Textarea";
-import { customerBalance, formatTry, splitVat } from "@/lib/accounting-money";
+import {
+  creditLedgerNewestFirst,
+  customerBalance,
+  formatOpenBalance,
+  formatTry,
+  splitVat,
+} from "@/lib/accounting-money";
 import {
   VAT_RATES,
   creditKindLabel,
@@ -125,10 +131,9 @@ export function AccountingCustomersPanel({
 
   const ledger = useMemo(() => {
     if (!selected) return [];
-    return store.creditEntries
-      .filter((entry) => entry.customerId === selected.id)
-      .slice()
-      .sort((a, b) => `${b.date}${b.createdAt}`.localeCompare(`${a.date}${a.createdAt}`));
+    return creditLedgerNewestFirst(
+      store.creditEntries.filter((entry) => entry.customerId === selected.id),
+    );
   }, [selected, store.creditEntries]);
 
   const balance = selected ? customerBalance(ledger) : 0;
@@ -238,19 +243,20 @@ export function AccountingCustomersPanel({
             />
           </div>
           <div>
-            <Label htmlFor="cust-tc">T.C. kimlik no</Label>
+            <Label htmlFor="cust-tc">
+              T.C. kimlik no{" "}
+              <span className="font-normal text-ink-400">(isteğe bağlı)</span>
+            </Label>
             <Input
               id="cust-tc"
-              inputMode="numeric"
-              maxLength={11}
+              maxLength={64}
               value={createDraft.tc}
               onChange={(event) =>
                 setCreateDraft((current) => ({
                   ...current,
-                  tc: event.target.value.replace(/\D/g, "").slice(0, 11),
+                  tc: event.target.value.slice(0, 64),
                 }))
               }
-              required
             />
           </div>
           <div>
@@ -323,9 +329,7 @@ export function AccountingCustomersPanel({
                         selected?.id === customer.id ? "text-white/70" : "text-ink-400"
                       }`}
                     >
-                      {cardBalance > 0
-                        ? `Borç ${formatTry(cardBalance)}`
-                        : "Bakiyesi yok"}
+                      {formatOpenBalance(cardBalance)}
                     </span>
                   </button>
                 </li>
@@ -346,9 +350,11 @@ export function AccountingCustomersPanel({
                     {customerFullName(selected)}
                   </h3>
                   <p className="mt-1 text-sm text-ink-500">
-                    Kalan borç:{" "}
+                    {balance < 0 ? "Güncel bakiye: " : "Güncel borç: "}
                     <span className="font-semibold text-ink-900">
-                      {formatTry(balance)}
+                      {balance < 0
+                        ? `Alacak ${formatTry(-balance)}`
+                        : formatTry(balance)}
                     </span>
                   </p>
                 </div>
@@ -390,14 +396,18 @@ export function AccountingCustomersPanel({
                   />
                 </div>
                 <div>
-                  <Label htmlFor="edit-tc">T.C. kimlik no</Label>
+                  <Label htmlFor="edit-tc">
+                    T.C. kimlik no{" "}
+                    <span className="font-normal text-ink-400">(isteğe bağlı)</span>
+                  </Label>
                   <Input
                     id="edit-tc"
+                    maxLength={64}
                     value={editDraft.tc}
                     onChange={(event) =>
                       setEditDraft((current) => ({
                         ...current,
-                        tc: event.target.value.replace(/\D/g, "").slice(0, 11),
+                        tc: event.target.value.slice(0, 64),
                       }))
                     }
                   />
@@ -569,6 +579,7 @@ export function AccountingCustomersPanel({
                         <th className="px-4 py-3">İşlem</th>
                         <th className="px-4 py-3">Ürün / not</th>
                         <th className="px-4 py-3">Tutar</th>
+                        <th className="px-4 py-3">Güncel borç</th>
                         <th className="px-4 py-3" />
                       </tr>
                     </thead>
@@ -578,6 +589,7 @@ export function AccountingCustomersPanel({
                           entry.kind === "purchase" && entry.vatRate
                             ? splitVat(entry.amount, entry.vatRate)
                             : null;
+                        const isPayment = entry.kind === "payment";
                         return (
                           <tr key={entry.id} className="border-t border-earth-400/10">
                             <td className="px-4 py-3">{entry.date}</td>
@@ -602,13 +614,16 @@ export function AccountingCustomersPanel({
                             </td>
                             <td
                               className={`px-4 py-3 font-semibold ${
-                                entry.kind === "payment"
-                                  ? "text-forest-800"
-                                  : "text-ink-900"
+                                isPayment ? "text-forest-800" : "text-ink-900"
                               }`}
                             >
-                              {entry.kind === "payment" ? "−" : "+"}
+                              {isPayment ? "+" : "−"}
                               {formatTry(entry.amount)}
+                            </td>
+                            <td className="px-4 py-3 font-medium text-ink-900">
+                              {entry.runningDebt < 0
+                                ? `Alacak ${formatTry(-entry.runningDebt)}`
+                                : formatTry(entry.runningDebt)}
                             </td>
                             <td className="px-4 py-3 text-right">
                               <button

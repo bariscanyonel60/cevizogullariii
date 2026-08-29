@@ -191,7 +191,7 @@ export async function buildMonthlyPdf(report: MonthlyReport): Promise<Buffer> {
     ["Müşteri", "T.C.", "Telefon", "Dönem borç", "Tahsilat", "Bakiye"],
     report.customers.map((row) => [
       row.name,
-      row.tc,
+      row.tc || "—",
       row.phone,
       formatTry(row.periodPurchases),
       formatTry(row.periodPayments),

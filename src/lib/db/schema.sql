@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS customers (
   id CHAR(36) NOT NULL PRIMARY KEY,
   first_name VARCHAR(255) NOT NULL,
   last_name VARCHAR(255) NOT NULL,
-  tc CHAR(11) NOT NULL,
+  tc VARCHAR(64) NULL,
   address TEXT NOT NULL,
   phone VARCHAR(32) NOT NULL,
   created_at DATETIME(3) NOT NULL,

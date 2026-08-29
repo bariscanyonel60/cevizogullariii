@@ -13,9 +13,11 @@ import {
   Trees,
 } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { CdnImage } from "@/components/atoms/CdnImage";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { Textarea } from "@/components/atoms/Textarea";
+import { CmsImageField } from "@/components/organisms/admin/CmsImageField";
 import type { CmsEntity, CmsSnapshot } from "@/lib/cms-types";
 import { PRODUCT_CATEGORY_LABELS } from "@/data/products";
 
@@ -64,6 +66,35 @@ function recordTitle(entity: CmsEntity, item: Record<string, unknown>): string {
 function recordId(entity: CmsEntity, item: Record<string, unknown>): string {
   if (entity === "orman") return String(item.slug ?? "");
   return String(item.id ?? item.slug ?? "");
+}
+
+function recordThumb(entity: CmsEntity, item: Record<string, unknown>): string {
+  switch (entity) {
+    case "product":
+    case "orman":
+    case "showcase":
+      return String(item.image ?? "").trim();
+    case "blog":
+      return String(item.coverImage ?? "").trim();
+    case "project": {
+      const images = item.images;
+      if (Array.isArray(images) && images.length > 0) {
+        return String(images[0] ?? "").trim();
+      }
+      return String(item.beforeImage ?? "").trim();
+    }
+    case "faq":
+    case "card":
+    case "stat":
+    case "testimonial":
+    case "brand":
+    case "exterior":
+      return "";
+    default: {
+      const neverEntity: never = entity;
+      return String(neverEntity);
+    }
+  }
 }
 
 function toDraft(entity: CmsEntity, item: Record<string, unknown> | null): Draft {
@@ -295,7 +326,7 @@ export function CmsDashboard() {
   const [tab, setTab] = useState<CmsEntity>("product");
   const [homeKind, setHomeKind] = useState<"card" | "stat" | "testimonial" | "brand" | "showcase" | "exterior">("card");
   const [snapshot, setSnapshot] = useState<CmsSnapshot>(EMPTY);
-  const [draft, setDraft] = useState<Draft>({});
+  const [draft, setDraft] = useState<Draft>(() => toDraft("product", null));
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -474,18 +505,33 @@ export function CmsDashboard() {
           <div className="max-h-[70vh] space-y-1 overflow-auto">
             {rows.map((item) => {
               const id = recordId(activeEntity, item);
+              const thumb = recordThumb(activeEntity, item);
+              const selected = selectedId === id;
               return (
                 <button
                   key={id}
                   type="button"
                   onClick={() => selectRow(item)}
-                  className={`block w-full rounded-2xl px-3 py-2.5 text-left text-sm transition ${
-                    selectedId === id
+                  className={`flex w-full items-center gap-3 rounded-2xl px-2.5 py-2 text-left text-sm transition ${
+                    selected
                       ? "bg-forest-800 text-white"
                       : "text-ink-700 hover:bg-mist-100"
                   }`}
                 >
-                  {recordTitle(activeEntity, item) || id}
+                  {thumb ? (
+                    <span className="relative size-12 shrink-0 overflow-hidden rounded-xl bg-mist-50">
+                      <CdnImage
+                        src={thumb}
+                        alt=""
+                        fill
+                        sizes="48px"
+                        className="object-cover"
+                      />
+                    </span>
+                  ) : null}
+                  <span className="min-w-0 flex-1 truncate">
+                    {recordTitle(activeEntity, item) || id}
+                  </span>
                 </button>
               );
             })}
@@ -542,8 +588,14 @@ export function CmsDashboard() {
                   </div>
                   <Field label="Marka" value={draft.brand} onChange={(v) => field("brand", v)} />
                   <Field label="Birim" value={draft.unit} onChange={(v) => field("unit", v)} />
-                  <Field label="Görsel yolu" value={draft.image} onChange={(v) => field("image", v)} />
                 </div>
+                <CmsImageField
+                  label="Görsel"
+                  value={draft.image}
+                  onChange={(v) => field("image", v)}
+                  folder="products"
+                  stem={draft.slug}
+                />
                 <Area
                   label="Kullanım alanları (satır satır: dis-cephe, ic-mekan, cati, genel)"
                   value={draft.useCases}
@@ -573,7 +625,15 @@ export function CmsDashboard() {
                 <Area label="İçerik (Markdown)" value={draft.content} onChange={(v) => field("content", v)} />
                 <div className="grid gap-4 md:grid-cols-2">
                   <Field label="Kategori" value={draft.category} onChange={(v) => field("category", v)} />
-                  <Field label="Kapak görseli" value={draft.coverImage} onChange={(v) => field("coverImage", v)} />
+                  <div className="md:col-span-2">
+                    <CmsImageField
+                      label="Kapak görseli"
+                      value={draft.coverImage}
+                      onChange={(v) => field("coverImage", v)}
+                      folder="blog"
+                      stem={draft.slug}
+                    />
+                  </div>
                   <Field label="Yazar" value={draft.author} onChange={(v) => field("author", v)} />
                   <Field label="Yayın tarihi" value={draft.publishedAt} onChange={(v) => field("publishedAt", v)} />
                   <Field label="Okuma süresi (dk)" value={draft.readingTime} onChange={(v) => field("readingTime", v)} />
@@ -593,9 +653,28 @@ export function CmsDashboard() {
                   <Field label="Yıl" value={draft.year} onChange={(v) => field("year", v)} />
                   <Field label="Instagram" value={draft.instagramUrl} onChange={(v) => field("instagramUrl", v)} />
                 </div>
-                <Area label="Görseller (satır satır yol)" value={draft.images} onChange={(v) => field("images", v)} />
-                <Field label="Önce görseli" value={draft.beforeImage} onChange={(v) => field("beforeImage", v)} />
-                <Field label="Sonra görseli" value={draft.afterImage} onChange={(v) => field("afterImage", v)} />
+                <CmsImageField
+                  label="Proje görselleri"
+                  value={draft.images}
+                  onChange={(v) => field("images", v)}
+                  folder="projects"
+                  stem={draft.slug}
+                  multiple
+                />
+                <CmsImageField
+                  label="Önce görseli"
+                  value={draft.beforeImage}
+                  onChange={(v) => field("beforeImage", v)}
+                  folder="projects"
+                  stem={draft.slug ? `${draft.slug}-once` : "once"}
+                />
+                <CmsImageField
+                  label="Sonra görseli"
+                  value={draft.afterImage}
+                  onChange={(v) => field("afterImage", v)}
+                  folder="projects"
+                  stem={draft.slug ? `${draft.slug}-sonra` : "sonra"}
+                />
                 <label className="inline-flex items-center gap-2 text-sm font-medium text-ink-700">
                   <input
                     type="checkbox"
@@ -615,7 +694,13 @@ export function CmsDashboard() {
                 <Area label="Açıklama" value={draft.description} onChange={(v) => field("description", v)} />
                 <Field label="SEO başlığı" value={draft.metaTitle} onChange={(v) => field("metaTitle", v)} />
                 <Area label="SEO açıklaması" value={draft.metaDescription} onChange={(v) => field("metaDescription", v)} />
-                <Field label="Görsel" value={draft.image} onChange={(v) => field("image", v)} />
+                <CmsImageField
+                  label="Görsel"
+                  value={draft.image}
+                  onChange={(v) => field("image", v)}
+                  folder="orman"
+                  stem={draft.slug}
+                />
                 <Area label="Anahtar kelimeler" value={draft.keywords} onChange={(v) => field("keywords", v)} />
                 <Area
                   label="Öne çıkanlar (Başlık | Metin)"
@@ -697,7 +782,13 @@ export function CmsDashboard() {
                 <Field label="Kategori anahtarı" value={draft.key} onChange={(v) => field("key", v)} />
                 <Field label="Etiket" value={draft.label} onChange={(v) => field("label", v)} />
                 <Area label="Açıklama" value={draft.description} onChange={(v) => field("description", v)} />
-                <Field label="Görsel" value={draft.image} onChange={(v) => field("image", v)} />
+                <CmsImageField
+                  label="Görsel"
+                  value={draft.image}
+                  onChange={(v) => field("image", v)}
+                  folder="products"
+                  stem={draft.key}
+                />
               </>
             ) : null}
 

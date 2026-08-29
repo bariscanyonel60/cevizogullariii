@@ -332,12 +332,16 @@ export function Navbar({ nav }: { nav: NavCms }) {
                   <Link
                     key={link.href + link.label}
                     href={link.href}
-                    className={desktopNavItemClass({
-                      active,
-                      inverted: !solid,
-                    })}
+                    className={cn(
+                      "relative z-10",
+                      desktopNavItemClass({
+                        active,
+                        inverted: !solid,
+                      }),
+                    )}
                     onMouseEnter={() => setMegaActive(link.label)}
                     onFocus={() => setMegaActive(link.label)}
+                    onClick={() => setMegaActive(null)}
                   >
                     {link.label}
                     {link.children?.length ? (
@@ -488,31 +492,40 @@ export function Navbar({ nav }: { nav: NavCms }) {
                               }}
                               className="border-b border-earth-400/10"
                             >
-                              <button
-                                type="button"
-                                className={cn(
-                                  "flex w-full items-center justify-between gap-3 py-4 text-left transition",
-                                  active
-                                    ? "text-forest-800"
-                                    : "text-ink-900",
-                                )}
-                                aria-expanded={sectionOpen}
-                                onClick={() =>
-                                  setMobileOpenLabel((current) =>
-                                    current === link.label ? null : link.label,
-                                  )
-                                }
-                              >
-                                <span className="font-display text-xl font-semibold tracking-tight sm:text-2xl">
-                                  {link.label}
-                                </span>
-                                <span
+                              <div className="flex items-center gap-2">
+                                <Link
+                                  href={link.href}
+                                  onClick={() => {
+                                    window.setTimeout(() => setOpen(false), 0);
+                                  }}
                                   className={cn(
-                                    "inline-flex size-8 shrink-0 items-center justify-center rounded-full border transition",
+                                    "min-w-0 flex-1 py-4 text-left transition",
+                                    active
+                                      ? "text-forest-800"
+                                      : "text-ink-900",
+                                  )}
+                                >
+                                  <span className="font-display text-xl font-semibold tracking-tight sm:text-2xl">
+                                    {link.label}
+                                  </span>
+                                </Link>
+                                <button
+                                  type="button"
+                                  className={cn(
+                                    "inline-flex size-10 shrink-0 items-center justify-center rounded-full border transition",
                                     sectionOpen
                                       ? "border-forest-800 bg-forest-800 text-white"
                                       : "border-earth-400/20 bg-white text-ink-500",
                                   )}
+                                  aria-expanded={sectionOpen}
+                                  aria-label={`${link.label} alt menüsünü ${sectionOpen ? "kapat" : "aç"}`}
+                                  onClick={() =>
+                                    setMobileOpenLabel((current) =>
+                                      current === link.label
+                                        ? null
+                                        : link.label,
+                                    )
+                                  }
                                 >
                                   <ChevronDown
                                     className={cn(
@@ -521,8 +534,8 @@ export function Navbar({ nav }: { nav: NavCms }) {
                                     )}
                                     aria-hidden
                                   />
-                                </span>
-                              </button>
+                                </button>
+                              </div>
                               <AnimatePresence initial={false}>
                                 {sectionOpen && (
                                   <motion.div
@@ -533,17 +546,34 @@ export function Navbar({ nav }: { nav: NavCms }) {
                                     className="overflow-hidden"
                                   >
                                     <div className="mb-4 ml-1 space-y-0.5 border-l-2 border-gold-400/50 pl-4">
-                                      {link.children.map((child) => {
+                                      {(link.children.some(
+                                        (child) => child.href === link.href,
+                                      )
+                                        ? link.children
+                                        : [
+                                            {
+                                              href: link.href,
+                                              label: "Tümü",
+                                            },
+                                            ...link.children,
+                                          ]
+                                      ).map((child) => {
                                         const childActive =
                                           pathname === child.href ||
-                                          pathname.startsWith(
-                                            `${child.href}/`,
-                                          );
+                                          (child.href !== link.href &&
+                                            pathname.startsWith(
+                                              `${child.href}/`,
+                                            ));
                                         return (
                                           <Link
                                             key={child.href}
                                             href={child.href}
-                                            onClick={() => setOpen(false)}
+                                            onClick={() => {
+                                              window.setTimeout(
+                                                () => setOpen(false),
+                                                0,
+                                              );
+                                            }}
                                             className={cn(
                                               "block rounded-lg py-2.5 text-[15px] font-medium transition",
                                               childActive
@@ -577,7 +607,9 @@ export function Navbar({ nav }: { nav: NavCms }) {
                           >
                             <Link
                               href={link.href}
-                              onClick={() => setOpen(false)}
+                              onClick={() => {
+                                window.setTimeout(() => setOpen(false), 0);
+                              }}
                               className={cn(
                                 "group flex items-center justify-between gap-3 py-4 transition",
                                 active
@@ -606,7 +638,12 @@ export function Navbar({ nav }: { nav: NavCms }) {
                 <div className="relative shrink-0 border-t border-earth-400/10 bg-ivory-50/95 p-3 backdrop-blur-xl sm:p-4">
                   <div className="container-wide grid grid-cols-2 gap-2">
                     <Button asChild className="h-12">
-                      <Link href="/teklif-al" onClick={() => setOpen(false)}>
+                      <Link
+                        href="/teklif-al"
+                        onClick={() => {
+                          window.setTimeout(() => setOpen(false), 0);
+                        }}
+                      >
                         Teklif Al
                       </Link>
                     </Button>

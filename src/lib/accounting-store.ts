@@ -13,7 +13,6 @@ import {
   isIsoDate,
   isPaymentMethod,
   isValidPhone,
-  isValidTc,
   isVatRate,
   type AccountingStore,
   type Advance,
@@ -369,11 +368,14 @@ export async function deleteAdvance(id: string): Promise<AccountingStore> {
   return store;
 }
 
+function optionalTc(value: unknown): string {
+  return asString(value).trim().slice(0, 64);
+}
+
 function parseCustomerFields(body: Record<string, unknown>) {
   const firstName = requiredText(body.firstName, "Ad", 2);
   const lastName = requiredText(body.lastName, "Soyad", 2);
-  const tc = requiredText(body.tc, "T.C. kimlik no", 11);
-  if (!isValidTc(tc)) throw new Error("T.C. kimlik no geçersiz");
+  const tc = optionalTc(body.tc);
   const phone = requiredText(body.phone, "Telefon", 10);
   if (!isValidPhone(phone)) throw new Error("Telefon geçersiz");
   const address = requiredText(body.address, "Adres", 5);
@@ -383,7 +385,10 @@ function parseCustomerFields(body: Record<string, unknown>) {
 export async function createCustomer(input: unknown): Promise<AccountingStore> {
   const fields = parseCustomerFields((input ?? {}) as Record<string, unknown>);
   const store = await getAccountingStore();
-  if (store.customers.some((item) => item.tc === fields.tc)) {
+  if (
+    fields.tc &&
+    store.customers.some((item) => item.tc === fields.tc)
+  ) {
     throw new Error("Bu T.C. kimlik no ile kayıtlı müşteri var");
   }
   const customer: Customer = {
@@ -405,6 +410,7 @@ export async function updateCustomer(
   const index = store.customers.findIndex((item) => item.id === id);
   if (index === -1) throw new Error("Müşteri bulunamadı");
   if (
+    fields.tc &&
     store.customers.some((item) => item.tc === fields.tc && item.id !== id)
   ) {
     throw new Error("Bu T.C. kimlik no ile kayıtlı başka müşteri var");
