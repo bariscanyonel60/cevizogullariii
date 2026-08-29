@@ -26,7 +26,7 @@ export const ORMAN_URUNLERI_PAGES: OrmanUrunleriPage[] = [
     eyebrow: "Orman Ürünleri",
     description:
       "Turhal / Tokat’ta kereste, plywood (odek), OSB ve orman ürünleri. Şantiye, çatı ve tadilat için stoklu tedarik.",
-    metaTitle: "Orman Ürünleri · OSB · Plywood | Tokat",
+    metaTitle: "Orman Ürünleri · OSB Plywood Kereste · Tokat",
     metaDescription:
       "Tokat ve Turhal’da kereste, plywood, OSB ve orman ürünleri. Cevizoğulları Yapı Market — kaliteli levha ve kereste tedariki.",
     keywords: [
@@ -69,7 +69,7 @@ export const ORMAN_URUNLERI_PAGES: OrmanUrunleriPage[] = [
     eyebrow: "Orman Ürünleri",
     description:
       "Çam kereste, kavak kereste ve lambri. Yapı, çatı detayı ve tadilat için kereste tedariki — Turhal / Tokat.",
-    metaTitle: "Kerestecilik · Çam & Kavak Kereste | Tokat",
+    metaTitle: "Kerestecilik · Çam ve Kavak Kereste · Tokat",
     metaDescription:
       "Tokat kereste ve Turhal kerestecilik: çam, kavak, lambri. Cevizoğulları’ndan kaliteli kereste tedariki.",
     keywords: [
@@ -113,7 +113,7 @@ export const ORMAN_URUNLERI_PAGES: OrmanUrunleriPage[] = [
     eyebrow: "Plywood",
     description:
       "Plywood / odek levhalar. Kalıp, yapı ve genel inşaat uygulamaları için kaliteli plywood — Turhal Yapı Market.",
-    metaTitle: "Plywood · Odek Levha | Tokat Kereste",
+    metaTitle: "Plywood Odek Levha · Tokat Kalıp ve Yapı",
     metaDescription:
       "Tokat plywood ve Turhal odek levha satışı. Kalıp ve yapı için plywood tedariki — Cevizoğulları.",
     keywords: [
@@ -156,7 +156,7 @@ export const ORMAN_URUNLERI_PAGES: OrmanUrunleriPage[] = [
     eyebrow: "OSB",
     description:
       "OSB levha: çatı, duvar ve zemin uygulamalarında yüksek dayanım. Tokat / Turhal OSB tedariki.",
-    metaTitle: "OSB Levha | Tokat · Turhal Orman Ürünleri",
+    metaTitle: "OSB Levha Satışı · Tokat Turhal Çatı ve Duvar",
     metaDescription:
       "Tokat OSB ve Turhal OSB levha satışı. Çatı, duvar, zemin için dayanıklı OSB — Cevizoğulları Yapı Market.",
     keywords: [
@@ -199,7 +199,7 @@ export const ORMAN_URUNLERI_PAGES: OrmanUrunleriPage[] = [
     eyebrow: "Orman Ürünleri",
     description:
       "Orman ürünleri türleri: kereste, OSB, plywood, lambri ve daha fazlası. Tokat’ta orman ürünleri tedariki.",
-    metaTitle: "Orman Ürünleri Türleri | Kereste OSB Plywood Tokat",
+    metaTitle: "Orman Ürünleri Türleri · Kereste OSB Plywood",
     metaDescription:
       "Orman ürünleri türleri: kereste, OSB, plywood (odek), lambri. Turhal Yapı Market — Cevizoğulları.",
     keywords: [

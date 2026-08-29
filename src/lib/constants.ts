@@ -3,7 +3,7 @@ export const SITE = {
   shortName: "Cevizoğulları",
   tagline: "Turhal’da yapı market, orman ürünleri ve inşaat tedariki",
   description:
-    "Cevizoğulları: Turhal / Tokat’ta boya, mantolama, çimento, OSB, kereste ve yapı-inşaat. Stoklu reyon, usta yönlendirmesi, talep olunca kendi aracımızla teslimat — Zile, Erbaa, Niksar, Pazar ve yakın illere.",
+    "Cevizoğulları Yapı Market, Turhal’da boya, mantolama, OSB ve kereste satar. Tokat şantiyelerine stoklu tedarik; talep olunca kendi aracımızla teslimat.",
   url: "https://cevizogullari.com",
   locale: "tr_TR",
   phone: "+90 535 573 01 15",
@@ -45,6 +45,8 @@ export const SITE = {
     "Cevizoğulları",
   ],
 } as const;
+
+export const CANONICAL_HOST = new URL(SITE.url).host;
 
 /** Anasayfa SSS — FAQPage şeması ile birlikte kullanılır (Google People Also Ask uyumlu) */
 export const HOME_FAQS = [

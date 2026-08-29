@@ -16,8 +16,9 @@ export function ContactCta() {
               Listeyi atın, stok ve fiyatı söyleyelim
             </h2>
             <p className="mt-4 text-white/70">
-              Boya, mantolama, OSB, çimento veya kereste — Turhal’dan teklif
-              alın, talep ederseniz kendi aracımızla götürelim.
+              Tokat yapı malzemeleri listenizi yazın — boya, mantolama, OSB
+              veya kereste. Turhal’dan teklif alın, talep ederseniz kendi
+              aracımızla götürelim.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild variant="gold" size="lg">

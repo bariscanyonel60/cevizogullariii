@@ -6,9 +6,9 @@ import { getBlogPosts } from "@/lib/cms-store";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Blog · Tokat Yapı & İnşaat Rehberi",
+  title: "Blog · Mantolama Boya ve Şantiye Rehberi",
   description:
-    "Tokat ve Turhal’da yapı malzemeleri, mantolama, orman ürünleri ve yapı-inşaat üzerine SEO uyumlu rehber içerikler — Cevizoğulları Blog.",
+    "Turhal ve Tokat şantiyesi için boya, mantolama, kereste ve teslimat yazıları. Cevizoğulları yapı market rehberi.",
   path: "/blog",
   keywords: [
     "Tokat yapı malzemeleri",

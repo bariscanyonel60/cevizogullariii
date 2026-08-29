@@ -50,9 +50,9 @@ export function HomeLocalSeoSection() {
           {pillars.map((item, index) => (
             <Reveal key={item.title} delay={index * 0.06}>
               <article className="h-full rounded-3xl border border-earth-400/15 bg-white/90 p-6 shadow-sm">
-                <h3 className="font-display text-xl font-semibold text-forest-900">
+                <p className="font-display text-xl font-semibold text-forest-900">
                   {item.title}
-                </h3>
+                </p>
                 <p className="mt-3 text-sm leading-relaxed text-ink-500">
                   {item.text}
                 </p>

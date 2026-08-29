@@ -32,9 +32,16 @@ export const metadata: Metadata = {
     path: "/",
     keywords: [...SITE.seoKeywords],
   }),
+  title: {
+    default: SITE.name,
+    template: `%s | ${SITE.shortName}`,
+  },
   icons: {
     icon: "/favicon.png",
     apple: "/favicon.png",
+  },
+  verification: {
+    google: "t2_O1WqVzvtKqppaodu8gGoyO8Zobwt2GeX8Qbb7ZJ8",
   },
 };
 

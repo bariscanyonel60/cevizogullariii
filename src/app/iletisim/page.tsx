@@ -15,8 +15,9 @@ import {
 } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "İletişim · Turhal Tokat Yapı Market",
-  description: `${SITE.shortName} iletişim: ${SITE.address}. Telefon ${SITE.phone}, WhatsApp ve harita — Turhal / Tokat.`,
+  title: "İletişim · Turhal Mağaza Adres ve Telefon",
+  description:
+    "Pazar Mahallesi, Yeşilırmak Sk. No: 99, Turhal. Telefon +90 535 573 01 15 — WhatsApp ve harita.",
   path: "/iletisim",
   keywords: [
     "Turhal yapı market iletişim",

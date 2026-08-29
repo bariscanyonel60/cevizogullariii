@@ -47,9 +47,9 @@ export function Footer() {
         </div>
 
         <div>
-          <h3 className="font-display text-sm font-semibold uppercase tracking-[0.18em] text-gold-300">
+          <p className="font-display text-sm font-semibold uppercase tracking-[0.18em] text-gold-300">
             Hızlı Linkler
-          </h3>
+          </p>
           <ul className="mt-5 space-y-3">
             {quickLinks.map((link) => (
               <li key={link.href}>
@@ -65,9 +65,9 @@ export function Footer() {
         </div>
 
         <div>
-          <h3 className="font-display text-sm font-semibold uppercase tracking-[0.18em] text-gold-300">
+          <p className="font-display text-sm font-semibold uppercase tracking-[0.18em] text-gold-300">
             İş Alanları & Kurumsal
-          </h3>
+          </p>
           <ul className="mt-5 space-y-3">
             {BUSINESS_AREAS.map((area) => (
               <li key={area.href}>
@@ -93,9 +93,9 @@ export function Footer() {
         </div>
 
         <div>
-          <h3 className="font-display text-sm font-semibold uppercase tracking-[0.18em] text-gold-300">
+          <p className="font-display text-sm font-semibold uppercase tracking-[0.18em] text-gold-300">
             İletişim
-          </h3>
+          </p>
           <ul className="mt-5 space-y-4 text-sm text-white/70">
             <li className="flex gap-3">
               <MapPin className="mt-0.5 size-4 shrink-0 text-gold-400" />

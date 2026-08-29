@@ -36,9 +36,9 @@ export function HomeFaqSection({
                     setOpenIndex((current) => (current === index ? null : index))
                   }
                 >
-                  <h3 className="font-display text-base font-semibold text-ink-900 md:text-lg">
+                  <span className="font-display text-base font-semibold text-ink-900 md:text-lg">
                     {faq.question}
-                  </h3>
+                  </span>
                   <ChevronDown
                     className={cn(
                       "size-5 shrink-0 text-forest-800 transition",

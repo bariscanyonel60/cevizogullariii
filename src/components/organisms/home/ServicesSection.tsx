@@ -31,9 +31,9 @@ export function ServicesSection({
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-400">
                   0{index + 1}
                 </p>
-                <h3 className="mt-3 font-display text-2xl font-semibold text-white">
+                <p className="mt-3 font-display text-2xl font-semibold text-white">
                   {service.title}
-                </h3>
+                </p>
                 <p className="mt-3 max-w-md text-sm leading-relaxed text-white/65">
                   {service.description}
                 </p>

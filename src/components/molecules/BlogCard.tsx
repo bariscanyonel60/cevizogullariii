@@ -34,9 +34,9 @@ export function BlogCard({ post, className }: BlogCardProps) {
               {post.readingTime} dk okuma
             </span>
           </div>
-          <h3 className="font-display text-xl font-semibold text-ink-900 group-hover:text-forest-700">
+          <p className="font-display text-xl font-semibold text-ink-900 group-hover:text-forest-700">
             {post.title}
-          </h3>
+          </p>
           <p className="line-clamp-2 text-sm leading-relaxed text-ink-500">
             {post.excerpt}
           </p>

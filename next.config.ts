@@ -23,6 +23,28 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/",
+        has: [{ type: "host", value: "www.cevizogullari.com" }],
+        destination: "https://cevizogullari.com/",
+        statusCode: 301,
+      },
+      {
+        source: "/:path+",
+        has: [{ type: "host", value: "www.cevizogullari.com" }],
+        destination: "https://cevizogullari.com/:path+",
+        statusCode: 301,
+      },
+      {
+        source: "/urunler",
+        destination: "/yapi-malzemeleri",
+        statusCode: 301,
+      },
+      {
+        source: "/urunler/:path*",
+        destination: "/yapi-malzemeleri/:path*",
+        statusCode: 301,
+      },
+      {
         source: "/yapi-malzemeleri/polisan-dis-cephe-boyasi",
         destination: "/yapi-malzemeleri/permolit-dis-cephe-boyasi",
         permanent: true,

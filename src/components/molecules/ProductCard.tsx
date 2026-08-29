@@ -41,9 +41,9 @@ export function ProductCard({ product, className }: ProductCardProps) {
               {PRODUCT_CATEGORY_LABELS[product.category]}
             </Badge>
           </div>
-          <h3 className="font-display text-lg font-semibold text-ink-900 group-hover:text-forest-700">
+          <p className="font-display text-lg font-semibold text-ink-900 group-hover:text-forest-700">
             {product.title}
-          </h3>
+          </p>
           <p className="line-clamp-2 text-sm leading-relaxed text-ink-500">
             {product.description}
           </p>

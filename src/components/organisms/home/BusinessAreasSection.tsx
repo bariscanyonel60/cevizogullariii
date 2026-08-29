@@ -69,9 +69,9 @@ function TiltCard({
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-300">
             İş Alanı
           </p>
-          <h3 className="mt-2 font-display text-2xl font-bold text-white md:text-3xl">
+          <p className="mt-2 font-display text-2xl font-bold text-white md:text-3xl">
             {area.title}
-          </h3>
+          </p>
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/75">
             {area.description}
           </p>
@@ -94,8 +94,8 @@ export function BusinessAreasSection() {
       <Reveal>
         <SectionHeading
           eyebrow="Ne iş yaparız"
-          title="Reyon, kereste ve saha uygulaması"
-          description="Yapı marketten orman ürünlerine, konut ve cephe inşaatına — Turhal’dan Tokat’a tek adres."
+            title="Tokat yapı malzemeleri: reyon ve kereste"
+            description="Yapı marketten orman ürünlerine, konut ve cephe inşaatına — Turhal’dan Tokat’a tek adres."
           action={
             <Button asChild variant="secondary">
               <Link href="/teklif-al">Teklif Al</Link>

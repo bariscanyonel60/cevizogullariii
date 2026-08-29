@@ -22,6 +22,7 @@ import {
   articleJsonLd,
   breadcrumbJsonLd,
   buildMetadata,
+  clipMetaDescription,
   withLocalDescription,
 } from "@/lib/seo";
 
@@ -46,8 +47,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     });
   }
   return buildMetadata({
-    title: post.title,
-    description: withLocalDescription(post.excerpt),
+    title: `${post.title} · Blog`,
+    description: clipMetaDescription(post.excerpt),
     path: `/blog/${post.slug}`,
     image: post.coverImage,
     type: "article",

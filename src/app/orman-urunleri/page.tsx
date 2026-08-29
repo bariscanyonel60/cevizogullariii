@@ -16,8 +16,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const page = await getOrmanPage("index");
   if (!page) {
     return buildMetadata({
-      title: "Orman Ürünleri",
-      description: "Orman ürünleri",
+      title: "Orman Ürünleri · Kereste OSB Plywood",
+      description:
+        "Turhal ve Tokat’ta kereste, OSB ve plywood tedariki. Cevizoğulları orman ürünleri reyonu.",
       path: "/orman-urunleri",
     });
   }

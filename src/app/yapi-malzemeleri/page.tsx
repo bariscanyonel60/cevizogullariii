@@ -23,9 +23,9 @@ import {
 import type { ProductCategory } from "@/types";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Tokat Yapı Malzemeleri · Turhal Yapı Market Ürünleri",
+  title: "Yapı Malzemeleri Kataloğu · Boya Mantolama OSB",
   description:
-    "Permolit dış cephe boyası, mantolama, yalıtım, çatı, OSB ve yapı malzemeleri. Turhal / Tokat stoklu tedarik — Cevizoğulları Yapı Market.",
+    "Permolit boya, EPS/XPS mantolama, çatı, OSB ve nalbur. Turhal reyonundan stok ve teklif — Cevizoğulları Yapı Market.",
   path: "/yapi-malzemeleri",
   keywords: [
     "Tokat yapı malzemeleri",

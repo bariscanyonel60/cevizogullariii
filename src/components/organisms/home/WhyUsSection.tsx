@@ -29,9 +29,9 @@ export function WhyUsSection({
                   <div className="mb-5 grid size-12 place-items-center rounded-2xl bg-forest-800 text-gold-300">
                     <Icon className="size-5" aria-hidden />
                   </div>
-                  <h3 className="font-display text-lg font-semibold text-ink-900">
+                  <p className="font-display text-lg font-semibold text-ink-900">
                     {item.title}
-                  </h3>
+                  </p>
                   <p className="mt-3 text-sm leading-relaxed text-ink-500">
                     {item.description}
                   </p>

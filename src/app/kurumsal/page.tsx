@@ -7,8 +7,9 @@ import { buildMetadata } from "@/lib/seo";
 import { SITE } from "@/lib/constants";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Hakkımızda · Turhal Yapı Market",
-  description: `Turhal Pazar Mahallesi’nde yapı market, orman ürünleri ve yapı-inşaat. ${SITE.name} — stok, usta yönlendirmesi, şantiye teslimatı.`,
+  title: "Hakkımızda · Turhal Pazar Mahallesi Yapı Market",
+  description:
+    "Pazar Mahallesi’nde yapı market, orman ürünleri ve inşaat tedariki. Cevizoğulları — stok, usta yönlendirmesi, şantiye teslimatı.",
   path: "/kurumsal",
   keywords: [
     "Cevizoğulları hakkında",

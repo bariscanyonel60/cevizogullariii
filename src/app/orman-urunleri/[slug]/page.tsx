@@ -29,8 +29,9 @@ export async function generateMetadata({
   const page = await getOrmanPage(slug);
   if (!page || page.slug === "index") {
     return buildMetadata({
-      title: "Orman Ürünleri",
-      description: "Orman ürünleri",
+      title: "Orman ürünü sayfası bulunamadı",
+      description:
+        "Aradığınız orman ürünleri sayfası taşınmış olabilir. Kereste, OSB ve plywood için ana sayfaya bakın.",
       path: "/orman-urunleri",
       noIndex: true,
     });

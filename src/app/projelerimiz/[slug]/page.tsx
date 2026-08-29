@@ -14,7 +14,8 @@ import {
   buildMetadata,
   projectImageAlt,
   projectJsonLd,
-  withLocalDescription,
+  projectSeoDescription,
+  projectSeoTitle,
 } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -37,12 +38,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       noIndex: true,
     });
   }
-  return buildMetadata({
-    title: `${project.title} · ${project.location}`,
-    description: withLocalDescription(
-      project.description,
-      `${project.location} · ${project.year} — Cevizoğulları proje portföyü.`,
-    ),
+    return buildMetadata({
+      title: projectSeoTitle(project),
+      description: projectSeoDescription(project),
     path: `/projelerimiz/${project.slug}`,
     image: project.images[0],
     keywords: [

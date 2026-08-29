@@ -20,9 +20,9 @@ import {
 } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Yapı - İnşaat · Konut & Bina İnşaatı | Tokat Turhal",
+  title: "Konut ve Bina İnşaatı · Tokat Turhal",
   description:
-    "Tokat ve Turhal’da konut, bina ve dış cephe inşaatı. Cevizoğulları Yapı - İnşaat ile sahadan bitişe güvenilir uygulama.",
+    "Tokat ve Turhal’da konut, bina ve dış cephe uygulaması. Cevizoğulları Yapı-İnşaat ile sahadan teslime.",
   path: "/yapi-insaat",
   keywords: [
     "Tokat inşaat",

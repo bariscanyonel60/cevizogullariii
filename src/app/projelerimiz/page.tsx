@@ -4,7 +4,6 @@ import { ProjectGrid } from "@/components/organisms/shared/ProjectGrid";
 import { InstagramCta } from "@/components/organisms/shared/InstagramCta";
 import { JsonLd } from "@/components/atoms/JsonLd";
 import { getProjects } from "@/lib/cms-store";
-import { SITE } from "@/lib/constants";
 import {
   breadcrumbJsonLd,
   buildMetadata,
@@ -12,8 +11,9 @@ import {
 } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Projelerimiz · Tokat Turhal Uygulamalar",
-  description: `Tokat ve Turhal’da tamamladığımız dış cephe, şantiye ve tadilat örnekleri. Güncel işler: ${SITE.social.instagramHandle}`,
+  title: "Projelerimiz · Turhal Dış Cephe ve Şantiye",
+  description:
+    "Turhal ve Tokat’ta tamamlanan dış cephe, şantiye ve tadilat örnekleri. Güncel işler Instagram’da: @cevizogullari.",
   path: "/projelerimiz",
   keywords: [
     "Tokat dış cephe projeleri",

@@ -1,5 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/atoms/Button";
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Sayfa bulunamadı",
+  description:
+    "Aradığınız sayfa taşınmış veya kaldırılmış olabilir. Cevizoğulları ana sayfasından yapı market ve inşaat sayfalarına geçin.",
+  path: "/",
+  noIndex: true,
+});
 
 export default function NotFound() {
   return (

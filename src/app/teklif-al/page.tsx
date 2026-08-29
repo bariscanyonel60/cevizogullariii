@@ -8,9 +8,9 @@ import { SITE, whatsappUrl } from "@/lib/constants";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Teklif Al · Tokat Turhal Yapı Market",
+  title: "Teklif Al · Boya Mantolama Kereste Fiyat",
   description:
-    "Tokat / Turhal boya, yalıtım, kereste, OSB veya şantiye malzemesi için hızlı teklif. WhatsApp ve form ile Cevizoğulları’na ulaşın.",
+    "Boya, yalıtım, kereste, OSB veya şantiye listesi için hızlı teklif. Form veya WhatsApp ile Cevizoğulları Turhal.",
   path: "/teklif-al",
   keywords: [
     "Tokat yapı malzemesi teklif",

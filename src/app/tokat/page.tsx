@@ -36,9 +36,9 @@ const TOCAT_KEYWORDS = [
 ] as const;
 
 export const metadata: Metadata = buildMetadata({
-  title: "Tokat Yapı Malzemeleri · Turhal Mantolama & Boya",
+  title: "Tokat Mantolama, Boya ve Yalıtım Malzemeleri",
   description:
-    "Tokat yapı malzemeleri, Turhal mantolama, dış cephe boyası, ısı yalıtımı ve strafor (EPS/XPS) tedariki. Cevizoğulları Yapı Market — stoklu ürün, doğru yönlendirme, depreme uygun malzeme seçimi.",
+    "Tokat’ta mantolama, dış cephe boyası ve strafor. Turhal Cevizoğulları’ndan stok, yönlendirme ve teslimat.",
   path: "/tokat",
   keywords: [...TOCAT_KEYWORDS],
 });

@@ -26,9 +26,9 @@ export function ProcessSection({
               <span className="relative z-10 grid size-12 place-items-center rounded-full bg-forest-800 font-display text-sm font-bold text-gold-300 shadow-premium">
                 {item.step}
               </span>
-              <h3 className="mt-5 font-display text-lg font-semibold text-ink-900">
+              <p className="mt-5 font-display text-lg font-semibold text-ink-900">
                 {item.title}
-              </h3>
+              </p>
               <p className="mt-3 text-sm leading-relaxed text-ink-500">
                 {item.description}
               </p>

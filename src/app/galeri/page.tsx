@@ -12,9 +12,9 @@ import {
 } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Galeri · Tokat Turhal Uygulama Görselleri",
+  title: "Galeri · Şantiye ve Cephe Uygulama Fotoğrafları",
   description:
-    "Cevizoğulları galerisi: Tokat ve Turhal’daki yapı market, dış cephe, mantolama ve şantiye uygulamalarından güncel kareler.",
+    "Turhal ve Tokat saha kareleri: dış cephe, mantolama, şantiye ve yapı market uygulamaları — Cevizoğulları galerisi.",
   path: "/galeri",
   keywords: [
     "Cevizoğulları galeri",

@@ -14,7 +14,8 @@ import {
   buildMetadata,
   productImageAlt,
   productJsonLd,
-  withLocalDescription,
+  productSeoDescription,
+  productSeoTitle,
 } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -37,12 +38,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       noIndex: true,
     });
   }
-  return buildMetadata({
-    title: `${product.title} · Tokat Turhal`,
-    description: withLocalDescription(
-      product.description,
-      `${product.brand} ürünü Turhal Yapı Market’te.`,
-    ),
+    return buildMetadata({
+      title: productSeoTitle(product),
+      description: productSeoDescription(product),
     path: `/yapi-malzemeleri/${product.slug}`,
     image: product.image,
     keywords: [

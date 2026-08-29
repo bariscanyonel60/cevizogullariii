@@ -31,9 +31,9 @@ export function ProjectCard({ project, className, tall }: ProjectCardProps) {
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold-300">
             {project.location} · {project.year}
           </p>
-          <h3 className="mt-2 font-display text-2xl font-bold">
+          <p className="mt-2 font-display text-2xl font-bold">
             {project.title}
-          </h3>
+          </p>
           <p className="mt-2 line-clamp-2 text-sm text-white/75">
             {project.description}
           </p>

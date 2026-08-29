@@ -21,7 +21,7 @@ export function HeroSection() {
       <div className="absolute inset-0 will-change-transform">
         <CdnImage
           src="/hero-home.jpg"
-          alt="Tokat yapı malzemeleri — Turhal yapı market, dış cephe ve inşaat tedariki"
+          alt="Tokat yapı malzemeleri — Turhal yapı market reyonu, dış cephe ve inşaat tedariki"
           fill
           priority
           sizes="100vw"

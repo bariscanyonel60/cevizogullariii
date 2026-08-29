@@ -6,7 +6,8 @@ import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "KVKK Aydınlatma Metni",
-  description: `${SITE.name} kişisel verilerin korunması ve işlenmesi hakkında aydınlatma metni.`,
+  description:
+    "Cevizoğulları kişisel veri işleme amaçları, saklama süresi ve haklarınız. Turhal Yapı Market KVKK aydınlatma metni.",
   path: "/kvkk",
   noIndex: true,
 });

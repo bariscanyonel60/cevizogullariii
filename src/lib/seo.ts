@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import { PRODUCT_CATEGORY_LABELS } from "@/data/products";
 import { SITE } from "@/lib/constants";
 import { absoluteMediaUrl } from "@/lib/media";
 import type { BlogPost, Product, Project } from "@/types";
+
+const META_DESCRIPTION_MAX = 155;
 
 const defaultOgImage = absoluteMediaUrl("/og-default.jpg", SITE.url);
 
@@ -27,6 +30,63 @@ export const SERVICE_AREA_SCHEMA = SERVICE_AREA_CITIES.map((name) => ({
 
 export const LOCAL_SEO_SUFFIX =
   "Turhal / Tokat — Cevizoğulları Yapı Market stok, tedarik ve danışmanlık.";
+
+/** Bing/Google snippet:  ~50–155 karakter, kelime ortasında kesme. */
+export function clipMetaDescription(text: string, max = META_DESCRIPTION_MAX) {
+  const normalized = text.replace(/\s+/g, " ").trim();
+  if (normalized.length <= max) return normalized;
+  const slice = normalized.slice(0, max - 1);
+  const lastSpace = slice.lastIndexOf(" ");
+  const clipped = (lastSpace > 80 ? slice.slice(0, lastSpace) : slice).replace(
+    /[\s.,;:–—-]+$/u,
+    "",
+  );
+  return `${clipped}...`;
+}
+
+function formatDocumentTitle(title: string) {
+  const trimmed = title.trim();
+  if (trimmed === SITE.name) return trimmed;
+  if (trimmed.includes(SITE.shortName)) return trimmed;
+  const withoutPipes = trimmed.replace(/\s*\|\s*/g, " · ");
+  return `${withoutPipes} | ${SITE.shortName}`;
+}
+
+export function productSeoTitle(
+  product: Pick<Product, "title" | "category">,
+) {
+  const category = PRODUCT_CATEGORY_LABELS[product.category].split(" · ")[0];
+  return `${product.title} · ${category} · Turhal`;
+}
+
+export function productSeoDescription(
+  product: Pick<Product, "description" | "brand" | "category">,
+) {
+  const category = PRODUCT_CATEGORY_LABELS[product.category].split(" · ")[0];
+  const parts = [product.description.trim()];
+  if (product.brand && !parts[0].includes(product.brand)) {
+    parts.push(product.brand);
+  }
+  if (category && !parts.join(" ").includes(category)) {
+    parts.push(category);
+  }
+  parts.push("Turhal stokunda.");
+  return clipMetaDescription(parts.join(" "));
+}
+
+export function projectSeoTitle(
+  project: Pick<Project, "title" | "location">,
+) {
+  return `${project.title} · ${project.location} uygulama`;
+}
+
+export function projectSeoDescription(
+  project: Pick<Project, "description" | "location" | "year">,
+) {
+  return clipMetaDescription(
+    `${project.description} ${project.location}, ${project.year} — Cevizoğulları saha uygulaması.`,
+  );
+}
 
 type BuildMetadataInput = {
   title: string;
@@ -67,21 +127,21 @@ export function buildMetadata({
   keywords,
 }: BuildMetadataInput): Metadata {
   const url = `${SITE.url}${path}`;
-  const fullTitle =
-    title === SITE.name ? title : `${title} | ${SITE.shortName}`;
+  const fullTitle = formatDocumentTitle(title);
+  const metaDescription = clipMetaDescription(description);
   const absoluteImage = image.startsWith("http")
     ? image
     : absoluteMediaUrl(image.startsWith("/") ? image : `/${image}`, SITE.url);
 
   return {
-    title: fullTitle,
-    description,
+    title: { absolute: fullTitle },
+    description: metaDescription,
     keywords: keywords?.length ? keywords : [...SITE.seoKeywords],
     metadataBase: new URL(SITE.url),
     alternates: { canonical: url },
     openGraph: {
       title: fullTitle,
-      description,
+      description: metaDescription,
       url,
       siteName: SITE.name,
       locale: SITE.locale,
@@ -98,7 +158,7 @@ export function buildMetadata({
     twitter: {
       card: "summary_large_image",
       title: fullTitle,
-      description,
+      description: metaDescription,
       images: [absoluteImage],
     },
     robots: noIndex
@@ -119,9 +179,9 @@ export function buildMetadata({
 
 /** One-page / yerel SEO için birincil anahtar kelimeler */
 export const HOME_SEO = {
-  title: "Tokat Yapı Malzemeleri & Turhal Yapı Market",
+  title: "Turhal Yapı Market · Tokat Yapı Malzemeleri",
   description:
-    "Tokat yapı malzemeleri: Turhal’da boya, mantolama, yalıtım, orman ürünleri ve yapı-inşaat. Depreme uygun seçim, hızlı teslimat — Cevizoğulları Yapı Market.",
+    "Tokat yapı malzemeleri: Turhal’da boya, mantolama, yalıtım, orman ürünleri ve yapı-inşaat. Cevizoğulları Yapı Market.",
   keywords: [
     "Tokat yapı malzemeleri",
     "Turhal yapı market",
@@ -266,7 +326,7 @@ export function contactPageJsonLd() {
     "@context": "https://schema.org",
     "@type": "ContactPage",
     "@id": `${SITE.url}/iletisim#contact`,
-    name: "İletişim | Cevizoğulları Turhal Tokat",
+    name: "İletişim · Turhal Mağaza Adres ve Telefon",
     url: `${SITE.url}/iletisim`,
     description: `${SITE.address} — telefon, WhatsApp ve harita.`,
     mainEntity: { "@id": `${SITE.url}/#organization` },
