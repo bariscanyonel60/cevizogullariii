@@ -381,17 +381,18 @@ export const products: Product[] = [
   {
     id: "p19",
     slug: "portland-cimento",
-    title: "Portland Çimento",
+    title: "Kavcim Çimento",
     description:
-      "Temel inşaat çimentosu. Konut, tadilat ve altyapı için güvenilir tedarik.",
+      "Kavcim torba çimento. Temel, şap, harç — palet stok Turhal’da.",
     category: "cimento",
-    brand: "İnşaat",
+    brand: "Kavcim",
     unit: "50 kg",
-    image: "/products/cimento-torbalar.jpg",
+    image: "/products/kavcim-cimento.jpg",
     useCases: ["genel", "dis-cephe"],
     specs: [
       { label: "Ambalaj", value: "50 kg" },
-      { label: "Kullanım", value: "Genel inşaat" },
+      { label: "Marka", value: "Kavcim" },
+      { label: "Kullanım", value: "Temel / şap / harç" },
     ],
   },
   {
@@ -423,6 +424,23 @@ export const products: Product[] = [
     specs: [
       { label: "Marka", value: "Knauf" },
       { label: "Alan", value: "İç mekân" },
+    ],
+  },
+  {
+    id: "p32",
+    slug: "saten-perdah-alcisi",
+    title: "BMT Saten Perdah Alçısı",
+    description:
+      "BMT 25 kg saten perdah alçısı. İç duvar perdahı, boya öncesi düzgün yüzey.",
+    category: "siva",
+    brand: "BMT",
+    unit: "25 kg",
+    image: "/products/saten-perdah-alcisi.jpg",
+    useCases: ["ic-mekan"],
+    specs: [
+      { label: "Marka", value: "BMT" },
+      { label: "Ambalaj", value: "25 kg" },
+      { label: "Alan", value: "İç mekân perdah" },
     ],
   },
   {
@@ -581,8 +599,8 @@ export const CATEGORY_SHOWCASE: {
   {
     key: "cimento",
     label: "Çimento",
-    description: "Torba çimento ve harç. Şantiye dökümü için dayanım sınıfına göre.",
-    image: "/products/cimento-torbalar.jpg",
+    description: "Torba çimento. Temel, şap, harç.",
+    image: "/products/kavcim-cimento.jpg",
   },
   {
     key: "demir",
@@ -623,8 +641,8 @@ export const CATEGORY_SHOWCASE: {
   {
     key: "siva",
     label: "Sıva & Alçı",
-    description: "Sıva, macun ve iç yüzey ürünleri.",
-    image: "/products/siva-macun.jpg",
+    description: "Saten perdah alçısı, sıva ve iç yüzey.",
+    image: "/products/saten-perdah-alcisi.jpg",
   },
   {
     key: "orman",

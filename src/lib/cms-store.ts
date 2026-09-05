@@ -1,5 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { fallbackCmsSnapshot } from "@/lib/cms-fallback";
+import {
+  CATEGORY_SHOWCASE,
+  products as catalogProducts,
+} from "@/data/products";
+import { projects as catalogProjects } from "@/data/projects";
 import type { OrmanUrunleriPage } from "@/data/orman-urunleri";
 import {
   deleteBlogRow,
@@ -114,7 +119,7 @@ export async function seedCmsNow(options?: { force?: boolean }): Promise<CmsSnap
 }
 
 export async function getProducts(): Promise<Product[]> {
-  return (await getCmsSnapshot()).products;
+  return withCatalogProducts((await getCmsSnapshot()).products);
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | undefined> {
@@ -130,7 +135,7 @@ export async function getBrands(): Promise<CmsBrand[]> {
 }
 
 export async function getCategoryShowcase(): Promise<CmsCategoryShowcase[]> {
-  return (await getCmsSnapshot()).showcase;
+  return withCatalogShowcase((await getCmsSnapshot()).showcase);
 }
 
 export async function getExteriorPackage(): Promise<CmsExteriorPackage[]> {
@@ -157,7 +162,81 @@ export async function getRelatedPosts(slug: string, limit = 2): Promise<BlogPost
 }
 
 export async function getProjects(): Promise<Project[]> {
-  return (await getCmsSnapshot()).projects;
+  return withCatalogProjects((await getCmsSnapshot()).projects);
+}
+
+function withCatalogProjects(cmsProjects: Project[]): Project[] {
+  const bySlug = new Map(cmsProjects.map((item) => [item.slug, item]));
+  for (const project of catalogProjects) {
+    if (!bySlug.has(project.slug)) {
+      bySlug.set(project.slug, project);
+    }
+  }
+  const merged = [...bySlug.values()];
+  const order = catalogProjects.map((item) => item.slug);
+  merged.sort((a, b) => {
+    const ai = order.indexOf(a.slug);
+    const bi = order.indexOf(b.slug);
+    if (ai === -1 && bi === -1) return 0;
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  });
+  return merged;
+}
+
+const CATALOG_IMAGE_OVERRIDE = new Set([
+  "/products/kavcim-cimento.jpg",
+  "/products/saten-perdah-alcisi.jpg",
+]);
+
+function withCatalogProducts(cmsProducts: Product[]): Product[] {
+  const bySlug = new Map(cmsProducts.map((item) => [item.slug, item]));
+  for (const product of catalogProducts) {
+    const existing = bySlug.get(product.slug);
+    if (!existing) {
+      bySlug.set(product.slug, product);
+      continue;
+    }
+    if (CATALOG_IMAGE_OVERRIDE.has(product.image)) {
+      bySlug.set(product.slug, {
+        ...existing,
+        image: product.image,
+        title: product.title,
+        brand: product.brand,
+        description: product.description,
+        specs: product.specs,
+      });
+    }
+  }
+  const merged = [...bySlug.values()];
+  const order = catalogProducts.map((item) => item.slug);
+  merged.sort((a, b) => {
+    const ai = order.indexOf(a.slug);
+    const bi = order.indexOf(b.slug);
+    if (ai === -1 && bi === -1) return 0;
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  });
+  return merged;
+}
+
+function withCatalogShowcase(
+  cms: CmsCategoryShowcase[],
+): CmsCategoryShowcase[] {
+  const byKey = new Map(CATEGORY_SHOWCASE.map((item) => [item.key, item]));
+  return cms.map((item) => {
+    const catalog = byKey.get(item.key);
+    if (catalog && CATALOG_IMAGE_OVERRIDE.has(catalog.image)) {
+      return {
+        ...item,
+        image: catalog.image,
+        description: catalog.description,
+      };
+    }
+    return item;
+  });
 }
 
 export async function getProjectBySlug(slug: string): Promise<Project | undefined> {

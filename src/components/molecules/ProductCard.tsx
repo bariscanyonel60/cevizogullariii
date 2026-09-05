@@ -9,9 +9,10 @@ import { cn } from "@/lib/utils";
 type ProductCardProps = {
   product: Product;
   className?: string;
+  priority?: boolean;
 };
 
-export function ProductCard({ product, className }: ProductCardProps) {
+export function ProductCard({ product, className, priority }: ProductCardProps) {
   return (
     <article
       className={cn(
@@ -27,6 +28,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
             fill
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover transition duration-700 group-hover:scale-105"
+            priority={priority}
           />
           {product.useCases.includes("dis-cephe") && (
             <span className="absolute left-3 top-3 rounded-full bg-forest-900/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-gold-300">

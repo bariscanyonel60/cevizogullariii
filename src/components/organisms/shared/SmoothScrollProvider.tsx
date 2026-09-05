@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactLenis, useLenis } from "lenis/react";
+import { usePathname } from "next/navigation";
 import { useEffect, useSyncExternalStore, type ReactNode } from "react";
 
 function subscribeReducedMotion(onStoreChange: () => void) {
@@ -15,6 +16,59 @@ function getReducedMotionSnapshot() {
 
 function getReducedMotionServerSnapshot() {
   return false;
+}
+
+function scrollToHashTarget(
+  lenis:
+    | { scrollTo: (target: HTMLElement, options?: { offset?: number }) => void }
+    | undefined,
+) {
+  const id = decodeURIComponent(window.location.hash.replace(/^#/, ""));
+  if (!id) return false;
+  const el = document.getElementById(id);
+  if (!el) return false;
+  if (lenis) {
+    lenis.scrollTo(el, { offset: -12 });
+  } else {
+    el.scrollIntoView({ block: "start" });
+  }
+  return true;
+}
+
+function useHashScroll(
+  lenis:
+    | { scrollTo: (target: HTMLElement, options?: { offset?: number }) => void }
+    | undefined,
+) {
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (!window.location.hash) return;
+    let frames = 0;
+    let raf = 0;
+    const tryScroll = () => {
+      if (scrollToHashTarget(lenis)) return;
+      frames += 1;
+      if (frames < 30) raf = requestAnimationFrame(tryScroll);
+    };
+    raf = requestAnimationFrame(tryScroll);
+    window.addEventListener("hashchange", tryScroll);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("hashchange", tryScroll);
+    };
+  }, [lenis, pathname]);
+}
+
+function NativeHashScroll() {
+  useHashScroll(undefined);
+  return null;
+}
+
+function LenisHashScroll() {
+  const lenis = useLenis();
+  useHashScroll(lenis);
+  return null;
 }
 
 /** Lenis içerik yüksekliği yenileme (resize / lazy load sonrası) */
@@ -80,7 +134,12 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   );
 
   if (prefersReducedMotion) {
-    return <>{children}</>;
+    return (
+      <>
+        <NativeHashScroll />
+        {children}
+      </>
+    );
   }
 
   return (
@@ -97,6 +156,7 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
       }}
     >
       <LenisResizeBridge />
+      <LenisHashScroll />
       {children}
     </ReactLenis>
   );

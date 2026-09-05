@@ -17,9 +17,9 @@ export function HomeFaqSection({
     <section id="sss" className="container-wide scroll-mt-28 section-padding">
       <Reveal>
         <SectionHeading
-          eyebrow="Sıkça Sorulanlar"
-          title="Tokat yapı malzemeleri hakkında merak edilenler"
-          description="Yerel tedarik, deprem koşullarına uygun ürün seçimi ve hizmet bölgemizle ilgili kısa yanıtlar."
+          eyebrow="SSS"
+          title="Sık sorulanlar"
+          description="Stok var mı, götürür müsünüz, mantolama nasıl — kısaca."
         />
       </Reveal>
       <div className="mx-auto max-w-3xl space-y-3">

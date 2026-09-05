@@ -117,7 +117,16 @@ export type NavItem = {
 };
 
 export const NAV_LINKS: readonly NavItem[] = [
-  { href: "/", label: "Ana Sayfa" },
+  {
+    href: "/",
+    label: "Ana Sayfa",
+    children: [
+      { href: "/#hizmetler", label: "Hizmetler" },
+      { href: "/#urunler", label: "Stok" },
+      { href: "/#yapi-insaat", label: "Saha işleri" },
+      { href: "/#sss", label: "SSS" },
+    ],
+  },
   {
     href: "/kurumsal",
     label: "Kurumsal",
@@ -168,7 +177,7 @@ export const BUSINESS_AREAS = [
     title: "Yapı - İnşaat",
     description:
       "Konut ve bina, dış cephe mantolama ve tadilat. Malzeme ile uygulamayı aynı ekipten yürütün.",
-    image: "/media/yapi-insaat/ova-apt-2-saha.jpg",
+    image: "/media/yapi-insaat/ova-apt-3.jpg",
   },
 ] as const;
 

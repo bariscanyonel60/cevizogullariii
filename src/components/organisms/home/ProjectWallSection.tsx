@@ -25,7 +25,7 @@ export function ProjectWallSection({ items }: ProjectWallSectionProps) {
       <Reveal>
         <SectionHeading
           eyebrow="Sahadan"
-          title="Tokat ve Turhal’daki işler, tek bakışta"
+          title="Sahadan kareler"
           description="Şantiye, dış cephe ve yapı market kareleri — galerinin tamamı bir tık ötede."
           action={
             <Button asChild variant="secondary">

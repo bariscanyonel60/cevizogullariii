@@ -242,6 +242,70 @@ export function formatCreditDueHint(
   return null;
 }
 
+export type CreditPortfolioTotals = {
+  cardCount: number;
+  debtorCount: number;
+  overdueCount: number;
+  purchases: number;
+  payments: number;
+  outstanding: number;
+  openCredit: number;
+  overdueTotal: number;
+};
+
+/** Tüm kartların veresiye satışı, tahsilatı ve açık bakiyesi. */
+export function creditPortfolioTotals(
+  store: AccountingStore,
+  asOfDate: string,
+): CreditPortfolioTotals {
+  let purchases = 0;
+  let payments = 0;
+  for (const entry of store.creditEntries) {
+    switch (entry.kind) {
+      case "purchase":
+        purchases = roundMoney(purchases + entry.amount);
+        break;
+      case "payment":
+        payments = roundMoney(payments + entry.amount);
+        break;
+      default: {
+        const _exhaustive: never = entry.kind;
+        return _exhaustive;
+      }
+    }
+  }
+
+  let outstanding = 0;
+  let openCredit = 0;
+  let overdueTotal = 0;
+  let debtorCount = 0;
+  let overdueCount = 0;
+  for (const customer of store.customers) {
+    const status = customerCreditStatus(
+      store.creditEntries.filter((entry) => entry.customerId === customer.id),
+      asOfDate,
+    );
+    outstanding = roundMoney(outstanding + status.balance);
+    if (status.balance > 0) {
+      openCredit = roundMoney(openCredit + status.balance);
+      debtorCount += 1;
+    }
+    overdueTotal = roundMoney(overdueTotal + status.overdueAmount);
+    if (status.isOverdue) overdueCount += 1;
+  }
+
+  return {
+    cardCount: store.customers.length,
+    debtorCount,
+    overdueCount,
+    purchases,
+    payments,
+    outstanding,
+    openCredit,
+    overdueTotal,
+  };
+}
+
 export type CashSummary = {
   cashSales: number;
   cashCollections: number;

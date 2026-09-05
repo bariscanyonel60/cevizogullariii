@@ -57,7 +57,7 @@ function TiltCard({
             area.href === "/yapi-malzemeleri"
               ? `Tokat yapı malzemeleri — ${area.title}, Turhal Cevizoğulları`
               : area.href === "/yapi-insaat"
-                ? "CVZ Yapı İnşaat Ova Apt. 2 — Tokat Turhal konut inşaatı"
+                ? "CVZ Yapı İnşaat Ova Apt. 3 — Tokat Turhal konut inşaatı"
                 : `${area.title} — Tokat Turhal Cevizoğulları iş alanı`
           }
           fill
@@ -94,8 +94,8 @@ export function BusinessAreasSection() {
       <Reveal>
         <SectionHeading
           eyebrow="Ne iş yaparız"
-            title="Tokat yapı malzemeleri: reyon ve kereste"
-            description="Yapı marketten orman ürünlerine, konut ve cephe inşaatına — Turhal’dan Tokat’a tek adres."
+          title="Tokat yapı malzemeleri, kereste, inşaat"
+          description="Keresteden konuta, cepheden şantiyeye — hepsi aynı kapıdan."
           action={
             <Button asChild variant="secondary">
               <Link href="/teklif-al">Teklif Al</Link>

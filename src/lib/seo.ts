@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { HOME_HERO_VIDEO } from "@/data/home-hero";
 import { PRODUCT_CATEGORY_LABELS } from "@/data/products";
 import { SITE } from "@/lib/constants";
 import { absoluteMediaUrl } from "@/lib/media";
@@ -179,11 +180,12 @@ export function buildMetadata({
 
 /** One-page / yerel SEO için birincil anahtar kelimeler */
 export const HOME_SEO = {
-  title: "Turhal Yapı Market · Tokat Yapı Malzemeleri",
+  title: "Tokat Yapı Malzemeleri · Turhal Yapı Market",
   description:
-    "Tokat yapı malzemeleri: Turhal’da boya, mantolama, yalıtım, orman ürünleri ve yapı-inşaat. Cevizoğulları Yapı Market.",
+    "Turhal yapı malzemeleri reyonunda boya, mantolama, yalıtım ve OSB. Tokat yapı malzemeleri listesini Turhal’dan yükleriz.",
   keywords: [
     "Tokat yapı malzemeleri",
+    "Turhal yapı malzemeleri",
     "Turhal yapı market",
     "Tokat inşaat malzemesi",
     "Tokat mantolama",
@@ -320,6 +322,20 @@ export function serviceJsonLd() {
   };
 }
 
+export function videoObjectJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    "@id": `${SITE.url}/#hero-video`,
+    name: "Cevizoğulları Yapı Market — Turhal saha görüntüsü",
+    description: HOME_SEO.description,
+    thumbnailUrl: HOME_HERO_VIDEO.poster,
+    contentUrl: HOME_HERO_VIDEO.src,
+    uploadDate: "2026-09-05",
+    publisher: { "@id": `${SITE.url}/#organization` },
+    inLanguage: "tr-TR",
+  };
+}
 
 export function contactPageJsonLd() {
   return {

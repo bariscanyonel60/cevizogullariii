@@ -16,8 +16,8 @@ export function WhyUsSection({
         <Reveal>
           <SectionHeading
             eyebrow="Neden Cevizoğulları?"
-            title="Turhal’da yapı market gibi çalışan bir tedarikçi"
-            description="Reyon, stok ve şantiye teslimatı aynı yerde. Usta, müteahhit ve ev sahibine pratik çözüm."
+            title="Turhal’da reyonu olan yapı market"
+            description="Stok burada, yük buradan. Usta da gelir, ev sahibi de."
           />
         </Reveal>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -29,9 +29,9 @@ export function WhyUsSection({
                   <div className="mb-5 grid size-12 place-items-center rounded-2xl bg-forest-800 text-gold-300">
                     <Icon className="size-5" aria-hidden />
                   </div>
-                  <p className="font-display text-lg font-semibold text-ink-900">
+                  <h3 className="font-display text-lg font-semibold text-ink-900">
                     {item.title}
-                  </p>
+                  </h3>
                   <p className="mt-3 text-sm leading-relaxed text-ink-500">
                     {item.description}
                   </p>

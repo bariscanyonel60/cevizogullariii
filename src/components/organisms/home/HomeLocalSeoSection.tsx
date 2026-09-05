@@ -6,16 +6,16 @@ import { SERVICE_AREA_CITIES } from "@/lib/seo";
 
 const pillars = [
   {
-    title: "Tokat & Turhal tedarik",
-    text: "Yapı market stokumuzla boya, mantolama, yalıtım, çatı ve orman ürünlerinde yerel erişim sağlıyoruz.",
+    title: "Mağaza Turhal’da",
+    text: "Boya, mantolama, yalıtım, çatı, kereste. Listeyle gelin, raftan toplarız.",
   },
   {
-    title: "İlçe ve yakın illere sevkiyat",
-    text: "Zile, Erbaa, Niksar, Pazar ile Amasya, Yozgat, Sivas, Çorum ve Samsun şantiyelerine planlı tedarik.",
+    title: "İlçeye de gider",
+    text: "Zile, Erbaa, Niksar, Pazar. İsterseniz kendi aracımızla götürürüz.",
   },
   {
-    title: "Depreme hazır malzeme",
-    text: "2026 deprem koşullarına uygun yapı yaklaşımıyla doğru ürün ve uygulama yönlendirmesi yapıyoruz.",
+    title: "Yanlış ürün yok",
+    text: "Kalınlık, astar, levha: ne işe gideceğini sorar, ona göre veririz.",
   },
 ] as const;
 
@@ -28,9 +28,9 @@ export function HomeLocalSeoSection() {
       <div className="container-wide">
         <Reveal>
           <SectionHeading
-            eyebrow="Hizmet Bölgesi · GEO"
-            title="Tokat yapı malzemeleri ve güvenli inşaat desteği"
-            description="Turhal merkezli Cevizoğulları; Tokat ilçeleri ve yakın illerde yapı malzemesi, orman ürünleri ve yapı-inşaat desteği sunar."
+            eyebrow="Nereden alınır"
+            title="Tokat yapı malzemeleri Turhal’dan"
+            description="İlçeye de gönderiyoruz; isterseniz kendi aracımızla."
           />
         </Reveal>
 
@@ -64,14 +64,9 @@ export function HomeLocalSeoSection() {
         <Reveal delay={0.12}>
           <div className="mt-10 max-w-3xl space-y-4 text-sm leading-relaxed text-ink-500 md:text-base">
             <p>
-              <strong className="font-semibold text-ink-800">
-                Tokat yapı malzemeleri
-              </strong>
-              {" "}
-              arayanlar için Cevizoğulları; boya, mantolama, yalıtım, çatı, OSB
-              ve çimento gibi temel ürünleri Turhal yapı market stokunda tek
-              çatı altında toplar. Şantiye listesi veya tadilat ihtiyacında
-              Tokat yapı malzemeleri tedarikini yerelden, zamanında planlarız.
+              Tokat yapı malzemeleri Turhal’daki mağazadan çıkar: boya,
+              mantolama, yalıtım, çatı, OSB, çimento. Turhal yapı malzemeleri
+              stoku aynı yerde; listeyi getirin, raftan toplayıp yükleriz.
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
               <Button asChild>

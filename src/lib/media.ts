@@ -25,6 +25,25 @@ export function mediaUrl(localPath: string): string {
   return `https://res.cloudinary.com/${CLOUD}/image/upload/f_auto,q_auto/${publicId}`;
 }
 
+/** Cloudinary video public id veya yerel mp4 yolu */
+export function videoUrl(publicId: string, localFallback?: string): string {
+  if (publicId.startsWith("http://") || publicId.startsWith("https://")) {
+    return publicId;
+  }
+  if (!USE_CDN) return localFallback || `/${publicId}`;
+  return `https://res.cloudinary.com/${CLOUD}/video/upload/f_auto,q_auto/${publicId}.mp4`;
+}
+
+/** Videodan poster karesi (Cloudinary so_ dönüşümü) */
+export function videoPosterUrl(
+  publicId: string,
+  localFallback?: string,
+  startOffset = 1.2,
+): string {
+  if (!USE_CDN) return localFallback || "";
+  return `https://res.cloudinary.com/${CLOUD}/video/upload/so_${startOffset},q_auto,f_jpg/${publicId}.jpg`;
+}
+
 /** OG / JSON-LD için mutlak URL (CDN açıksa Cloudinary, değilse site origin). */
 export function absoluteMediaUrl(localPath: string, origin: string): string {
   const resolved = mediaUrl(localPath);

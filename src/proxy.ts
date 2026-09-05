@@ -19,7 +19,12 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname.startsWith("/api/admin/login")) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    response.headers.set(
+      "Cache-Control",
+      "private, no-store, max-age=0, must-revalidate",
+    );
+    return response;
   }
 
   if (pathname.startsWith("/api/admin/")) {
@@ -29,7 +34,21 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  if (pathname.startsWith("/api/") || pathname.startsWith("/admin")) {
+    response.headers.set(
+      "Cache-Control",
+      "private, no-store, max-age=0, must-revalidate",
+    );
+    return response;
+  }
+
+  // Hostinger hcdn Next ISR s-maxage=1y HTML'i tutmasin; eski CSS hash 404 olmasin.
+  response.headers.set(
+    "Cache-Control",
+    "public, max-age=0, s-maxage=60, stale-while-revalidate=300, must-revalidate",
+  );
+  return response;
 }
 
 export const config = {

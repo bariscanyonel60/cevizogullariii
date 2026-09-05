@@ -8,7 +8,7 @@ import {
 } from "@/lib/cms-store";
 
 /** Sitemap yenileme tarihi — IA / içerik güncellemeleri sonrası güncelleyin */
-const SITE_LAST_MODIFIED = new Date("2026-07-25");
+const SITE_LAST_MODIFIED = new Date("2026-09-05");
 
 type StaticRoute = {
   path: string;

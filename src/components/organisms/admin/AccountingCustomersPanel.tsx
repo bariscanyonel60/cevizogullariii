@@ -11,6 +11,7 @@ import { MoneyInput } from "@/components/atoms/MoneyInput";
 import { AccountingPdfButton } from "@/components/organisms/admin/AccountingPdfButton";
 import {
   creditLedgerNewestFirst,
+  creditPortfolioTotals,
   customerCreditStatus,
   formatCreditDueHint,
   formatOpenBalance,
@@ -123,7 +124,7 @@ export function AccountingCustomersPanel({
   const [payAmount, setPayAmount] = useState("");
   const [payMethod, setPayMethod] = useState<PaymentMethod>("nakit");
   const [payNote, setPayNote] = useState("");
-  const [pdfBusy, setPdfBusy] = useState(false);
+  const [pdfBusyId, setPdfBusyId] = useState<string | null>(null);
   const [dueDate, setDueDate] = useState("");
   const [listFilter, setListFilter] = useState<ListFilter>("debtors");
   const [selectNewest, setSelectNewest] = useState(false);
@@ -219,6 +220,11 @@ export function AccountingCustomersPanel({
   }, [selected, store.creditEntries, today]);
 
   const balance = selectedStatus?.balance ?? 0;
+  const pdfBusy = pdfBusyId !== null;
+  const totals = useMemo(
+    () => creditPortfolioTotals(store, today),
+    [store, today],
+  );
 
   const productSuggestions = useMemo(() => {
     return [
@@ -236,14 +242,13 @@ export function AccountingCustomersPanel({
     setEditDraft(draftFrom(customer));
   }
 
-  async function downloadCreditPdf() {
-    if (!selected) return;
-    setPdfBusy(true);
+  async function downloadCreditPdf(customerId: string) {
+    setPdfBusyId(customerId);
     onError(null);
     onMessage(null);
     try {
       const res = await fetch(
-        `/api/admin/accounting/customer-pdf?id=${encodeURIComponent(selected.id)}`,
+        `/api/admin/accounting/customer-pdf?id=${encodeURIComponent(customerId)}`,
         { cache: "no-store" },
       );
       if (!res.ok) {
@@ -266,7 +271,7 @@ export function AccountingCustomersPanel({
     } catch (err) {
       onError(err instanceof Error ? err.message : "PDF indirilemedi");
     } finally {
-      setPdfBusy(false);
+      setPdfBusyId(null);
     }
   }
 
@@ -413,7 +418,58 @@ export function AccountingCustomersPanel({
         </Button>
       </form>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,20rem)_1fr]">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <article className="rounded-2xl bg-white p-5 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">
+            Toplam açık veresiye
+          </p>
+          <p className="mt-2 font-display text-2xl font-bold text-ink-900">
+            {formatTry(totals.openCredit)}
+          </p>
+          <p className="mt-1 text-xs text-ink-400">
+            {totals.debtorCount} borçlu kart · {totals.cardCount} kart
+          </p>
+        </article>
+        <article className="rounded-2xl bg-white p-5 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">
+            Toplam veresiye satış
+          </p>
+          <p className="mt-2 font-display text-2xl font-bold text-ink-900">
+            {formatTry(totals.purchases)}
+          </p>
+          <p className="mt-1 text-xs text-ink-400">
+            Tahsilat {formatTry(totals.payments)}
+          </p>
+        </article>
+        <article className="rounded-2xl bg-white p-5 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">
+            Geciken veresiye
+          </p>
+          <p className="mt-2 font-display text-2xl font-bold text-ink-900">
+            {formatTry(totals.overdueTotal)}
+          </p>
+          <p className="mt-1 text-xs text-ink-400">
+            {totals.overdueCount === 0
+              ? "Vadesi geçmiş borç yok"
+              : `${totals.overdueCount} müşteri kartı`}
+          </p>
+        </article>
+        <article className="rounded-2xl bg-white p-5 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">
+            Net bakiye
+          </p>
+          <p className="mt-2 font-display text-2xl font-bold text-ink-900">
+            {totals.outstanding < 0
+              ? `Alacak ${formatTry(-totals.outstanding)}`
+              : formatTry(totals.outstanding)}
+          </p>
+          <p className="mt-1 text-xs text-ink-400">
+            Fazla tahsilat düşülmüş tutar
+          </p>
+        </article>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,22rem)_1fr]">
         <aside className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap gap-1 rounded-2xl bg-white p-1 shadow-sm">
@@ -458,12 +514,13 @@ export function AccountingCustomersPanel({
               {cards.map(({ customer, status }) => {
                 const selectedCard = selected?.id === customer.id;
                 const hint = formatCreditDueHint(status);
+                const cardPdfBusy = pdfBusyId === customer.id;
                 return (
-                  <li key={customer.id}>
+                  <li key={customer.id} className="flex items-stretch gap-1.5">
                     <button
                       type="button"
                       onClick={() => selectCustomer(customer)}
-                      className={`w-full rounded-2xl border p-4 text-left transition ${
+                      className={`min-w-0 flex-1 rounded-2xl border p-4 text-left transition ${
                         selectedCard
                           ? "border-forest-700 bg-forest-800 text-white"
                           : status.isOverdue
@@ -512,6 +569,16 @@ export function AccountingCustomersPanel({
                         </span>
                       ) : null}
                     </button>
+                    <button
+                      type="button"
+                      className="flex w-14 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-earth-400/10 bg-white text-[10px] font-semibold text-forest-800 hover:border-forest-800/30 hover:bg-forest-50 disabled:opacity-40"
+                      disabled={busy || pdfBusy}
+                      onClick={() => void downloadCreditPdf(customer.id)}
+                      aria-label={`${customerFullName(customer)} hesap PDF indir`}
+                    >
+                      <FileDown className="size-4" />
+                      {cardPdfBusy ? "…" : "PDF"}
+                    </button>
                   </li>
                 );
               })}
@@ -555,7 +622,7 @@ export function AccountingCustomersPanel({
                     size="sm"
                     variant="secondary"
                     disabled={busy || pdfBusy}
-                    onClick={() => void downloadCreditPdf()}
+                    onClick={() => void downloadCreditPdf(selected.id)}
                   >
                     <FileDown className="size-4" />
                     {pdfBusy ? "PDF…" : "Hesap PDF"}

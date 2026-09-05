@@ -34,6 +34,10 @@
   --mist-100: #f0efeb;
   --mist-200: #e4e2dc;
 
+  /* Anthracite — hero copy / dark panels */
+  --anthracite: #2a2d31;
+  --anthracite-950: #1c1e21;
+
   /* Brand: Dark #111827 · Text #222222 */
   --ink-950: #111827;
   --ink-900: #222222;
@@ -125,6 +129,9 @@
   --color-ivory-200: var(--ivory-200);
   --color-mist-100: var(--mist-100);
   --color-mist-200: var(--mist-200);
+
+  --color-anthracite: var(--anthracite);
+  --color-anthracite-950: var(--anthracite-950);
 
   --color-ink-950: var(--ink-950);
   --color-ink-900: var(--ink-900);

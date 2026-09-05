@@ -2,7 +2,7 @@
   "generatedAt": "2026-08-28T22:07:33.104Z",
   "cloudName": "ymm7xvz0",
   "folder": "cevizogullari",
-  "count": 55,
+  "count": 56,
   "assets": [
     {
       "local": "/about-project.jpg",
@@ -21,6 +21,18 @@
       "publicId": "cevizogullari/hero-home",
       "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787821496/cevizogullari/hero-home.jpg",
       "bytes": 836479
+    },
+    {
+      "local": "/hero-home.mp4",
+      "publicId": "cevizogullari/hero-home-video",
+      "url": "https://res.cloudinary.com/ymm7xvz0/video/upload/v1788616063/cevizogullari/hero-home-video.mp4",
+      "bytes": 8886054
+    },
+    {
+      "local": "/hero-home-poster.jpg",
+      "publicId": "cevizogullari/hero-home-poster",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1788618773/cevizogullari/hero-home-poster.jpg",
+      "bytes": 193439
     },
     {
       "local": "/hero-project.jpg",
@@ -99,6 +111,12 @@
       "publicId": "cevizogullari/media/yapi-insaat/ova-apt-2-saha",
       "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1787954807/cevizogullari/media/yapi-insaat/ova-apt-2-saha.jpg",
       "bytes": 512516
+    },
+    {
+      "local": "/media/yapi-insaat/ova-apt-3.jpg",
+      "publicId": "cevizogullari/media/yapi-insaat/ova-apt-3",
+      "url": "https://res.cloudinary.com/ymm7xvz0/image/upload/v1788618774/cevizogullari/media/yapi-insaat/ova-apt-3.jpg",
+      "bytes": 193439
     },
     {
       "local": "/media/yapi-insaat/ova-apt-alt-aci.jpg",

@@ -28,20 +28,25 @@ import {
 import type { NavCms } from "@/lib/cms-types";
 import { cn } from "@/lib/utils";
 
+function navPath(href: string) {
+  const path = href.split("#")[0];
+  return path === "" ? "/" : path;
+}
+
+function isPathActive(pathname: string, href: string) {
+  const path = navPath(href);
+  if (path === "/") return pathname === "/";
+  return pathname === path || pathname.startsWith(`${path}/`);
+}
+
 function isNavActive(pathname: string, link: NavItem) {
   if (link.children?.length) {
-    const underParent =
-      pathname === link.href || pathname.startsWith(`${link.href}/`);
-    const underChild = link.children.some((child) =>
-      child.href === "/"
-        ? pathname === "/"
-        : pathname === child.href || pathname.startsWith(`${child.href}/`),
+    return (
+      isPathActive(pathname, link.href) ||
+      link.children.some((child) => isPathActive(pathname, child.href))
     );
-    return underParent || underChild;
   }
-  return link.href === "/"
-    ? pathname === "/"
-    : pathname === link.href || pathname.startsWith(`${link.href}/`);
+  return isPathActive(pathname, link.href);
 }
 
 function desktopNavItemClass({
@@ -106,13 +111,13 @@ function DesktopDropdown({
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
-      <button
-        type="button"
+      <Link
+        href={link.href}
         className={desktopNavItemClass({ active, inverted })}
         aria-expanded={open}
         aria-haspopup="menu"
         aria-controls={menuId}
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => setOpen(false)}
       >
         {link.label}
         <ChevronDown
@@ -122,7 +127,7 @@ function DesktopDropdown({
           )}
           aria-hidden
         />
-      </button>
+      </Link>
 
       <AnimatePresence>
         {open && (
@@ -137,16 +142,8 @@ function DesktopDropdown({
           >
             <div className="overflow-hidden rounded-2xl border border-earth-400/15 bg-ivory-50/95 py-1.5 shadow-premium backdrop-blur-xl">
               {children.map((child) => {
-                const childActive =
-                  pathname === child.href ||
-                  (pathname.startsWith(`${child.href}/`) &&
-                    !children.some(
-                      (other) =>
-                        other.href !== child.href &&
-                        other.href.length > child.href.length &&
-                        (pathname === other.href ||
-                          pathname.startsWith(`${other.href}/`)),
-                    ));
+                const childActive = isPathActive(pathname, child.href) &&
+                  navPath(child.href) !== "/";
                 return (
                   <Link
                     key={child.href}

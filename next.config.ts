@@ -1,12 +1,45 @@
 import type { NextConfig } from "next";
 
+const HTML_CACHE =
+  "public, max-age=0, s-maxage=60, stale-while-revalidate=300, must-revalidate";
+const STATIC_CACHE = "public, max-age=31536000, immutable";
+const PRIVATE_NO_STORE =
+  "private, no-store, max-age=0, must-revalidate";
+
 const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
   },
-  // Hostinger CDN (hcdn) Next.js ISR `stale-while-revalidate` degerini yoksa ~1 yil
-  // tutuyor. Yeni deploy sonrasi eski HTML eski CSS/JS hash'lerine baglaniyor.
+  // Hostinger hcdn, Next'in varsayilan s-maxage=31536000 degerini 1 yil HTML
+  // olarak tutuyor. Eski HTML eski CSS/JS hash'ine baglaninca sayfa stilsiz kaliyor.
   expireTime: 300,
+  async headers() {
+    const routeHeaders = [
+      {
+        source: "/:path*",
+        headers: [{ key: "Cache-Control", value: HTML_CACHE }],
+      },
+      {
+        source: "/api/:path*",
+        headers: [{ key: "Cache-Control", value: PRIVATE_NO_STORE }],
+      },
+      {
+        source: "/admin",
+        headers: [{ key: "Cache-Control", value: PRIVATE_NO_STORE }],
+      },
+      {
+        source: "/admin/:path*",
+        headers: [{ key: "Cache-Control", value: PRIVATE_NO_STORE }],
+      },
+    ];
+    if (process.env.NODE_ENV === "production") {
+      routeHeaders.push({
+        source: "/_next/static/:path*",
+        headers: [{ key: "Cache-Control", value: STATIC_CACHE }],
+      });
+    }
+    return routeHeaders;
+  },
   images: {
     remotePatterns: [
       {

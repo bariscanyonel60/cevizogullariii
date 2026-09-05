@@ -23,6 +23,12 @@ function item(
 /** Şantiye galerisi — CVZ Yapı İnşaat sahasından seçilmiş kareler (tekrarlar elendi). */
 export const YAPI_INSAAT_MEDIA: MediaItem[] = [
   item(
+    17,
+    "ova-apt-3.jpg",
+    "CVZ Yapı İnşaat Ova Apt. 3 bitmiş konut cephesi — Turhal / Tokat",
+    "Ova Apt. 3",
+  ),
+  item(
     1,
     "ova-apt-2-saha.jpg",
     "CVZ Yapı İnşaat Ova Apt. 2 dış cephe uygulaması — Tokat Turhal konut inşaatı",

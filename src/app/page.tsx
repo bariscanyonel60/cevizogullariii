@@ -15,13 +15,14 @@ import { ContactCta } from "@/components/organisms/home/ContactCta";
 import { ProjectWallSection } from "@/components/organisms/home/ProjectWallSection";
 import { pickPreviewMedia } from "@/lib/media";
 import { getPublicMedia } from "@/lib/media-store";
-import { getCmsSnapshot } from "@/lib/cms-store";
+import { getCmsSnapshot, getFeaturedProjects } from "@/lib/cms-store";
 import { JsonLd } from "@/components/atoms/JsonLd";
 import {
   buildMetadata,
   faqJsonLd,
   HOME_SEO,
   serviceJsonLd,
+  videoObjectJsonLd,
   websiteJsonLd,
 } from "@/lib/seo";
 
@@ -53,10 +54,11 @@ const TestimonialsSection = dynamic(
 );
 
 export default async function HomePage() {
-  const [gallery, yapiInsaat, cms] = await Promise.all([
+  const [gallery, yapiInsaat, cms, featuredProjects] = await Promise.all([
     getPublicMedia("gallery"),
     getPublicMedia("yapi-insaat"),
     getCmsSnapshot(),
+    getFeaturedProjects(),
   ]);
   const wallItems = pickPreviewMedia(
     [...gallery.items, ...yapiInsaat.items],
@@ -79,11 +81,17 @@ export default async function HomePage() {
       description: item.description,
     }));
   const featuredProducts = (cms.products ?? []).filter((item) => item.featured);
-  const featuredProjects = (cms.projects ?? []).filter((item) => item.featured);
 
   return (
     <>
-      <JsonLd data={[websiteJsonLd(), serviceJsonLd(), faqJsonLd(homeFaqs)]} />
+      <JsonLd
+        data={[
+          websiteJsonLd(),
+          serviceJsonLd(),
+          videoObjectJsonLd(),
+          faqJsonLd(homeFaqs),
+        ]}
+      />
 
       <HeroSection />
       <StatsSection stats={cms.stats} />

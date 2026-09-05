@@ -17,8 +17,8 @@ export function FeaturedProducts({ products = [] }: { products?: Product[] }) {
         <Reveal>
           <SectionHeading
             eyebrow="Yapı Market"
-            title="Tokat yapı malzemeleri stokta"
-            description="Tokat yapı malzemeleri kataloğunda Permolit boya, mantolama, yalıtım ve dış cephe — Turhal’da stoklu çözümler."
+            title="Turhal yapı malzemeleri stokta"
+            description="Boya, mantolama, yalıtım. Tokat yapı malzemeleri listesini Turhal’daki raftan topluyoruz."
             action={
               <Button asChild variant="secondary">
                 <Link href="/yapi-malzemeleri#urunler">Yapı Market</Link>
@@ -29,7 +29,7 @@ export function FeaturedProducts({ products = [] }: { products?: Product[] }) {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {items.map((product, index) => (
             <Reveal key={product.id} delay={index * 0.08}>
-              <ProductCard product={product} />
+              <ProductCard product={product} priority={index === 0} />
             </Reveal>
           ))}
         </div>

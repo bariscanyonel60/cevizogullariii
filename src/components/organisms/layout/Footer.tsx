@@ -17,6 +17,7 @@ const corporateLinks = [
 
 const quickLinks = [
   { href: "/", label: "Ana Sayfa" },
+  { href: "/#hizmetler", label: "Hizmetler" },
   { href: "/teklif-al", label: "Teklif Al" },
   { href: "/iletisim", label: "İletişim" },
   { href: "/yapi-malzemeleri", label: "Ürünler" },

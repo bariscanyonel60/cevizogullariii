@@ -11,8 +11,8 @@ export function BlogPreview({ posts = [] }: { posts?: BlogPost[] }) {
       <Reveal>
         <SectionHeading
           eyebrow="Rehber"
-          title="Tokat’ta malzeme seçerken işe yarayan yazılar"
-          description="Teslimat, mantolama, boya ve şantiye listesi — mağaza pratiğinden notlar."
+          title="Mağazadan yazılar"
+          description="Boya, mantolama, liste. Reyonda konuştuğumuz şeyler."
           action={
             <Button asChild variant="secondary">
               <Link href="/blog">Tüm Yazılar</Link>

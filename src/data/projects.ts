@@ -9,6 +9,21 @@ const IG = SITE.social.instagram;
  */
 export const projects: Project[] = [
   {
+    id: "6",
+    slug: "ova-apartmani-3",
+    title: "Ova Apartmanı 3",
+    description:
+      "CVZ Yapı İnşaat Ova Apt. 3: teslim edilmiş konut. Beyaz cephe, antrasit balkon ve ahşap görünümlü düşey panel — Turhal’da biten iş.",
+    category: "konut",
+    location: "Turhal, Tokat",
+    year: 2026,
+    images: ["/media/yapi-insaat/ova-apt-3.jpg"],
+    beforeImage: "/media/yapi-insaat/santiye-iskele-ova.jpg",
+    afterImage: "/media/yapi-insaat/ova-apt-3.jpg",
+    featured: true,
+    instagramUrl: IG,
+  },
+  {
     id: "0",
     slug: "ova-apartmani-2",
     title: "Ova Apartmanı 2",

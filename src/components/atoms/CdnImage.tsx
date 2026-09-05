@@ -11,6 +11,8 @@ function isHttpUrl(value: string) {
 /**
  * next/image sarmalayıcı: yerel `/public` yolunu Cloudinary CDN URL’sine çevirir.
  * CDN 404 verirse aynı yerel yola düşer — Cloudinary’den silinen kareler boş kalmaz.
+ * suppressHydrationWarning: Hover Zoom / Imagus gibi eklentiler img className’ine
+ * hoverZoomLink ekleyip sahte hydration uyarısı üretir.
  */
 export function CdnImage({ src, unoptimized, onError, ...props }: ImageProps) {
   const localSrc = typeof src === "string" && !isHttpUrl(src) ? src : null;
@@ -29,6 +31,7 @@ export function CdnImage({ src, unoptimized, onError, ...props }: ImageProps) {
         onError?.(event);
       }}
       {...props}
+      suppressHydrationWarning
     />
   );
 }

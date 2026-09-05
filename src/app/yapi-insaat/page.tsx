@@ -88,7 +88,7 @@ export default async function YapiInsaatPage() {
       />
       <PageHero
         title="Yapı - İnşaat"
-        description="Konut, cephe ve tadilat. Turhal’da malzeme tedariki ile saha uygulamasını aynı ekipten yürütün."
+        description="Konut, cephe, tadilat. Malzeme ve saha aynı ekipten."
         crumbs={[
           { label: "Ana Sayfa", href: "/" },
           { label: "Yapı - İnşaat" },
@@ -100,8 +100,8 @@ export default async function YapiInsaatPage() {
           <div className="grid items-center gap-8 overflow-hidden rounded-[2rem] border border-earth-400/10 bg-white shadow-premium lg:grid-cols-2">
             <div className="relative min-h-64 lg:min-h-full">
               <CdnImage
-                src="/media/yapi-insaat/ova-apt-2-saha.jpg"
-                alt="CVZ Yapı İnşaat Ova Apt. 2 projesi — Tokat Turhal konut inşaatı"
+                src="/media/yapi-insaat/ova-apt-3.jpg"
+                alt="CVZ Yapı İnşaat Ova Apt. 3 — teslim edilmiş konut cephesi, Turhal / Tokat"
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"
@@ -117,9 +117,8 @@ export default async function YapiInsaatPage() {
               </h2>
               <p className="text-ink-500 leading-relaxed">
                 Cevizoğulları Yapı - İnşaat, Turhal yapı marketinin saha koludur.
-                Ova Apt. 2, kaba inşaat ve ince iş kareleri bu sayfada. Malzeme
-                reyonundan çıkar, uygulama ekibiyle duvara gider — ayrı
-                tedarikçi, ayrı usta beklemek zorunda değilsiniz.
+                Ova Apt. 3 bitti. Kaba iş ve ince iş kareleri de bu sayfada.
+                Malzeme raftan çıkar, ekip duvara koyar.
               </p>
               <div className="flex flex-wrap gap-3 pt-2">
                 <Button asChild>
@@ -177,7 +176,7 @@ export default async function YapiInsaatPage() {
         items={galleryItems}
         eyebrow="Şantiye galerisi"
         title="Uygulama ve saha görselleri"
-        description="Ova Apt, villa cephe, ahşap kalıp, temel beton ve iç kapı bitişi — CVZ Yapı İnşaat sahasından güncel kareler."
+        description="Ova Apt. 3, villa cephe, ahşap kalıp, temel beton ve iç kapı bitişi — CVZ Yapı İnşaat sahasından güncel kareler."
       />
 
       <section className="container-wide pb-16 md:pb-24">

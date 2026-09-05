@@ -36,8 +36,8 @@ export function TestimonialsSection({
       <Reveal>
         <SectionHeading
           eyebrow="Sahadan"
-          title="Şantiye ve tadilattan dönen sözler"
-          description="Turhal mağazasından malzeme alan usta, müteahhit ve ev sahiplerinin anlattıkları."
+          title="Ustadan, ev sahibinden"
+          description="Turhal mağazasından malzeme alanların anlattığı."
         />
       </Reveal>
       <div

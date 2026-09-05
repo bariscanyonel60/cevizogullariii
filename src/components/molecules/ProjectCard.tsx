@@ -7,9 +7,15 @@ type ProjectCardProps = {
   project: Project;
   className?: string;
   tall?: boolean;
+  priority?: boolean;
 };
 
-export function ProjectCard({ project, className, tall }: ProjectCardProps) {
+export function ProjectCard({
+  project,
+  className,
+  tall,
+  priority,
+}: ProjectCardProps) {
   return (
     <article
       className={cn(
@@ -25,6 +31,7 @@ export function ProjectCard({ project, className, tall }: ProjectCardProps) {
           fill
           sizes="(max-width: 768px) 100vw, 50vw"
           className="object-cover transition duration-700 group-hover:scale-110"
+          priority={priority}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-forest-950/85 via-forest-950/25 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 p-6 text-white">
