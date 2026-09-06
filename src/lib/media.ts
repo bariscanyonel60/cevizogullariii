@@ -13,6 +13,45 @@ export function toCloudinaryPublicId(localPath: string): string {
   return `${FOLDER}/${cleaned}`;
 }
 
+function isCloudinaryTransformSegment(segment: string): boolean {
+  return /^(f_|q_|w_|c_|dpr_|fl_|e_|so_)/.test(segment) || segment.includes(",");
+}
+
+/**
+ * Cloudinary URL’ye genişlik ekler (Lighthouse “displayed size” uyarısı).
+ * Mevcut f_auto,q_auto katmanını w_,c_limit ile değiştirir.
+ */
+export function cloudinarySizedUrl(url: string, width: number): string {
+  const marker = "/image/upload/";
+  if (!url.includes("res.cloudinary.com") || !url.includes(marker)) {
+    return url;
+  }
+  const idx = url.indexOf(marker);
+  const prefix = url.slice(0, idx + marker.length);
+  const segments = url
+    .slice(idx + marker.length)
+    .split("/")
+    .filter(Boolean);
+  let i = 0;
+  let version = "";
+  if (segments[0] && /^v\d+$/.test(segments[0])) {
+    version = segments[0];
+    i = 1;
+  }
+  if (segments[i] && isCloudinaryTransformSegment(segments[i])) {
+    i += 1;
+    if (segments[i] && /^v\d+$/.test(segments[i])) {
+      version = segments[i];
+      i += 1;
+    }
+  }
+  const publicId = segments.slice(i).join("/");
+  if (!publicId) return url;
+  const w = Math.max(32, Math.round(width));
+  const versionPath = version ? `${version}/` : "";
+  return `${prefix}w_${w},c_limit,f_auto,q_auto/${versionPath}${publicId}`;
+}
+
 /** Yerel path veya Cloudinary delivery URL */
 export function mediaUrl(localPath: string): string {
   if (!localPath) return localPath;

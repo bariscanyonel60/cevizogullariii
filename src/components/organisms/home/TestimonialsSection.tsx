@@ -68,10 +68,8 @@ export function TestimonialsSection({
                 </div>
                 <Quote className="size-7 text-gold-400" aria-hidden />
               </div>
-              <div
-                className="mt-4 flex gap-0.5"
-                aria-label={`${item.rating} yıldız`}
-              >
+              <p className="sr-only">{item.rating} yıldız</p>
+              <div className="mt-4 flex gap-0.5" aria-hidden>
                 {Array.from({ length: item.rating }).map((_, i) => (
                   <Star
                     key={i}

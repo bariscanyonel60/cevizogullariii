@@ -179,7 +179,7 @@ export function HeroSection() {
             playsInline
             preload="none"
             poster={HOME_HERO_VIDEO.poster}
-            aria-label="Cevizoğulları Yapı İnşaat sahadan video. Fareyi kaydırarak sahayı gezinin."
+            aria-hidden="true"
           />
           <div className="home-hero-video-shade" />
           <div className="home-hero-vignette" />

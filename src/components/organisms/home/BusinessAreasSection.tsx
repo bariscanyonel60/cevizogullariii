@@ -42,7 +42,7 @@ function TiltCard({
   }
 
   return (
-    <Reveal delay={index * 0.08}>
+    <Reveal delay={index * 0.08} className="h-full min-h-[28rem]">
       <motion.a
         ref={ref}
         href={area.href}

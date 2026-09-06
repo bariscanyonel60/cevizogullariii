@@ -323,38 +323,10 @@ export function Navbar({ nav }: { nav: NavCms }) {
             onMouseLeave={() => setMegaActive(null)}
           >
             {NAV_LINKS.map((link) => {
-              if (MEGA_LABELS.has(link.label)) {
-                const active = isNavActive(pathname, link);
-                return (
-                  <Link
-                    key={link.href + link.label}
-                    href={link.href}
-                    className={cn(
-                      "relative z-10",
-                      desktopNavItemClass({
-                        active,
-                        inverted: !solid,
-                      }),
-                    )}
-                    onMouseEnter={() => setMegaActive(link.label)}
-                    onFocus={() => setMegaActive(link.label)}
-                    onClick={() => setMegaActive(null)}
-                  >
-                    {link.label}
-                    {link.children?.length ? (
-                      <ChevronDown
-                        className={cn(
-                          "size-3.5 shrink-0 opacity-70 transition",
-                          megaActive === link.label && "rotate-180",
-                        )}
-                        aria-hidden
-                      />
-                    ) : null}
-                  </Link>
-                );
-              }
+              const isMega = MEGA_LABELS.has(link.label);
+              const active = isNavActive(pathname, link);
 
-              if (link.children?.length) {
+              if (!isMega && link.children?.length) {
                 return (
                   <DesktopDropdown
                     key={link.label}
@@ -364,19 +336,37 @@ export function Navbar({ nav }: { nav: NavCms }) {
                 );
               }
 
-              const active = isNavActive(pathname, link);
               return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={desktopNavItemClass({
-                    active,
-                    inverted: !solid,
-                  })}
-                  onMouseEnter={() => setMegaActive(null)}
-                >
-                  {link.label}
-                </Link>
+                <div key={link.href + link.label} className="relative">
+                  <Link
+                    href={link.href}
+                    className={cn(
+                      isMega && "relative z-10",
+                      desktopNavItemClass({
+                        active,
+                        inverted: !solid,
+                      }),
+                    )}
+                    onMouseEnter={() =>
+                      isMega ? setMegaActive(link.label) : setMegaActive(null)
+                    }
+                    onFocus={() => {
+                      if (isMega) setMegaActive(link.label);
+                    }}
+                    onClick={() => setMegaActive(null)}
+                  >
+                    {link.label}
+                    {isMega && link.children?.length ? (
+                      <ChevronDown
+                        className={cn(
+                          "size-3.5 shrink-0 opacity-70 transition",
+                          megaActive === link.label && "rotate-180",
+                        )}
+                        aria-hidden
+                      />
+                    ) : null}
+                  </Link>
+                </div>
               );
             })}
             <MegaMenu

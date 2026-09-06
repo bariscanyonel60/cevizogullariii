@@ -1,14 +1,16 @@
 "use client";
 
-import { motion, useReducedMotion, type HTMLMotionProps } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-type RevealProps = HTMLMotionProps<"div"> & {
+type RevealProps = {
   children: ReactNode;
+  className?: string;
   delay?: number;
   y?: number;
   once?: boolean;
+  as?: "div" | "li";
 };
 
 export function Reveal({
@@ -17,24 +19,26 @@ export function Reveal({
   delay = 0,
   y = 28,
   once = true,
-  ...props
+  as = "div",
 }: RevealProps) {
   const reduce = useReducedMotion();
+  const Tag = as === "li" ? "li" : "div";
 
   if (reduce) {
-    return <div className={className}>{children}</div>;
+    return <Tag className={className}>{children}</Tag>;
   }
 
-  return (
-    <motion.div
-      className={cn(className)}
-      initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once, margin: "-10% 0px" }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay }}
-      {...props}
-    >
-      {children}
-    </motion.div>
-  );
+  const motionProps = {
+    className: cn(className),
+    initial: { opacity: 0, y },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once, margin: "-10% 0px" as const },
+    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const, delay },
+  };
+
+  if (as === "li") {
+    return <motion.li {...motionProps}>{children}</motion.li>;
+  }
+
+  return <motion.div {...motionProps}>{children}</motion.div>;
 }
