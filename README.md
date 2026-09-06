@@ -1,6 +1,6 @@
 # Cevizoğulları Yapı Market & İnşaat
 
-Tokat / Turhal merkezli kurumsal web sitesi — yapı market, orman ürünleri ve yapı-inşaat. Next.js App Router, TypeScript, Tailwind CSS, Framer Motion, Lenis. Deploy: **Vercel**.
+Tokat / Turhal merkezli kurumsal web sitesi — yapı market, orman ürünleri ve yapı-inşaat. Next.js App Router, TypeScript, Tailwind CSS, Framer Motion, Lenis. Canlı: **Hostinger Node.js** + GitHub otomatik deploy.
 
 ## Geliştirme
 
@@ -30,17 +30,20 @@ Atomic Design klasör mimarisi:
 - `npm run smoke` — IA / SEO / a11y regresyon kontrolleri
 - `npm run media:backup` — `public/` görsellerini Cloudinary’ye yedekler
 
-## Vercel deploy
+## Hostinger deploy (GitHub)
 
-1. Repo’yu Vercel’e bağlayın (`vercel link` veya Dashboard → Import)
-2. Storage → **Blob** store oluşturun; `BLOB_READ_WRITE_TOKEN` otomatik eklenir
-3. Environment Variables’a şunları ekleyin (Production + Preview):
-   - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
-   - `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`
-   - `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` (opsiyonel CDN için)
-4. Deploy edin
+Push, bağlı branch’e gidince Hostinger build + restart eder. `.env.local` GitHub’a **gitmez**; sırlar hPanel’de durur.
 
-Yerel secret’ları çekmek için: `vercel env pull .env.local --yes`
+hPanel → Web siteleri → siteniz → **Environment variables** (veya Deployments içindeki aynı bölüm):
+
+- `RESEND_API_KEY`, `RESEND_FROM`, `MAIL_TO` (iletişim / teklif formları)
+- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
+- `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`
+- `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `DATABASE_USER`, `DATABASE_PASSWORD` (canlıda host genelde `127.0.0.1`)
+
+Kaydetmek uygulamayı yeniden deploy eder. Değişkenler her push’ta kalır; her commit’te tekrar yazılmaz.
+
+Resend’de `cevizogullari.com` domain doğrulanmadan `info@...` gönderen adresi çalışmaz.
 
 ## Yönetici paneli (`/admin`)
 

@@ -19,11 +19,11 @@ const sections = [
   },
   {
     title: "2. İşlenen kişisel veriler",
-    body: "İletişim ve teklif formları, bilgilerinizi sunucumuza kaydetmez; WhatsApp üzerinden mesaj hazırlamak için tarayıcınızda kullanır. Bu süreçte paylaştığınız ad-soyad, telefon, e-posta ve talep içeriği WhatsApp üzerinden tarafımıza iletilebilir. Ayrıca site kullanımına bağlı teknik log verileri işlenebilir.",
+    body: "İletişim ve teklif formlarında paylaştığınız ad-soyad, telefon, e-posta ve talep içeriği, talebinizi yanıtlamak üzere e-posta olarak tarafımıza iletilir (Resend altyapısı). Dilerseniz aynı bilgileri WhatsApp üzerinden de gönderebilirsiniz. Ayrıca site kullanımına bağlı teknik log verileri işlenebilir.",
   },
   {
     title: "3. İşleme amaçları",
-    body: "Kişisel verileriniz; WhatsApp ile ilettiğiniz talepleri yanıtlamak, teklif süreçlerini yürütmek, müşteri ilişkilerini yönetmek, yasal yükümlülükleri yerine getirmek ve hizmet kalitesini artırmak amacıyla işlenir.",
+    body: "Kişisel verileriniz; e-posta veya WhatsApp ile ilettiğiniz talepleri yanıtlamak, teklif süreçlerini yürütmek, müşteri ilişkilerini yönetmek, yasal yükümlülükleri yerine getirmek ve hizmet kalitesini artırmak amacıyla işlenir.",
   },
   {
     title: "4. Hukuki sebepler",
@@ -31,7 +31,7 @@ const sections = [
   },
   {
     title: "5. Aktarım",
-    body: "Kişisel verileriniz, yalnızca hizmetin gerektirdiği ölçüde ve yasal zorunluluklar çerçevesinde iş ortaklarımıza, tedarikçilerimize veya yetkili kamu kurumlarına aktarılabilir.",
+    body: "Kişisel verileriniz, yalnızca hizmetin gerektirdiği ölçüde ve yasal zorunluluklar çerçevesinde iş ortaklarımıza, tedarikçilerimize veya yetkili kamu kurumlarına aktarılabilir. Form e-postaları, iletim altyapısı olarak Resend üzerinden işlenir.",
   },
   {
     title: "6. Saklama süresi",

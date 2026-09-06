@@ -1,50 +1,67 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { Mail } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { Textarea } from "@/components/atoms/Textarea";
 import { WhatsAppIcon } from "@/components/atoms/SocialIcons";
-import { whatsappUrl } from "@/lib/constants";
-
-const contactSchema = z.object({
-  name: z.string().min(2, "Ad soyad en az 2 karakter olmalı"),
-  email: z.union([z.email("Geçerli bir e-posta girin"), z.literal("")]),
-  phone: z.string().min(10, "Geçerli bir telefon girin"),
-  subject: z.string().min(3, "Konu gerekli"),
-  message: z.string().min(10, "Mesaj en az 10 karakter olmalı"),
-  consent: z.literal(true, {
-    error: "Devam etmek için KVKK bilgilendirmesini onaylayın",
-  }),
-});
-
-type ContactValues = z.infer<typeof contactSchema>;
+import { SITE, whatsappUrl } from "@/lib/constants";
+import {
+  contactMailSchema,
+  type ContactMailValues,
+} from "@/lib/mail-schema";
 
 export function ContactForm() {
+  const [status, setStatus] = useState<"idle" | "sent" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
   const {
     register,
     handleSubmit,
+    reset,
+    getValues,
     formState: { errors, isSubmitting },
-  } = useForm<ContactValues>({
-    resolver: zodResolver(contactSchema),
+  } = useForm<ContactMailValues>({
+    resolver: zodResolver(contactMailSchema),
+    defaultValues: { kind: "contact", email: "" },
   });
 
-  const onSubmit = (data: ContactValues) => {
+  const onSubmit = async (data: ContactMailValues) => {
+    setStatus("idle");
+    setErrorMessage("");
+    const response = await fetch("/api/mail", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    const payload = (await response.json().catch(() => null)) as
+      | { error?: string }
+      | null;
+    if (!response.ok) {
+      setStatus("error");
+      setErrorMessage(payload?.error || "Mesaj gönderilemedi.");
+      return;
+    }
+    reset({ kind: "contact", email: "" });
+    setStatus("sent");
+  };
+
+  const openWhatsApp = () => {
+    const data = getValues();
     const text = [
       "Merhaba, web sitesinden iletişime geçiyorum.",
-      `Ad Soyad: ${data.name}`,
-      `Telefon: ${data.phone}`,
+      data.name ? `Ad Soyad: ${data.name}` : null,
+      data.phone ? `Telefon: ${data.phone}` : null,
       data.email ? `E-posta: ${data.email}` : null,
-      `Konu: ${data.subject}`,
-      `Mesaj: ${data.message}`,
+      data.subject ? `Konu: ${data.subject}` : null,
+      data.message ? `Mesaj: ${data.message}` : null,
     ]
       .filter(Boolean)
       .join("\n");
-
     window.open(whatsappUrl(text), "_blank", "noopener,noreferrer");
   };
 
@@ -54,6 +71,7 @@ export function ContactForm() {
       className="space-y-5 rounded-3xl bg-white p-6 shadow-premium md:p-8"
       noValidate
     >
+      <input type="hidden" {...register("kind")} />
       <div className="grid gap-5 md:grid-cols-2">
         <div>
           <Label htmlFor="name">Ad Soyad</Label>
@@ -108,7 +126,7 @@ export function ContactForm() {
             {...register("consent")}
           />
           <span>
-            Bilgilerimin WhatsApp üzerinden iletilmesi için{" "}
+            Bilgilerimin e-posta ile iletilmesi için{" "}
             <Link href="/kvkk" className="font-semibold text-forest-800 underline-offset-2 hover:underline">
               KVKK aydınlatma metnini
             </Link>{" "}
@@ -119,13 +137,33 @@ export function ContactForm() {
           <p className="mt-1 text-xs text-red-600">{errors.consent.message}</p>
         )}
       </div>
-      <Button type="submit" size="lg" disabled={isSubmitting} className="w-full md:w-auto">
-        <WhatsAppIcon className="size-4" />
-        {isSubmitting ? "Açılıyor..." : "WhatsApp ile Gönder"}
-      </Button>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <Button type="submit" size="lg" disabled={isSubmitting} className="w-full sm:w-auto">
+          <Mail className="size-4" />
+          {isSubmitting ? "Gönderiliyor..." : "E-posta ile Gönder"}
+        </Button>
+        <Button
+          type="button"
+          size="lg"
+          variant="secondary"
+          onClick={openWhatsApp}
+          className="w-full sm:w-auto"
+        >
+          <WhatsAppIcon className="size-4" />
+          WhatsApp
+        </Button>
+      </div>
+      {status === "sent" && (
+        <p className="text-sm text-forest-800">
+          Mesajınız iletildi. En kısa sürede dönüş yapacağız.
+        </p>
+      )}
+      {status === "error" && (
+        <p className="text-sm text-red-600">{errorMessage}</p>
+      )}
       <p className="text-xs text-ink-400">
-        Bu form sunucuya kayıt göndermez; mesajınızı WhatsApp’ta hazırlar.
-        Göndermek için WhatsApp’ta onaylamanız gerekir.
+        Form, talebinizi {SITE.email} adresine e-posta olarak gönderir.
+        Dilerseniz aynı metni WhatsApp’tan da iletebilirsiniz.
       </p>
     </form>
   );

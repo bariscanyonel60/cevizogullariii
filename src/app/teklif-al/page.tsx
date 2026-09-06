@@ -30,7 +30,7 @@ export default function QuotePage() {
     <>
       <PageHero
         title="Teklif Al"
-        description="İhtiyacınızı yazın; WhatsApp üzerinden size özel dönüş yapalım."
+        description="İhtiyacınızı yazın; e-posta veya WhatsApp üzerinden size özel dönüş yapalım."
         crumbs={[
           { label: "Ana Sayfa", href: "/" },
           { label: "Teklif Al" },

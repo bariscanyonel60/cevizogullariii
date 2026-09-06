@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { type PointerEvent, useEffect, useRef } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { CheckCircle2, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { HOME_HERO_VIDEO } from "@/data/home-hero";
+import "./HeroSection.css";
 
 const trustItems = [
   "Stoklu yapı market",
@@ -15,234 +16,11 @@ const trustItems = [
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-const HERO_LAYOUT_CSS = `
-.home-hero {
-  position: relative;
-  min-height: 100svh;
-  overflow: hidden;
-  background: #2a2d31;
-}
-.home-hero-video {
-  position: relative;
-  height: calc(32svh + 6.5rem);
-  min-height: 16.5rem;
-  overflow: hidden;
-  cursor: crosshair;
-  touch-action: pan-y;
-}
-.home-hero-video-el {
-  position: absolute;
-  top: 6.5rem;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: calc(100% - 6.5rem);
-  object-fit: cover;
-  object-position: 58% center;
-  transform-origin: center center;
-  will-change: transform;
-}
-.home-hero-video-shade {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(180deg, rgba(28, 30, 33, 0.42) 0%, transparent 22%),
-    linear-gradient(180deg, transparent 58%, rgba(42, 45, 49, 0.88) 100%);
-}
-.home-hero-spot {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0;
-  background: radial-gradient(
-    420px circle at var(--mx, 72%) var(--my, 46%),
-    rgba(226, 201, 138, 0.22),
-    transparent 62%
-  );
-  mix-blend-mode: screen;
-  transition: opacity 0.45s ease;
-}
-.home-hero-scan {
-  position: absolute;
-  top: 6.5rem;
-  bottom: 0;
-  left: 0;
-  width: 1px;
-  pointer-events: none;
-  opacity: 0;
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    #c7a34a 16%,
-    #e2c98a 50%,
-    #c7a34a 84%,
-    transparent 100%
-  );
-  box-shadow: 0 0 22px rgba(199, 163, 74, 0.55);
-  transition: opacity 0.35s ease;
-}
-.home-hero-lens {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 46px;
-  height: 46px;
-  margin: -23px 0 0 -23px;
-  pointer-events: none;
-  opacity: 0;
-  border: 1px solid rgba(199, 163, 74, 0.9);
-  border-radius: 50%;
-  box-shadow: 0 0 0 8px rgba(199, 163, 74, 0.08);
-  transition: opacity 0.3s ease;
-}
-.home-hero-lens::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 5px;
-  height: 5px;
-  margin: -2.5px 0 0 -2.5px;
-  background: #c7a34a;
-  border-radius: 50%;
-}
-.home-hero-frame {
-  display: none;
-  pointer-events: none;
-}
-.home-hero-stage.is-hot .home-hero-spot,
-.home-hero-stage.is-hot .home-hero-scan,
-.home-hero-stage.is-hot .home-hero-lens {
-  opacity: 1;
-}
-.home-hero-stage.is-hot {
-  cursor: none;
-}
-.home-hero-copy {
-  position: relative;
-  z-index: 2;
-  margin-top: -4.75rem;
-  padding: 4.75rem 1.25rem 2.15rem;
-  pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    rgba(42, 45, 49, 0.72) 18%,
-    #2a2d31 38%,
-    #2a2d31 100%
-  );
-}
-.home-hero-copy-inner {
-  pointer-events: auto;
-  max-width: 36rem;
-  color: rgba(255, 255, 255, 0.88);
-}
-.home-hero-copy-inner h1 {
-  color: #fff;
-}
-.home-hero-copy-inner p,
-.home-hero-copy-inner li {
-  color: rgba(255, 255, 255, 0.88);
-}
-.home-hero-copy-inner .home-hero-kicker {
-  color: #e2c98a;
-}
-.home-hero-copy-inner .home-hero-lead {
-  color: rgba(255, 255, 255, 0.88);
-}
-@media (min-width: 640px) {
-  .home-hero-video {
-    height: calc(42svh + 6.5rem);
-  }
-  .home-hero-copy {
-    padding: 5rem 1.5rem 2.5rem;
-  }
-}
-@media (min-width: 1024px) {
-  .home-hero-video {
-    position: absolute;
-    inset: 0;
-    height: auto;
-    min-height: 100%;
-  }
-  .home-hero-video-el {
-    top: 0;
-    height: 100%;
-  }
-  .home-hero-scan {
-    top: 0;
-  }
-  .home-hero-video-shade {
-    background:
-      linear-gradient(90deg, rgba(28, 30, 33, 0.55) 0%, transparent 46%),
-      linear-gradient(180deg, rgba(28, 30, 33, 0.38) 0%, transparent 18%),
-      linear-gradient(180deg, transparent 78%, rgba(28, 30, 33, 0.28) 100%);
-  }
-  .home-hero-frame {
-    display: block;
-    position: absolute;
-    top: 22%;
-    right: 7.5rem;
-    bottom: 11%;
-    width: min(38vw, 34rem);
-  }
-  .home-hero-frame span {
-    position: absolute;
-    width: 22px;
-    height: 22px;
-    border-color: rgba(199, 163, 74, 0.7);
-    border-style: solid;
-  }
-  .home-hero-frame span:nth-child(1) {
-    top: 0;
-    left: 0;
-    border-width: 1px 0 0 1px;
-  }
-  .home-hero-frame span:nth-child(2) {
-    top: 0;
-    right: 0;
-    border-width: 1px 1px 0 0;
-  }
-  .home-hero-frame span:nth-child(3) {
-    right: 0;
-    bottom: 0;
-    border-width: 0 1px 1px 0;
-  }
-  .home-hero-frame span:nth-child(4) {
-    bottom: 0;
-    left: 0;
-    border-width: 0 0 1px 1px;
-  }
-  .home-hero-copy {
-    display: flex;
-    align-items: center;
-    width: min(46rem, 58vw);
-    min-height: 100svh;
-    margin-top: 0;
-    padding: 7.75rem 2.5rem 4rem 4.25rem;
-    background: linear-gradient(
-      90deg,
-      #1c1e21 0%,
-      rgba(42, 45, 49, 0.94) 36%,
-      rgba(42, 45, 49, 0.62) 64%,
-      rgba(42, 45, 49, 0.18) 86%,
-      transparent 100%
-    );
-  }
-}
-@media (hover: none) {
-  .home-hero-video {
-    cursor: grab;
-  }
-  .home-hero-lens {
-    display: none;
-  }
-}
-`;
-
 type Point = { x: number; y: number };
+
+function canScrubVideo() {
+  return window.matchMedia("(min-width: 1024px) and (hover: hover)").matches;
+}
 
 export function HeroSection() {
   const reduce = useReducedMotion();
@@ -260,14 +38,22 @@ export function HeroSection() {
     const video = videoRef.current;
     if (!video) return;
     if (reduce) {
+      video.removeAttribute("src");
       video.pause();
       return;
     }
+    if (!video.querySelector("source")) {
+      const source = document.createElement("source");
+      source.src = HOME_HERO_VIDEO.src;
+      source.type = "video/mp4";
+      video.appendChild(source);
+    }
+    video.load();
     void video.play().catch(() => undefined);
   }, [reduce]);
 
   useEffect(() => {
-    if (reduce) return;
+    if (reduce || !canScrubVideo()) return;
     let frame = 0;
 
     const tick = () => {
@@ -341,14 +127,14 @@ export function HeroSection() {
   };
 
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (reduce) return;
+    if (reduce || !canScrubVideo()) return;
     event.currentTarget.setPointerCapture(event.pointerId);
     applyPointer(event.clientX, event.clientY);
     setHot(true);
   };
 
   const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (reduce) return;
+    if (reduce || !canScrubVideo()) return;
     applyPointer(event.clientX, event.clientY);
     if (event.pointerType === "mouse" || hotRef.current) {
       setHot(true);
@@ -356,20 +142,19 @@ export function HeroSection() {
   };
 
   const onPointerUp = (event: PointerEvent<HTMLDivElement>) => {
-    if (reduce) return;
+    if (reduce || !canScrubVideo()) return;
     if (event.pointerType !== "mouse") {
       setHot(false);
     }
   };
 
   const onPointerLeave = () => {
-    if (reduce) return;
+    if (reduce || !canScrubVideo()) return;
     setHot(false);
   };
 
   return (
     <section id="hero" className="home-hero">
-      <style>{HERO_LAYOUT_CSS}</style>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -389,17 +174,16 @@ export function HeroSection() {
           <video
             ref={videoRef}
             className="home-hero-video-el pointer-events-none"
-            autoPlay
             muted
             loop
             playsInline
-            preload="auto"
+            preload="none"
             poster={HOME_HERO_VIDEO.poster}
             aria-label="Cevizoğulları Yapı İnşaat sahadan video. Fareyi kaydırarak sahayı gezinin."
-          >
-            <source src={HOME_HERO_VIDEO.src} type="video/mp4" />
-          </video>
+          />
           <div className="home-hero-video-shade" />
+          <div className="home-hero-vignette" />
+          <div className="home-hero-grain" aria-hidden="true" />
           <div className="home-hero-spot" />
           <div ref={scanRef} className="home-hero-scan" />
           <div ref={lensRef} className="home-hero-lens" />
@@ -414,65 +198,58 @@ export function HeroSection() {
 
       <div className="home-hero-copy">
         <div className="home-hero-copy-inner">
-          <div className="border-l border-gold-400/70 pl-5 md:pl-7">
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, ease, delay: 0.08 }}
-              className="home-hero-kicker mb-3 font-display text-[11px] font-semibold uppercase tracking-[0.22em] sm:mb-4 sm:text-xs sm:tracking-[0.34em]"
-            >
-              Cevizoğulları · Turhal / Tokat
-            </motion.p>
-            <motion.h1
-              initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.85, ease, delay: 0.18 }}
-              className="font-display text-display font-bold tracking-tight text-balance text-white [text-shadow:0_12px_40px_rgba(0,0,0,0.35)]"
-            >
-              Tokat Yapı Malzemeleri
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 22 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease, delay: 0.32 }}
-              className="home-hero-lead mt-4 max-w-md text-lead sm:mt-5"
-            >
-              Turhal yapı malzemeleri reyonumuz: boya, mantolama, OSB, kereste.
-              Listeyi getirin, yükleriz.
-            </motion.p>
-            <motion.ul
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease, delay: 0.44 }}
-              className="mt-5 flex flex-wrap gap-2 sm:mt-6"
-            >
-              {trustItems.map((item) => (
-                <li
-                  key={item}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-xs font-medium backdrop-blur-sm"
-                >
-                  <CheckCircle2 className="size-3.5 text-gold-300" />
-                  {item}
-                </li>
-              ))}
-            </motion.ul>
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease, delay: 0.56 }}
-              className="mt-6 flex flex-wrap gap-2.5"
-            >
-              <Button asChild size="md" variant="gold" className="lg:h-14 lg:px-8 lg:text-base">
-                <Link href="/teklif-al">Teklif Al</Link>
-              </Button>
-              <Button asChild size="md" variant="outline" className="lg:h-14 lg:px-8 lg:text-base">
-                <Link href="/yapi-malzemeleri">Ürünlere bak</Link>
-              </Button>
-            </motion.div>
-          </div>
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.65, ease, delay: 0.08 }}
+            className="home-hero-kicker mb-4 font-display text-[11px] font-semibold uppercase tracking-[0.28em] sm:mb-5 sm:text-xs sm:tracking-[0.36em]"
+          >
+            Cevizoğulları · Turhal / Tokat
+          </motion.p>
+          <motion.h1
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, ease, delay: 0.18 }}
+            className="font-display text-display font-bold tracking-tight text-balance text-white [text-shadow:0_18px_50px_rgba(0,0,0,0.45)]"
+          >
+            <span className="home-hero-title-line">Tokat Yapı</span>
+            <span className="home-hero-title-outline">Malzemeleri</span>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease, delay: 0.32 }}
+            className="home-hero-lead mt-4 max-w-md text-lead sm:mt-5"
+          >
+            Turhal yapı malzemeleri reyonumuz: boya, mantolama, OSB, kereste.
+            Listeyi getirin, yükleriz.
+          </motion.p>
+          <motion.ul
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease, delay: 0.44 }}
+            className="home-hero-meta"
+          >
+            {trustItems.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </motion.ul>
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease, delay: 0.56 }}
+            className="home-hero-actions"
+          >
+            <Button asChild size="md" variant="gold" className="lg:h-14 lg:px-8 lg:text-base">
+              <Link href="/teklif-al">Teklif Al</Link>
+            </Button>
+            <Button asChild size="md" variant="outline" className="lg:h-14 lg:px-8 lg:text-base">
+              <Link href="/yapi-malzemeleri">Ürünlere bak</Link>
+            </Button>
+          </motion.div>
           <a
             href="#istatistik"
-            className="mt-8 hidden text-white/40 transition hover:text-white/80 lg:inline-flex"
+            className="mt-10 hidden text-white/35 transition hover:text-white/80 lg:inline-flex"
             aria-label="Aşağı kaydır"
           >
             <ChevronDown className="size-6 animate-bounce" />

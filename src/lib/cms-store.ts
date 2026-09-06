@@ -34,7 +34,11 @@ import {
   upsertStatRow,
   upsertTestimonialRow,
 } from "@/lib/db/cms-sql";
-import { isDatabaseConfigured } from "@/lib/db/pool";
+import {
+  isDatabaseConfigured,
+  isDatabaseReachable,
+  markDatabaseUnreachable,
+} from "@/lib/db/pool";
 import type {
   CmsBrand,
   CmsCategoryShowcase,
@@ -86,7 +90,7 @@ async function seedIfEmpty(): Promise<void> {
 }
 
 async function readLiveSnapshot(): Promise<CmsSnapshot | null> {
-  if (!isDatabaseConfigured()) return null;
+  if (!isDatabaseConfigured() || !isDatabaseReachable()) return null;
   try {
     await ensureCmsSchema();
     await seedIfEmpty();
@@ -96,6 +100,7 @@ async function readLiveSnapshot(): Promise<CmsSnapshot | null> {
     }
     return snapshot;
   } catch (error) {
+    markDatabaseUnreachable();
     console.error("[cms] MySQL okunamadı, statik yedek kullanılıyor", error);
     return null;
   }

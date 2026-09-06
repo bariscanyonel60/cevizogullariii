@@ -2,7 +2,11 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { list, put } from "@vercel/blob";
 import { readMediaFromMysql, writeMediaToMysql } from "@/lib/db/media-sql";
-import { isDatabaseConfigured } from "@/lib/db/pool";
+import {
+  isDatabaseConfigured,
+  isDatabaseReachable,
+  markDatabaseUnreachable,
+} from "@/lib/db/pool";
 import {
   MEDIA_FALLBACKS,
   type MediaCollection,
@@ -114,8 +118,13 @@ async function writeToBlob(
 async function getCollectionState(
   collection: MediaCollection,
 ): Promise<MediaCollectionState> {
-  if (isDatabaseConfigured()) {
-    return readMediaFromMysql(collection);
+  if (isDatabaseConfigured() && isDatabaseReachable()) {
+    try {
+      return await readMediaFromMysql(collection);
+    } catch (error) {
+      markDatabaseUnreachable();
+      console.error("[media] MySQL okunamadı, yerel/blob yedek kullanılıyor", error);
+    }
   }
   const fromBlob = await readFromBlob(collection);
   if (fromBlob !== null) return fromBlob;

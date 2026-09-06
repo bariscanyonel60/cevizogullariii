@@ -1,63 +1,72 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { Mail } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { Textarea } from "@/components/atoms/Textarea";
 import { WhatsAppIcon } from "@/components/atoms/SocialIcons";
 import { whatsappUrl } from "@/lib/constants";
-
-const quoteSchema = z.object({
-  name: z.string().min(2, "Ad soyad gerekli"),
-  company: z.string().optional(),
-  phone: z.string().min(10, "Geçerli telefon girin"),
-  type: z.enum(["boya", "yalitim", "orman", "santiye", "diger"]),
-  details: z.string().min(10, "Detayları yazın"),
-  consent: z.literal(true, {
-    error: "Devam etmek için KVKK bilgilendirmesini onaylayın",
-  }),
-});
-
-type QuoteValues = z.infer<typeof quoteSchema>;
-
-const typeLabels: Record<QuoteValues["type"], string> = {
-  boya: "Boya / Dış Cephe",
-  yalitim: "Yalıtım / Mantolama",
-  orman: "Orman Ürünleri",
-  santiye: "Şantiye / Toplu Malzeme",
-  diger: "Diğer",
-};
+import {
+  QUOTE_TYPE_LABELS,
+  quoteMailSchema,
+  type QuoteMailValues,
+} from "@/lib/mail-schema";
 
 export function QuoteForm({
   defaultType = "boya",
 }: {
-  defaultType?: QuoteValues["type"];
+  defaultType?: QuoteMailValues["type"];
 }) {
+  const [status, setStatus] = useState<"idle" | "sent" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
   const {
     register,
     handleSubmit,
+    reset,
+    getValues,
     formState: { errors, isSubmitting },
-  } = useForm<QuoteValues>({
-    resolver: zodResolver(quoteSchema),
-    defaultValues: { type: defaultType },
+  } = useForm<QuoteMailValues>({
+    resolver: zodResolver(quoteMailSchema),
+    defaultValues: { kind: "quote", type: defaultType },
   });
 
-  const onSubmit = (data: QuoteValues) => {
+  const onSubmit = async (data: QuoteMailValues) => {
+    setStatus("idle");
+    setErrorMessage("");
+    const response = await fetch("/api/mail", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    const payload = (await response.json().catch(() => null)) as
+      | { error?: string }
+      | null;
+    if (!response.ok) {
+      setStatus("error");
+      setErrorMessage(payload?.error || "Teklif gönderilemedi.");
+      return;
+    }
+    reset({ kind: "quote", type: defaultType });
+    setStatus("sent");
+  };
+
+  const openWhatsApp = () => {
+    const data = getValues();
     const text = [
       "Merhaba, teklif talebim var.",
-      `Ad Soyad: ${data.name}`,
+      data.name ? `Ad Soyad: ${data.name}` : null,
       data.company ? `Firma: ${data.company}` : null,
-      `Telefon: ${data.phone}`,
-      `Talep: ${typeLabels[data.type]}`,
-      `Detay: ${data.details}`,
+      data.phone ? `Telefon: ${data.phone}` : null,
+      data.type ? `Talep: ${QUOTE_TYPE_LABELS[data.type]}` : null,
+      data.details ? `Detay: ${data.details}` : null,
     ]
       .filter(Boolean)
       .join("\n");
-
     window.open(whatsappUrl(text), "_blank", "noopener,noreferrer");
   };
 
@@ -67,6 +76,7 @@ export function QuoteForm({
       className="space-y-5 rounded-3xl bg-white p-6 shadow-premium md:p-8"
       noValidate
     >
+      <input type="hidden" {...register("kind")} />
       <div className="grid gap-5 md:grid-cols-2">
         <div>
           <Label htmlFor="q-name">Ad Soyad</Label>
@@ -120,7 +130,7 @@ export function QuoteForm({
             {...register("consent")}
           />
           <span>
-            Bilgilerimin WhatsApp üzerinden iletilmesi için{" "}
+            Bilgilerimin e-posta ile iletilmesi için{" "}
             <Link href="/kvkk" className="font-semibold text-forest-800 underline-offset-2 hover:underline">
               KVKK aydınlatma metnini
             </Link>{" "}
@@ -131,12 +141,26 @@ export function QuoteForm({
           <p className="mt-1 text-xs text-red-600">{errors.consent.message}</p>
         )}
       </div>
-      <Button type="submit" size="lg" disabled={isSubmitting}>
-        <WhatsAppIcon className="size-4" />
-        {isSubmitting ? "Açılıyor..." : "WhatsApp ile Teklif İste"}
-      </Button>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <Button type="submit" size="lg" disabled={isSubmitting}>
+          <Mail className="size-4" />
+          {isSubmitting ? "Gönderiliyor..." : "E-posta ile Teklif İste"}
+        </Button>
+        <Button type="button" size="lg" variant="secondary" onClick={openWhatsApp}>
+          <WhatsAppIcon className="size-4" />
+          WhatsApp
+        </Button>
+      </div>
+      {status === "sent" && (
+        <p className="text-sm text-forest-800">
+          Teklif talebiniz iletildi. En kısa sürede dönüş yapacağız.
+        </p>
+      )}
+      {status === "error" && (
+        <p className="text-sm text-red-600">{errorMessage}</p>
+      )}
       <p className="text-xs text-ink-400">
-        Bu form sunucuya kayıt göndermez; teklif metninizi WhatsApp’ta hazırlar.
+        Form sunucuya e-posta gönderir. WhatsApp seçeneği aynı metni uygulamada açar.
       </p>
     </form>
   );
