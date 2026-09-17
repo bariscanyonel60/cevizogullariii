@@ -22,16 +22,13 @@ export function Reveal({
   as = "div",
 }: RevealProps) {
   const reduce = useReducedMotion();
-  const Tag = as === "li" ? "li" : "div";
-
-  if (reduce) {
-    return <Tag className={className}>{children}</Tag>;
-  }
+  // SSR'da null gelebilir; hydrate uyumu için hareketi sadece kesin true iken kapat.
+  const noMotion = reduce === true;
 
   const motionProps = {
     className: cn(className),
-    initial: { opacity: 0, y },
-    whileInView: { opacity: 1, y: 0 },
+    initial: noMotion ? false : { opacity: 0, y },
+    whileInView: noMotion ? undefined : { opacity: 1, y: 0 },
     viewport: { once, margin: "-10% 0px" as const },
     transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const, delay },
   };

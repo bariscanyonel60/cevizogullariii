@@ -202,7 +202,7 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, ease, delay: 0.08 }}
-            className="home-hero-kicker mb-4 font-display text-[11px] font-semibold uppercase tracking-[0.28em] sm:mb-5 sm:text-xs sm:tracking-[0.36em]"
+            className="home-hero-kicker mb-2.5 font-display text-[10px] font-semibold uppercase tracking-[0.24em] sm:mb-5 sm:text-xs sm:tracking-[0.36em]"
           >
             Cevizoğulları · Turhal / Tokat
           </motion.p>
@@ -210,7 +210,7 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.85, ease, delay: 0.18 }}
-            className="font-display text-display font-bold tracking-tight text-balance text-white [text-shadow:0_18px_50px_rgba(0,0,0,0.45)]"
+            className="font-display text-[1.85rem] font-bold leading-[1.12] tracking-tight text-balance text-white [text-shadow:0_18px_50px_rgba(0,0,0,0.45)] sm:text-display sm:leading-none"
           >
             <span className="home-hero-title-line">Tokat Yapı</span>
             <span className="home-hero-title-outline">Malzemeleri</span>
@@ -219,7 +219,7 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease, delay: 0.32 }}
-            className="home-hero-lead mt-4 max-w-md text-lead sm:mt-5"
+            className="home-hero-lead mt-2.5 max-w-md text-[0.95rem] leading-snug sm:mt-5 sm:text-lead sm:leading-normal"
           >
             Turhal yapı malzemeleri reyonumuz: boya, mantolama, OSB, kereste.
             Listeyi getirin, yükleriz.

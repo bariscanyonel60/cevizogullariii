@@ -42,28 +42,30 @@ function TiltCard({
   }
 
   return (
-    <Reveal delay={index * 0.08} className="h-full min-h-[28rem]">
+    <Reveal delay={index * 0.08} className="min-h-[28rem]">
       <motion.a
         ref={ref}
         href={area.href}
         style={{ transform }}
         onMouseMove={onMove}
         onMouseLeave={onLeave}
-        className="group relative block h-full min-h-[28rem] overflow-hidden rounded-[1.75rem] shadow-premium will-change-transform"
+        className="group relative block min-h-[28rem] overflow-hidden rounded-[1.75rem] shadow-premium will-change-transform"
       >
-        <CdnImage
-          src={area.image}
-          alt={
-            area.href === "/yapi-malzemeleri"
-              ? `Tokat yapı malzemeleri — ${area.title}, Turhal Cevizoğulları`
-              : area.href === "/yapi-insaat"
-                ? "CVZ Yapı İnşaat Ova Apt. 3 — Tokat Turhal konut inşaatı"
-                : `${area.title} — Tokat Turhal Cevizoğulları iş alanı`
-          }
-          fill
-          className="object-cover transition duration-700 group-hover:scale-105"
-          sizes="(max-width: 1024px) 100vw, 33vw"
-        />
+        <div className="absolute inset-0">
+          <CdnImage
+            src={area.image}
+            alt={
+              area.href === "/yapi-malzemeleri"
+                ? `Tokat yapı malzemeleri — ${area.title}, Turhal Cevizoğulları`
+                : area.href === "/yapi-insaat"
+                  ? "CVZ Yapı İnşaat Ova Apt. 3 — Tokat Turhal konut inşaatı"
+                  : `${area.title} — Tokat Turhal Cevizoğulları iş alanı`
+            }
+            fill
+            className="object-cover transition duration-700 group-hover:scale-105"
+            sizes="(max-width: 1024px) 100vw, 33vw"
+          />
+        </div>
         <div className="absolute inset-0 bg-gradient-to-t from-ink-950/90 via-ink-950/35 to-ink-950/10" />
         <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-300">

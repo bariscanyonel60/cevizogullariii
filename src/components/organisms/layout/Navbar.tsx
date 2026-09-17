@@ -77,16 +77,14 @@ function DesktopDropdown({
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [pathSync, setPathSync] = useState(pathname);
   const ref = useRef<HTMLDivElement>(null);
   const menuId = useId();
   const active = isNavActive(pathname, link);
   const children = link.children ?? [];
 
-  if (pathSync !== pathname) {
-    setPathSync(pathname);
+  useEffect(() => {
     setOpen(false);
-  }
+  }, [pathname]);
 
   useEffect(() => {
     if (!open) return;
@@ -130,7 +128,7 @@ function DesktopDropdown({
       </Link>
 
       <AnimatePresence>
-        {open && (
+        {open ? (
           <motion.div
             id={menuId}
             role="menu"
@@ -142,7 +140,8 @@ function DesktopDropdown({
           >
             <div className="overflow-hidden rounded-2xl border border-earth-400/15 bg-ivory-50/95 py-1.5 shadow-premium backdrop-blur-xl">
               {children.map((child) => {
-                const childActive = isPathActive(pathname, child.href) &&
+                const childActive =
+                  isPathActive(pathname, child.href) &&
                   navPath(child.href) !== "/";
                 return (
                   <Link
@@ -163,7 +162,7 @@ function DesktopDropdown({
               })}
             </div>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </div>
   );
@@ -190,7 +189,6 @@ export function Navbar({ nav }: { nav: NavCms }) {
   const [open, setOpen] = useState(false);
   const [mobileOpenLabel, setMobileOpenLabel] = useState<string | null>(null);
   const [megaActive, setMegaActive] = useState<string | null>(null);
-  const [pathSync, setPathSync] = useState(pathname);
   const portalReady = useSyncExternalStore(
     subscribeNever,
     getClientTrue,
@@ -198,12 +196,11 @@ export function Navbar({ nav }: { nav: NavCms }) {
   );
   const isHome = pathname === "/";
 
-  if (pathSync !== pathname) {
-    setPathSync(pathname);
+  useEffect(() => {
     setOpen(false);
     setMobileOpenLabel(null);
     setMegaActive(null);
-  }
+  }, [pathname]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -329,7 +326,7 @@ export function Navbar({ nav }: { nav: NavCms }) {
               if (!isMega && link.children?.length) {
                 return (
                   <DesktopDropdown
-                    key={link.label}
+                    key={link.href}
                     link={link}
                     inverted={!solid}
                   />
@@ -337,7 +334,7 @@ export function Navbar({ nav }: { nav: NavCms }) {
               }
 
               return (
-                <div key={link.href + link.label} className="relative">
+                <div key={link.href} className="relative">
                   <Link
                     href={link.href}
                     className={cn(
