@@ -73,6 +73,10 @@ export type CreditEntry = {
   /** Satış vadesi; yalnızca purchase satırlarında dolu olabilir. */
   dueDate: string | null;
   productName: string;
+  /** İsteğe bağlı adet / miktar (yalnızca veresiye satış). */
+  quantity: number | null;
+  /** İsteğe bağlı birim etiketi: adet, m3, mt vb. */
+  unit: string;
   amount: number;
   vatRate: VatRate | null;
   paymentMethod: PaymentMethod | null;
@@ -195,6 +199,17 @@ export function creditKindLabel(kind: CreditKind): string {
 
 export function customerFullName(customer: Pick<Customer, "firstName" | "lastName">) {
   return `${customer.firstName} ${customer.lastName}`.trim();
+}
+
+/** Ad soyada göre Türkçe alfabetik sıralama (liste ve kayıt sonrası tutarlılık). */
+export function sortCustomersByName<T extends Pick<Customer, "firstName" | "lastName">>(
+  customers: T[],
+): T[] {
+  return [...customers].sort((a, b) =>
+    customerFullName(a).localeCompare(customerFullName(b), "tr-TR", {
+      sensitivity: "base",
+    }),
+  );
 }
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;

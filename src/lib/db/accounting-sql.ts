@@ -59,6 +59,8 @@ type CreditRow = RowDataPacket & {
   date: string;
   due_date: string | null;
   product_name: string;
+  quantity?: string | number | null;
+  unit?: string | null;
   amount: string | number;
   vat_rate: number | null;
   payment_method: string | null;
@@ -148,6 +150,17 @@ function mapCredit(row: CreditRow): CreditEntry | null {
   const paymentMethod = row.payment_method;
   if (vatRate !== null && !isVatRate(vatRate)) return null;
   if (paymentMethod !== null && !isPaymentMethod(paymentMethod)) return null;
+  const rawQty =
+    row.quantity === null || row.quantity === undefined || row.quantity === ""
+      ? null
+      : asNumber(row.quantity);
+  const quantity =
+    row.kind === "purchase" &&
+    rawQty !== null &&
+    Number.isFinite(rawQty) &&
+    rawQty > 0
+      ? rawQty
+      : null;
   return {
     id: row.id,
     customerId: row.customer_id,
@@ -155,6 +168,8 @@ function mapCredit(row: CreditRow): CreditEntry | null {
     date: row.date,
     dueDate: row.kind === "purchase" ? asIsoDate(row.due_date) : null,
     productName: row.product_name,
+    quantity,
+    unit: row.kind === "purchase" ? (row.unit ?? "").trim().slice(0, 32) : "",
     amount: asNumber(row.amount),
     vatRate,
     paymentMethod,
@@ -198,7 +213,7 @@ export async function readAccountingFromMysql(): Promise<AccountingStore> {
     "SELECT * FROM advances ORDER BY created_at DESC",
   );
   const [customerRows] = await pool.query<CustomerRow[]>(
-    "SELECT * FROM customers ORDER BY created_at DESC",
+    "SELECT * FROM customers ORDER BY last_name ASC, first_name ASC",
   );
   const [creditRows] = await pool.query<CreditRow[]>(
     "SELECT * FROM credit_entries ORDER BY created_at DESC",
@@ -240,6 +255,20 @@ async function ensureAccountingSchema(): Promise<void> {
       try {
         await pool.query(
           "ALTER TABLE credit_entries ADD COLUMN due_date DATE NULL AFTER date",
+        );
+      } catch (error) {
+        if (!isDuplicateColumnError(error)) throw error;
+      }
+      try {
+        await pool.query(
+          "ALTER TABLE credit_entries ADD COLUMN quantity DECIMAL(12, 3) NULL AFTER product_name",
+        );
+      } catch (error) {
+        if (!isDuplicateColumnError(error)) throw error;
+      }
+      try {
+        await pool.query(
+          "ALTER TABLE credit_entries ADD COLUMN unit VARCHAR(32) NOT NULL DEFAULT '' AFTER quantity",
         );
       } catch (error) {
         if (!isDuplicateColumnError(error)) throw error;
@@ -340,8 +369,8 @@ export async function writeAccountingToMysql(
     for (const item of store.creditEntries) {
       await conn.query<ResultSetHeader>(
         `INSERT INTO credit_entries
-          (id, customer_id, kind, date, due_date, product_name, amount, vat_rate, payment_method, note, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          (id, customer_id, kind, date, due_date, product_name, quantity, unit, amount, vat_rate, payment_method, note, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           item.id,
           item.customerId,
@@ -349,6 +378,8 @@ export async function writeAccountingToMysql(
           item.date,
           item.kind === "purchase" ? item.dueDate : null,
           item.productName,
+          item.kind === "purchase" ? item.quantity : null,
+          item.kind === "purchase" ? item.unit : "",
           item.amount,
           item.vatRate,
           item.paymentMethod,

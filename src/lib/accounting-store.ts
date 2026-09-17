@@ -27,6 +27,7 @@ import {
   type Expense,
   type Sale,
   type StaffMember,
+  sortCustomersByName,
 } from "@/lib/accounting-types";
 
 const LOCAL_DIR = join(process.cwd(), ".data");
@@ -89,10 +90,10 @@ function parseStore(data: unknown): AccountingStore {
       ? record.advances.filter(isAdvance)
       : [],
     customers: Array.isArray(record.customers)
-      ? record.customers.filter(isCustomer)
+      ? sortCustomersByName(record.customers.filter(isCustomer))
       : [],
     creditEntries: Array.isArray(record.creditEntries)
-      ? record.creditEntries.filter(isCreditEntry).map(withDueDate)
+      ? record.creditEntries.filter(isCreditEntry).map(normalizeCreditEntry)
       : [],
     expenses: Array.isArray(record.expenses)
       ? record.expenses.filter(isExpense)
@@ -142,14 +143,25 @@ function isCustomer(value: unknown): value is Customer {
   );
 }
 
-function withDueDate(item: CreditEntry): CreditEntry {
+function normalizeCreditEntry(item: CreditEntry): CreditEntry {
   const dueDate =
     item.kind === "purchase" &&
     typeof item.dueDate === "string" &&
     isIsoDate(item.dueDate)
       ? item.dueDate
       : null;
-  return { ...item, dueDate };
+  const quantity =
+    item.kind === "purchase" &&
+    typeof item.quantity === "number" &&
+    Number.isFinite(item.quantity) &&
+    item.quantity > 0
+      ? Math.round(item.quantity * 1000) / 1000
+      : null;
+  const unit =
+    item.kind === "purchase" && typeof item.unit === "string"
+      ? item.unit.trim().slice(0, 32)
+      : "";
+  return { ...item, dueDate, quantity, unit };
 }
 
 function isCreditEntry(value: unknown): value is CreditEntry {
@@ -432,7 +444,7 @@ export async function createCustomer(input: unknown): Promise<AccountingStore> {
     ...fields,
     createdAt: new Date().toISOString(),
   };
-  store.customers = [customer, ...store.customers];
+  store.customers = sortCustomersByName([customer, ...store.customers]);
   await saveAccountingStore(store);
   return store;
 }
@@ -455,6 +467,7 @@ export async function updateCustomer(
     ...store.customers[index],
     ...fields,
   };
+  store.customers = sortCustomersByName(store.customers);
   await saveAccountingStore(store);
   return store;
 }
@@ -486,6 +499,8 @@ export async function createCreditEntry(
   if (!isCreditKind(kind)) throw new Error("Kayıt türü geçersiz");
 
   let productName = "";
+  let quantity: number | null = null;
+  let unit = "";
   let vatRate: CreditEntry["vatRate"] = null;
   let paymentMethod: CreditEntry["paymentMethod"] = null;
   let dueDate: string | null = null;
@@ -502,6 +517,8 @@ export async function createCreditEntry(
       if (dueDate && dueDate < date) {
         throw new Error("Vade, satış tarihinden önce olamaz");
       }
+      quantity = optionalQuantity(body.quantity);
+      unit = optionalUnit(body.unit);
       break;
     }
     case "payment": {
@@ -524,6 +541,8 @@ export async function createCreditEntry(
     date,
     dueDate,
     productName,
+    quantity,
+    unit,
     amount: requiredAmount(body.amount, "Tutar"),
     vatRate,
     paymentMethod,
@@ -552,6 +571,20 @@ function optionalIsoDate(value: unknown): string | null {
     throw new Error("Vade tarihi geçersiz");
   }
   return value;
+}
+
+function optionalQuantity(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const amount =
+    typeof value === "string" ? parseMoneyInput(value) : asNumber(value);
+  if (!Number.isFinite(amount) || amount <= 0) {
+    throw new Error("Adet / miktar 0’dan büyük olmalı");
+  }
+  return Math.round(amount * 1000) / 1000;
+}
+
+function optionalUnit(value: unknown): string {
+  return asString(value).trim().slice(0, 32);
 }
 
 function optionalVatRate(value: unknown): Expense["vatRate"] {

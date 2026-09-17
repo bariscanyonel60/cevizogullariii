@@ -53,6 +53,8 @@ CREATE TABLE IF NOT EXISTS credit_entries (
   date DATE NOT NULL,
   due_date DATE NULL,
   product_name VARCHAR(255) NOT NULL DEFAULT '',
+  quantity DECIMAL(12, 3) NULL,
+  unit VARCHAR(32) NOT NULL DEFAULT '',
   amount DECIMAL(12, 3) NOT NULL,
   vat_rate TINYINT NULL,
   payment_method ENUM('nakit', 'kart', 'havale') NULL,

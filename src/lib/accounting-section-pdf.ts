@@ -310,12 +310,13 @@ async function buildCustomersPdf(store: AccountingStore) {
       const status = customerCreditStatus(entries, today);
       return { customer, status, entries };
     })
-    .sort((a, b) => {
-      if (a.status.isOverdue !== b.status.isOverdue) {
-        return a.status.isOverdue ? -1 : 1;
-      }
-      return b.status.balance - a.status.balance;
-    });
+    .sort((a, b) =>
+      customerFullName(a.customer).localeCompare(
+        customerFullName(b.customer),
+        "tr-TR",
+        { sensitivity: "base" },
+      ),
+    );
 
   const outstanding = rows.reduce((sum, item) => sum + item.status.balance, 0);
   const overdueTotal = rows.reduce(

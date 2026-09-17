@@ -2,6 +2,7 @@ import {
   creditLedgerNewestFirst,
   customerBalance,
   customerCreditStatus,
+  formatQuantity,
   formatTry,
 } from "@/lib/accounting-money";
 import {
@@ -71,7 +72,11 @@ function entryLabel(entry: CreditEntry) {
 }
 
 function entryDetail(entry: CreditEntry) {
-  const parts = [entry.productName, entry.note].filter(Boolean);
+  const qty =
+    entry.kind === "purchase" && entry.quantity
+      ? `${formatQuantity(entry.quantity)}${entry.unit ? ` ${entry.unit}` : ""}`
+      : "";
+  const parts = [entry.productName, qty, entry.note].filter(Boolean);
   if (entry.kind === "purchase" && entry.dueDate) {
     parts.push(`Vade ${formatIsoDateTr(entry.dueDate)}`);
   }
