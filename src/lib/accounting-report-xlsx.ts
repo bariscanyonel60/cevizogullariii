@@ -87,6 +87,7 @@ export async function buildMonthlyExcel(report: MonthlyReport): Promise<Buffer> 
   const sales = workbook.addWorksheet("Satışlar");
   sales.columns = [
     { header: "Tarih", key: "date", width: 14 },
+    { header: "İşlem", key: "kind", width: 14 },
     { header: "Ürün", key: "productName", width: 36 },
     { header: "Miktar", key: "quantity", width: 12 },
     { header: "Birim fiyat", key: "unitPrice", width: 14 },
@@ -109,6 +110,7 @@ export async function buildMonthlyExcel(report: MonthlyReport): Promise<Buffer> 
   if (report.sales.length > 0) {
     const total = sales.addRow({
       date: "",
+      kind: "",
       productName: "TOPLAM",
       quantity: "",
       unitPrice: "",

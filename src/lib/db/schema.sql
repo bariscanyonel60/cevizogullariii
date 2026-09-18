@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS staff (
 CREATE TABLE IF NOT EXISTS sales (
   id CHAR(36) NOT NULL PRIMARY KEY,
   date DATE NOT NULL,
+  kind ENUM('sale', 'return', 'exchange') NOT NULL DEFAULT 'sale',
+  exchange_refund TINYINT(1) NOT NULL DEFAULT 0,
   product_name VARCHAR(255) NOT NULL,
   quantity DECIMAL(12, 3) NOT NULL,
   unit_price DECIMAL(12, 3) NOT NULL,

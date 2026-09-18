@@ -37,16 +37,16 @@ export async function buildMonthlyPdf(report: MonthlyReport): Promise<Buffer> {
   drawPdfTable(
     doc,
     "Satışlar",
-    ["Tarih", "Ürün", "Miktar", "KDV", "Ödeme", "Tutar"],
+    ["Tarih", "İşlem", "Ürün", "Miktar", "Ödeme", "Tutar"],
     report.sales.map((row) => [
       row.date,
+      row.kind,
       row.productName,
       formatQuantity(row.quantity),
-      `%${row.vatRate}`,
       row.paymentMethod,
       formatTry(row.gross),
     ]),
-    [80, 250, 70, 50, 70, 90],
+    [70, 85, 200, 60, 70, 90],
   );
 
   drawPdfTable(

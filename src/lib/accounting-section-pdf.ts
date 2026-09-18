@@ -6,7 +6,7 @@ import {
   formatQuantity,
   formatTry,
   monthCashSummary,
-  saleGross,
+  saleSignedGross,
   splitVat,
 } from "@/lib/accounting-money";
 import {
@@ -24,6 +24,7 @@ import {
   istanbulIsoDate,
   istanbulYearMonth,
   paymentMethodLabel,
+  saleKindLabel,
   type AccountingPdfKind,
   type AccountingStore,
 } from "@/lib/accounting-types";
@@ -81,19 +82,21 @@ async function buildSummaryPdf(store: AccountingStore) {
   function saleTotals(list: typeof store.sales) {
     return list.reduce(
       (acc, sale) => {
-        const gross = saleGross(sale.quantity, sale.unitPrice);
-        const { vatAmount } = splitVat(gross, sale.vatRate);
-        acc.gross += gross;
-        acc.vat += vatAmount;
+        const signed = saleSignedGross(sale);
+        const abs = Math.abs(signed);
+        const { vatAmount } = splitVat(abs, sale.vatRate);
+        const sign = signed < 0 ? -1 : 1;
+        acc.gross += signed;
+        acc.vat += sign * vatAmount;
         switch (sale.paymentMethod) {
           case "nakit":
-            acc.cash += gross;
+            acc.cash += signed;
             break;
           case "kart":
-            acc.card += gross;
+            acc.card += signed;
             break;
           case "havale":
-            acc.transfer += gross;
+            acc.transfer += signed;
             break;
           default: {
             const _exhaustive: never = sale.paymentMethod;
@@ -174,20 +177,22 @@ async function buildSalesPdf(store: AccountingStore, date: string) {
   const daySales = store.sales.filter((sale) => sale.date === date);
   const totals = daySales.reduce(
     (acc, sale) => {
-      const gross = saleGross(sale.quantity, sale.unitPrice);
-      const parts = splitVat(gross, sale.vatRate);
-      acc.gross += parts.gross;
-      acc.net += parts.net;
-      acc.vat += parts.vatAmount;
+      const signed = saleSignedGross(sale);
+      const abs = Math.abs(signed);
+      const parts = splitVat(abs, sale.vatRate);
+      const sign = signed < 0 ? -1 : 1;
+      acc.gross += signed;
+      acc.net += sign * parts.net;
+      acc.vat += sign * parts.vatAmount;
       switch (sale.paymentMethod) {
         case "nakit":
-          acc.cash += parts.gross;
+          acc.cash += signed;
           break;
         case "kart":
-          acc.card += parts.gross;
+          acc.card += signed;
           break;
         case "havale":
-          acc.transfer += parts.gross;
+          acc.transfer += signed;
           break;
         default: {
           const _exhaustive: never = sale.paymentMethod;
@@ -217,19 +222,24 @@ async function buildSalesPdf(store: AccountingStore, date: string) {
   drawPdfTable(
     doc,
     "Satışlar",
-    ["Ürün", "Miktar", "KDV", "Ödeme", "Not", "Tutar"],
+    ["İşlem", "Ürün", "Miktar", "KDV", "Ödeme", "Not", "Tutar"],
     daySales.map((sale) => {
-      const gross = saleGross(sale.quantity, sale.unitPrice);
+      const signed = saleSignedGross(sale);
+      const kindLabel =
+        sale.kind === "exchange" && sale.exchangeRefund
+          ? "Değişim (iade)"
+          : saleKindLabel(sale.kind);
       return [
+        kindLabel,
         sale.productName,
         `${formatQuantity(sale.quantity)} × ${formatTry(sale.unitPrice)}`,
         `%${sale.vatRate}`,
         paymentMethodLabel(sale.paymentMethod),
         sale.note || "—",
-        formatTry(gross),
+        formatTry(signed),
       ];
     }),
-    [220, 130, 60, 90, 160, 90],
+    [90, 180, 120, 55, 80, 130, 90],
   );
 
   drawPdfFooter(doc, "Birim fiyatlar KDV dahildir.");

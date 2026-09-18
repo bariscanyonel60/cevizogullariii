@@ -4,6 +4,9 @@ export type VatRate = (typeof VAT_RATES)[number];
 export const PAYMENT_METHODS = ["nakit", "kart", "havale"] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
+export const SALE_KINDS = ["sale", "return", "exchange"] as const;
+export type SaleKind = (typeof SALE_KINDS)[number];
+
 export const CREDIT_KINDS = ["purchase", "payment"] as const;
 export type CreditKind = (typeof CREDIT_KINDS)[number];
 
@@ -31,6 +34,13 @@ export type AccountingEntity = (typeof ACCOUNTING_ENTITIES)[number];
 export type Sale = {
   id: string;
   date: string;
+  /** Satış, iade veya değişim. Eski kayıtlarda yoksa satış sayılır. */
+  kind: SaleKind;
+  /**
+   * Yalnızca değişimde: true ise fark kasadan iade (tutar eksi),
+   * false ise müşteri fark ödedi (tutar artı).
+   */
+  exchangeRefund: boolean;
   productName: string;
   quantity: number;
   unitPrice: number;
@@ -130,6 +140,10 @@ export function isVatRate(value: unknown): value is VatRate {
   return VAT_RATES.includes(value as VatRate);
 }
 
+export function isSaleKind(value: unknown): value is SaleKind {
+  return SALE_KINDS.includes(value as SaleKind);
+}
+
 export function isPaymentMethod(value: unknown): value is PaymentMethod {
   return PAYMENT_METHODS.includes(value as PaymentMethod);
 }
@@ -156,6 +170,21 @@ export function paymentMethodLabel(method: PaymentMethod): string {
       return "Havale / EFT";
     default: {
       const _exhaustive: never = method;
+      return _exhaustive;
+    }
+  }
+}
+
+export function saleKindLabel(kind: SaleKind): string {
+  switch (kind) {
+    case "sale":
+      return "Satış";
+    case "return":
+      return "İade";
+    case "exchange":
+      return "Değişim";
+    default: {
+      const _exhaustive: never = kind;
       return _exhaustive;
     }
   }

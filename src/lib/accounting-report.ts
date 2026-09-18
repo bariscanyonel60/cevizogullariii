@@ -1,4 +1,4 @@
-import { customerBalance, customerCreditStatus, monthCashSummary, roundMoney, saleGross, splitVat } from "@/lib/accounting-money";
+import { customerBalance, customerCreditStatus, monthCashSummary, roundMoney, saleSignedGross, splitVat } from "@/lib/accounting-money";
 import {
   creditKindLabel,
   customerFullName,
@@ -7,12 +7,14 @@ import {
   formatYearMonthTr,
   istanbulIsoDate,
   paymentMethodLabel,
+  saleKindLabel,
   type AccountingStore,
   type ReportFormat,
 } from "@/lib/accounting-types";
 
 export type ReportSaleRow = {
   date: string;
+  kind: string;
   productName: string;
   quantity: number;
   unitPrice: number;
@@ -122,17 +124,24 @@ export function buildMonthlyReport(
     store.sales.filter((sale) => inMonth(sale.date, yearMonth)),
   );
   const saleRows: ReportSaleRow[] = monthSales.map((sale) => {
-    const gross = saleGross(sale.quantity, sale.unitPrice);
-    const parts = splitVat(gross, sale.vatRate);
+    const signed = saleSignedGross(sale);
+    const abs = Math.abs(signed);
+    const parts = splitVat(abs, sale.vatRate);
+    const sign = signed < 0 ? -1 : 1;
+    const kindLabel =
+      sale.kind === "exchange" && sale.exchangeRefund
+        ? "Değişim (iade)"
+        : saleKindLabel(sale.kind);
     return {
       date: sale.date,
+      kind: kindLabel,
       productName: sale.productName,
       quantity: sale.quantity,
       unitPrice: sale.unitPrice,
       vatRate: sale.vatRate,
-      vatAmount: parts.vatAmount,
-      net: parts.net,
-      gross: parts.gross,
+      vatAmount: sign * parts.vatAmount,
+      net: sign * parts.net,
+      gross: signed,
       paymentMethod: paymentMethodLabel(sale.paymentMethod),
       note: sale.note,
     };
@@ -140,21 +149,23 @@ export function buildMonthlyReport(
 
   const salesTotals = monthSales.reduce(
     (acc, sale) => {
-      const gross = saleGross(sale.quantity, sale.unitPrice);
-      const parts = splitVat(gross, sale.vatRate);
+      const signed = saleSignedGross(sale);
+      const abs = Math.abs(signed);
+      const parts = splitVat(abs, sale.vatRate);
+      const sign = signed < 0 ? -1 : 1;
       acc.count += 1;
-      acc.gross += parts.gross;
-      acc.net += parts.net;
-      acc.vat += parts.vatAmount;
+      acc.gross += signed;
+      acc.net += sign * parts.net;
+      acc.vat += sign * parts.vatAmount;
       switch (sale.paymentMethod) {
         case "nakit":
-          acc.cash += parts.gross;
+          acc.cash += signed;
           break;
         case "kart":
-          acc.card += parts.gross;
+          acc.card += signed;
           break;
         case "havale":
-          acc.transfer += parts.gross;
+          acc.transfer += signed;
           break;
         default: {
           const _exhaustive: never = sale.paymentMethod;

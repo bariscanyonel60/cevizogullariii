@@ -2,6 +2,7 @@ import {
   formatIsoDateTr,
   type AccountingStore,
   type CreditEntry,
+  type Sale,
   type VatRate,
 } from "@/lib/accounting-types";
 
@@ -77,6 +78,23 @@ export function splitVat(grossInclusive: number, vatRate: VatRate) {
 
 export function saleGross(quantity: number, unitPrice: number): number {
   return roundMoney(quantity * unitPrice);
+}
+
+/** Satış +, iade −, değişim fark tahsilatı + / fark iadesi −. */
+export function saleSignedGross(sale: Sale): number {
+  const gross = saleGross(sale.quantity, sale.unitPrice);
+  switch (sale.kind) {
+    case "sale":
+      return gross;
+    case "return":
+      return -gross;
+    case "exchange":
+      return sale.exchangeRefund ? -gross : gross;
+    default: {
+      const _exhaustive: never = sale.kind;
+      return _exhaustive;
+    }
+  }
 }
 
 export function roundMoney(value: number): number {
@@ -341,17 +359,17 @@ export function cashSummary(store: AccountingStore, period: string): CashSummary
   const cashSales = roundMoney(
     sales
       .filter((item) => item.paymentMethod === "nakit")
-      .reduce((sum, item) => sum + saleGross(item.quantity, item.unitPrice), 0),
+      .reduce((sum, item) => sum + saleSignedGross(item), 0),
   );
   const cardSales = roundMoney(
     sales
       .filter((item) => item.paymentMethod === "kart")
-      .reduce((sum, item) => sum + saleGross(item.quantity, item.unitPrice), 0),
+      .reduce((sum, item) => sum + saleSignedGross(item), 0),
   );
   const transferSales = roundMoney(
     sales
       .filter((item) => item.paymentMethod === "havale")
-      .reduce((sum, item) => sum + saleGross(item.quantity, item.unitPrice), 0),
+      .reduce((sum, item) => sum + saleSignedGross(item), 0),
   );
 
   const cashCollections = roundMoney(

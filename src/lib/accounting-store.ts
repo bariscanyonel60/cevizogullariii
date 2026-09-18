@@ -18,6 +18,7 @@ import {
   isExpenseCategory,
   isIsoDate,
   isPaymentMethod,
+  isSaleKind,
   isValidPhone,
   isVatRate,
   type AccountingStore,
@@ -26,6 +27,7 @@ import {
   type Customer,
   type Expense,
   type Sale,
+  type SaleKind,
   type StaffMember,
   sortCustomersByName,
 } from "@/lib/accounting-types";
@@ -84,7 +86,9 @@ function parseStore(data: unknown): AccountingStore {
   if (!data || typeof data !== "object") return empty;
   const record = data as Partial<AccountingStore>;
   return {
-    sales: Array.isArray(record.sales) ? record.sales.filter(isSale) : [],
+    sales: Array.isArray(record.sales)
+      ? record.sales.filter(isSale).map(normalizeSale)
+      : [],
     staff: Array.isArray(record.staff) ? record.staff.filter(isStaff) : [],
     advances: Array.isArray(record.advances)
       ? record.advances.filter(isAdvance)
@@ -98,6 +102,15 @@ function parseStore(data: unknown): AccountingStore {
     expenses: Array.isArray(record.expenses)
       ? record.expenses.filter(isExpense)
       : [],
+  };
+}
+
+function normalizeSale(item: Sale): Sale {
+  const kind: SaleKind = isSaleKind(item.kind) ? item.kind : "sale";
+  return {
+    ...item,
+    kind,
+    exchangeRefund: kind === "exchange" ? Boolean(item.exchangeRefund) : false,
   };
 }
 
@@ -333,13 +346,21 @@ export async function createSale(input: unknown): Promise<AccountingStore> {
   if (!isPaymentMethod(paymentMethod)) {
     throw new Error("Ödeme nakit, kart veya havale olmalı");
   }
+  const kind: SaleKind = isSaleKind(body.kind) ? body.kind : "sale";
+  const exchangeRefund =
+    kind === "exchange" ? Boolean(body.exchangeRefund) : false;
 
   const sale: Sale = {
     id: randomUUID(),
     date: requiredDate(body.date),
+    kind,
+    exchangeRefund,
     productName: requiredText(body.productName, "Ürün", 2),
     quantity: requiredAmount(body.quantity, "Adet"),
-    unitPrice: requiredAmount(body.unitPrice, "Birim fiyat"),
+    unitPrice: requiredAmount(
+      body.unitPrice,
+      kind === "exchange" ? "Fark tutarı" : "Birim fiyat",
+    ),
     vatRate,
     paymentMethod,
     note: asString(body.note).trim(),

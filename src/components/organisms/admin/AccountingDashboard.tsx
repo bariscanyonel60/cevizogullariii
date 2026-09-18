@@ -25,6 +25,7 @@ import {
   dayCashSummary,
   formatTry,
   monthCashSummary,
+  saleSignedGross,
   splitVat,
 } from "@/lib/accounting-money";
 import {
@@ -192,13 +193,15 @@ export function AccountingDashboard() {
     function totals(list: typeof store.sales) {
       return list.reduce(
         (acc, sale) => {
-          const gross = sale.quantity * sale.unitPrice;
-          const { vatAmount } = splitVat(gross, sale.vatRate);
-          acc.gross += gross;
-          acc.vat += vatAmount;
-          if (sale.paymentMethod === "nakit") acc.cash += gross;
-          if (sale.paymentMethod === "kart") acc.card += gross;
-          if (sale.paymentMethod === "havale") acc.transfer += gross;
+          const signed = saleSignedGross(sale);
+          const abs = Math.abs(signed);
+          const { vatAmount } = splitVat(abs, sale.vatRate);
+          const sign = signed < 0 ? -1 : 1;
+          acc.gross += signed;
+          acc.vat += sign * vatAmount;
+          if (sale.paymentMethod === "nakit") acc.cash += signed;
+          if (sale.paymentMethod === "kart") acc.card += signed;
+          if (sale.paymentMethod === "havale") acc.transfer += signed;
           return acc;
         },
         { gross: 0, vat: 0, cash: 0, card: 0, transfer: 0 },

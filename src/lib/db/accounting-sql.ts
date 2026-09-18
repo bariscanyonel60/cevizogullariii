@@ -5,6 +5,7 @@ import {
   isExpenseCategory,
   isIsoDate,
   isPaymentMethod,
+  isSaleKind,
   isVatRate,
   type AccountingStore,
   type Advance,
@@ -12,12 +13,15 @@ import {
   type Customer,
   type Expense,
   type Sale,
+  type SaleKind,
   type StaffMember,
 } from "@/lib/accounting-types";
 
 type SaleRow = RowDataPacket & {
   id: string;
   date: string;
+  kind?: string | null;
+  exchange_refund?: number | boolean | null;
   product_name: string;
   quantity: string | number;
   unit_price: string | number;
@@ -89,9 +93,15 @@ function mapSale(row: SaleRow): Sale | null {
   if (!isVatRate(vatRate) || !isPaymentMethod(row.payment_method)) {
     return null;
   }
+  const kind: SaleKind = isSaleKind(row.kind) ? row.kind : "sale";
   return {
     id: row.id,
     date: row.date,
+    kind,
+    exchangeRefund:
+      kind === "exchange"
+        ? Boolean(row.exchange_refund === 1 || row.exchange_refund === true)
+        : false,
     productName: row.product_name,
     quantity: asNumber(row.quantity),
     unitPrice: asNumber(row.unit_price),
@@ -254,6 +264,20 @@ async function ensureAccountingSchema(): Promise<void> {
       );
       try {
         await pool.query(
+          "ALTER TABLE sales ADD COLUMN kind ENUM('sale', 'return', 'exchange') NOT NULL DEFAULT 'sale' AFTER date",
+        );
+      } catch (error) {
+        if (!isDuplicateColumnError(error)) throw error;
+      }
+      try {
+        await pool.query(
+          "ALTER TABLE sales ADD COLUMN exchange_refund TINYINT(1) NOT NULL DEFAULT 0 AFTER kind",
+        );
+      } catch (error) {
+        if (!isDuplicateColumnError(error)) throw error;
+      }
+      try {
+        await pool.query(
           "ALTER TABLE credit_entries ADD COLUMN due_date DATE NULL AFTER date",
         );
       } catch (error) {
@@ -320,11 +344,13 @@ export async function writeAccountingToMysql(
     for (const item of store.sales) {
       await conn.query<ResultSetHeader>(
         `INSERT INTO sales
-          (id, date, product_name, quantity, unit_price, vat_rate, payment_method, note, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          (id, date, kind, exchange_refund, product_name, quantity, unit_price, vat_rate, payment_method, note, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           item.id,
           item.date,
+          item.kind,
+          item.exchangeRefund ? 1 : 0,
           item.productName,
           item.quantity,
           item.unitPrice,
