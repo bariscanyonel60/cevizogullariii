@@ -15,7 +15,9 @@ import {
   deleteSale,
   deleteStaff,
   getAccountingStore,
+  updateCreditEntry,
   updateCustomer,
+  updateSale,
 } from "@/lib/accounting-store";
 import { isAccountingEntity } from "@/lib/accounting-types";
 
@@ -126,18 +128,42 @@ export async function PATCH(request: Request) {
   }
 
   const id = body.id?.trim() ?? "";
-  if (!id || body.entity !== "customer") {
+  if (!id || !isAccountingEntity(body.entity)) {
     return NextResponse.json(
-      { error: "Yalnızca müşteri kartı güncellenebilir" },
+      { error: "entity ve id gerekli" },
       { status: 400 },
     );
   }
 
   try {
-    return NextResponse.json({
-      ok: true,
-      store: await updateCustomer(id, body),
-    });
+    switch (body.entity) {
+      case "customer":
+        return NextResponse.json({
+          ok: true,
+          store: await updateCustomer(id, body),
+        });
+      case "sale":
+        return NextResponse.json({
+          ok: true,
+          store: await updateSale(id, body),
+        });
+      case "credit":
+        return NextResponse.json({
+          ok: true,
+          store: await updateCreditEntry(id, body),
+        });
+      case "staff":
+      case "advance":
+      case "expense":
+        return NextResponse.json(
+          { error: "Bu kayıt türü henüz güncellenemez" },
+          { status: 400 },
+        );
+      default: {
+        const _exhaustive: never = body.entity;
+        return _exhaustive;
+      }
+    }
   } catch (error) {
     return errorResponse(error);
   }

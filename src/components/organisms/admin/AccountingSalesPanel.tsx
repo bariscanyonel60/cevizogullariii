@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Pencil, Trash2, X } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
@@ -11,6 +11,7 @@ import { AccountingPdfButton } from "@/components/organisms/admin/AccountingPdfB
 import {
   formatQuantity,
   formatTry,
+  moneyToInput,
   parseMoneyInput,
   saleSignedGross,
   splitVat,
@@ -24,6 +25,7 @@ import {
   saleKindLabel,
   type AccountingStore,
   type PaymentMethod,
+  type Sale,
   type SaleKind,
   type VatRate,
 } from "@/lib/accounting-types";
@@ -32,6 +34,7 @@ type Props = {
   store: AccountingStore;
   busy: boolean;
   onCreate: (payload: Record<string, unknown>) => Promise<boolean>;
+  onUpdate: (id: string, payload: Record<string, unknown>) => Promise<boolean>;
   onDelete: (id: string) => Promise<boolean>;
   onError: (message: string | null) => void;
   onMessage: (message: string | null) => void;
@@ -41,10 +44,12 @@ export function AccountingSalesPanel({
   store,
   busy,
   onCreate,
+  onUpdate,
   onDelete,
   onError,
   onMessage,
 }: Props) {
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [date, setDate] = useState(istanbulIsoDate());
   const [kind, setKind] = useState<SaleKind>("sale");
   const [exchangeRefund, setExchangeRefund] = useState(false);
@@ -100,9 +105,43 @@ export function AccountingSalesPanel({
       ? "İade yöntemi"
       : "Ödeme";
 
+  function resetFormFields() {
+    setProductName("");
+    setQuantity("1");
+    setUnitPrice("");
+    setNote("");
+    setExchangeRefund(false);
+    setKind("sale");
+    setVatRate(20);
+    setPaymentMethod("nakit");
+  }
+
+  function clearEditing() {
+    setEditingId(null);
+    resetFormFields();
+    onMessage(null);
+    onError(null);
+  }
+
+  function startEdit(sale: Sale) {
+    setEditingId(sale.id);
+    setDate(sale.date);
+    setKind(sale.kind);
+    setExchangeRefund(sale.exchangeRefund);
+    setProductName(sale.productName);
+    setQuantity(String(sale.quantity));
+    setUnitPrice(moneyToInput(sale.unitPrice));
+    setVatRate(sale.vatRate);
+    setPaymentMethod(sale.paymentMethod);
+    setNote(sale.note);
+    onMessage(null);
+    onError(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
-    const saved = await onCreate({
+    const payload = {
       date,
       kind,
       exchangeRefund: kind === "exchange" ? exchangeRefund : false,
@@ -112,13 +151,13 @@ export function AccountingSalesPanel({
       vatRate,
       paymentMethod,
       note,
-    });
+    };
+    const saved = editingId
+      ? await onUpdate(editingId, payload)
+      : await onCreate(payload);
     if (saved) {
-      setProductName("");
-      setQuantity("1");
-      setUnitPrice("");
-      setNote("");
-      setExchangeRefund(false);
+      setEditingId(null);
+      resetFormFields();
     }
   }
 
@@ -128,13 +167,29 @@ export function AccountingSalesPanel({
         onSubmit={(event) => void onSubmit(event)}
         className="space-y-4 rounded-3xl border border-earth-400/15 bg-white p-6 shadow-premium"
       >
-        <h3 className="font-display text-xl font-semibold text-ink-900">
-          Satış / iade / değişim
-        </h3>
-        <p className="text-sm text-ink-500">
-          İade kasadan düşer. Değişimde fark tutarını yazın; müşteri ödediyse
-          tahsilat, siz iade ettiyseniz iade yönünü seçin.
-        </p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h3 className="font-display text-xl font-semibold text-ink-900">
+              {editingId ? "İşlemi düzenle" : "Satış / iade / değişim"}
+            </h3>
+            <p className="mt-1 text-sm text-ink-500">
+              {editingId
+                ? "Yanlış yazılan ürün, fiyat veya diğer alanları düzeltip kaydedin."
+                : "İade kasadan düşer. Değişimde fark tutarını yazın; müşteri ödediyse tahsilat, siz iade ettiyseniz iade yönünü seçin."}
+            </p>
+          </div>
+          {editingId ? (
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={busy}
+              onClick={clearEditing}
+            >
+              <X className="size-4" />
+              Vazgeç
+            </Button>
+          ) : null}
+        </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <div>
             <Label htmlFor="sale-kind">İşlem türü</Label>
@@ -270,11 +325,13 @@ export function AccountingSalesPanel({
           </div>
         </div>
         <Button type="submit" disabled={busy}>
-          {kind === "return"
-            ? "İadeyi kaydet"
-            : kind === "exchange"
-              ? "Değişimi kaydet"
-              : "Satışı kaydet"}
+          {editingId
+            ? "Değişiklikleri kaydet"
+            : kind === "return"
+              ? "İadeyi kaydet"
+              : kind === "exchange"
+                ? "Değişimi kaydet"
+                : "Satışı kaydet"}
         </Button>
       </form>
 
@@ -291,6 +348,7 @@ export function AccountingSalesPanel({
                 type="date"
                 value={date}
                 onChange={(event) => setDate(event.target.value)}
+                disabled={Boolean(editingId)}
               />
             </div>
             <AccountingPdfButton
@@ -343,8 +401,14 @@ export function AccountingSalesPanel({
                       : sale.kind === "exchange"
                         ? "Değişim (fark)"
                         : saleKindLabel(sale.kind);
+                  const isEditing = editingId === sale.id;
                   return (
-                    <tr key={sale.id} className="border-t border-earth-400/10">
+                    <tr
+                      key={sale.id}
+                      className={`border-t border-earth-400/10 ${
+                        isEditing ? "bg-forest-50/80" : ""
+                      }`}
+                    >
                       <td className="px-4 py-3">
                         <span
                           className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${
@@ -382,15 +446,26 @@ export function AccountingSalesPanel({
                         {formatTry(abs)}
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <button
-                          type="button"
-                          className="rounded-lg p-2 text-red-600 hover:bg-red-50 disabled:opacity-40"
-                          disabled={busy}
-                          onClick={() => void onDelete(sale.id)}
-                          aria-label="İşlemi sil"
-                        >
-                          <Trash2 className="size-4" />
-                        </button>
+                        <div className="inline-flex items-center gap-1">
+                          <button
+                            type="button"
+                            className="rounded-lg p-2 text-forest-800 hover:bg-forest-50 disabled:opacity-40"
+                            disabled={busy}
+                            onClick={() => startEdit(sale)}
+                            aria-label="İşlemi düzenle"
+                          >
+                            <Pencil className="size-4" />
+                          </button>
+                          <button
+                            type="button"
+                            className="rounded-lg p-2 text-red-600 hover:bg-red-50 disabled:opacity-40"
+                            disabled={busy || Boolean(editingId)}
+                            onClick={() => void onDelete(sale.id)}
+                            aria-label="İşlemi sil"
+                          >
+                            <Trash2 className="size-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

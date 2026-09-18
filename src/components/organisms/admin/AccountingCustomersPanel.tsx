@@ -16,6 +16,10 @@ type Props = {
     payload: Record<string, unknown>,
   ) => Promise<boolean>;
   onCreateCredit: (payload: Record<string, unknown>) => Promise<boolean>;
+  onUpdateCredit: (
+    id: string,
+    payload: Record<string, unknown>,
+  ) => Promise<boolean>;
   onDeleteCustomer: (id: string) => Promise<boolean>;
   onDeleteCredit: (id: string) => Promise<boolean>;
   onError: (message: string | null) => void;
@@ -28,6 +32,7 @@ export function AccountingCustomersPanel({
   onCreateCustomer,
   onUpdateCustomer,
   onCreateCredit,
+  onUpdateCredit,
   onDeleteCustomer,
   onDeleteCredit,
   onError,
@@ -77,6 +82,7 @@ export function AccountingCustomersPanel({
           onBack={() => setView({ name: "list" })}
           onEditCard={(customerId) => setView({ name: "card", customerId })}
           onCreateCredit={onCreateCredit}
+          onUpdateCredit={onUpdateCredit}
           onDeleteCredit={onDeleteCredit}
           onError={onError}
           onMessage={onMessage}

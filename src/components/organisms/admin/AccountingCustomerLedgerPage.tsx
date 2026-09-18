@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowLeft, FileDown, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, FileDown, Pencil, Trash2, X } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
@@ -13,6 +13,7 @@ import {
   customerCreditStatus,
   formatQuantity,
   formatTry,
+  moneyToInput,
   parseMoneyInput,
   splitVat,
 } from "@/lib/accounting-money";
@@ -25,6 +26,7 @@ import {
   istanbulIsoDate,
   paymentMethodLabel,
   type AccountingStore,
+  type CreditEntry,
   type PaymentMethod,
   type VatRate,
 } from "@/lib/accounting-types";
@@ -36,6 +38,10 @@ type Props = {
   onBack: () => void;
   onEditCard: (customerId: string) => void;
   onCreateCredit: (payload: Record<string, unknown>) => Promise<boolean>;
+  onUpdateCredit: (
+    id: string,
+    payload: Record<string, unknown>,
+  ) => Promise<boolean>;
   onDeleteCredit: (id: string) => Promise<boolean>;
   onError: (message: string | null) => void;
   onMessage: (message: string | null) => void;
@@ -48,6 +54,7 @@ export function AccountingCustomerLedgerPage({
   onBack,
   onEditCard,
   onCreateCredit,
+  onUpdateCredit,
   onDeleteCredit,
   onError,
   onMessage,
@@ -56,6 +63,10 @@ export function AccountingCustomerLedgerPage({
     store.customers.find((item) => item.id === customerId) ?? null;
   const today = istanbulIsoDate();
 
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingKind, setEditingKind] = useState<"purchase" | "payment" | null>(
+    null,
+  );
   const [productName, setProductName] = useState("");
   const [quantity, setQuantity] = useState("");
   const [unit, setUnit] = useState("");
@@ -144,12 +155,64 @@ export function AccountingCustomerLedgerPage({
     }
   }
 
+  function resetFormFields() {
+    setEditingId(null);
+    setEditingKind(null);
+    setProductName("");
+    setQuantity("");
+    setUnit("");
+    setAmount("");
+    setNote("");
+    setDueDate("");
+    setPayAmount("");
+    setPayNote("");
+    setVatRate(20);
+    setPayMethod("nakit");
+    setDate(istanbulIsoDate());
+  }
+
+  function clearEditing() {
+    resetFormFields();
+    onMessage(null);
+    onError(null);
+  }
+
+  function startEdit(entry: CreditEntry) {
+    setEditingId(entry.id);
+    setEditingKind(entry.kind);
+    setDate(entry.date);
+    if (entry.kind === "purchase") {
+      setProductName(entry.productName);
+      setQuantity(entry.quantity != null ? String(entry.quantity) : "");
+      setUnit(entry.unit);
+      setAmount(moneyToInput(entry.amount));
+      setVatRate(entry.vatRate ?? 20);
+      setDueDate(entry.dueDate ?? "");
+      setNote(entry.note);
+      setPayAmount("");
+      setPayNote("");
+    } else {
+      setPayAmount(moneyToInput(entry.amount));
+      setPayMethod(entry.paymentMethod ?? "nakit");
+      setPayNote(entry.note);
+      setProductName("");
+      setQuantity("");
+      setUnit("");
+      setAmount("");
+      setNote("");
+      setDueDate("");
+    }
+    onMessage(null);
+    onError(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   async function submitPurchase(event: React.FormEvent) {
     event.preventDefault();
     const qtyRaw = quantity.trim();
-    const saved = await onCreateCredit({
+    const payload = {
       customerId,
-      kind: "purchase",
+      kind: "purchase" as const,
       date,
       dueDate: dueDate || null,
       productName,
@@ -158,30 +221,32 @@ export function AccountingCustomerLedgerPage({
       amount: parseMoneyInput(amount),
       vatRate,
       note,
-    });
+    };
+    const saved =
+      editingId && editingKind === "purchase"
+        ? await onUpdateCredit(editingId, payload)
+        : await onCreateCredit(payload);
     if (saved) {
-      setProductName("");
-      setQuantity("");
-      setUnit("");
-      setAmount("");
-      setNote("");
-      setDueDate("");
+      resetFormFields();
     }
   }
 
   async function submitPayment(event: React.FormEvent) {
     event.preventDefault();
-    const saved = await onCreateCredit({
+    const payload = {
       customerId,
-      kind: "payment",
+      kind: "payment" as const,
       date,
       amount: parseMoneyInput(payAmount),
       paymentMethod: payMethod,
       note: payNote,
-    });
+    };
+    const saved =
+      editingId && editingKind === "payment"
+        ? await onUpdateCredit(editingId, payload)
+        : await onCreateCredit(payload);
     if (saved) {
-      setPayAmount("");
-      setPayNote("");
+      resetFormFields();
     }
   }
 
@@ -248,7 +313,25 @@ export function AccountingCustomerLedgerPage({
           onSubmit={(event) => void submitPurchase(event)}
           className="space-y-4 rounded-3xl border border-earth-400/15 bg-white p-6 shadow-sm"
         >
-          <h4 className="font-semibold text-ink-900">Veresiye satış (borç ekle)</h4>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h4 className="font-semibold text-ink-900">
+              {editingKind === "purchase"
+                ? "Veresiye satışı düzenle"
+                : "Veresiye satış (borç ekle)"}
+            </h4>
+            {editingKind === "purchase" ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                disabled={busy}
+                onClick={clearEditing}
+              >
+                <X className="size-4" />
+                Vazgeç
+              </Button>
+            ) : null}
+          </div>
           <div>
             <Label htmlFor="credit-product">Ne aldı</Label>
             <Input
@@ -355,8 +438,8 @@ export function AccountingCustomerLedgerPage({
               onChange={(event) => setNote(event.target.value)}
             />
           </div>
-          <Button type="submit" size="sm" disabled={busy}>
-            Borca işle
+          <Button type="submit" size="sm" disabled={busy || editingKind === "payment"}>
+            {editingKind === "purchase" ? "Değişiklikleri kaydet" : "Borca işle"}
           </Button>
         </form>
 
@@ -364,7 +447,25 @@ export function AccountingCustomerLedgerPage({
           onSubmit={(event) => void submitPayment(event)}
           className="space-y-4 rounded-3xl border border-earth-400/15 bg-white p-6 shadow-sm"
         >
-          <h4 className="font-semibold text-ink-900">Tahsilat (borç düş)</h4>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h4 className="font-semibold text-ink-900">
+              {editingKind === "payment"
+                ? "Tahsilatı düzenle"
+                : "Tahsilat (borç düş)"}
+            </h4>
+            {editingKind === "payment" ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                disabled={busy}
+                onClick={clearEditing}
+              >
+                <X className="size-4" />
+                Vazgeç
+              </Button>
+            ) : null}
+          </div>
           <div>
             <Label htmlFor="pay-amount">Alınan tutar</Label>
             <MoneyInput
@@ -399,8 +500,8 @@ export function AccountingCustomerLedgerPage({
               onChange={(event) => setPayNote(event.target.value)}
             />
           </div>
-          <Button type="submit" size="sm" disabled={busy}>
-            Tahsilatı kaydet
+          <Button type="submit" size="sm" disabled={busy || editingKind === "purchase"}>
+            {editingKind === "payment" ? "Değişiklikleri kaydet" : "Tahsilatı kaydet"}
           </Button>
         </form>
       </div>
@@ -452,7 +553,7 @@ export function AccountingCustomerLedgerPage({
                       key={entry.id}
                       className={`border-t border-earth-400/10 ${
                         rowOverdue ? "bg-red-50/70" : ""
-                      }`}
+                      } ${editingId === entry.id ? "bg-forest-50/80" : ""}`}
                     >
                       <td className="px-4 py-3">{entry.date}</td>
                       <td className="px-4 py-3">
@@ -507,15 +608,26 @@ export function AccountingCustomerLedgerPage({
                           : formatTry(entry.runningDebt)}
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <button
-                          type="button"
-                          className="rounded-lg p-2 text-red-600 hover:bg-red-50 disabled:opacity-40"
-                          disabled={busy}
-                          onClick={() => void onDeleteCredit(entry.id)}
-                          aria-label="Hareketi sil"
-                        >
-                          <Trash2 className="size-4" />
-                        </button>
+                        <div className="inline-flex items-center gap-1">
+                          <button
+                            type="button"
+                            className="rounded-lg p-2 text-forest-800 hover:bg-forest-50 disabled:opacity-40"
+                            disabled={busy}
+                            onClick={() => startEdit(entry)}
+                            aria-label="Hareketi düzenle"
+                          >
+                            <Pencil className="size-4" />
+                          </button>
+                          <button
+                            type="button"
+                            className="rounded-lg p-2 text-red-600 hover:bg-red-50 disabled:opacity-40"
+                            disabled={busy || Boolean(editingId)}
+                            onClick={() => void onDeleteCredit(entry.id)}
+                            aria-label="Hareketi sil"
+                          >
+                            <Trash2 className="size-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

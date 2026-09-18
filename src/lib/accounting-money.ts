@@ -101,6 +101,16 @@ export function roundMoney(value: number): number {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
+/** Sayı → MoneyInput değeri (1.500,50). */
+export function moneyToInput(value: number): string {
+  if (!Number.isFinite(value)) return "";
+  const rounded = roundMoney(value);
+  const [intPart, frac = "00"] = rounded.toFixed(2).split(".");
+  const grouped = (intPart ?? "0").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  if (frac === "00") return grouped;
+  return `${grouped},${frac}`;
+}
+
 export function customerBalance(entries: CreditEntry[]): number {
   return roundMoney(
     entries.reduce((total, entry) => applyCreditDelta(total, entry), 0),
