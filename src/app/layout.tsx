@@ -63,6 +63,10 @@ export default async function RootLayout({
         jetbrainsMono.variable,
       )}
     >
+      <head>
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+      </head>
       <body className="min-h-full flex flex-col antialiased">
         <a
           href="#main-content"

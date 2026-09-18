@@ -2,7 +2,12 @@
 
 import { ReactLenis, useLenis } from "lenis/react";
 import { usePathname } from "next/navigation";
-import { useEffect, useSyncExternalStore, type ReactNode } from "react";
+import {
+  useEffect,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
 
 function subscribeReducedMotion(onStoreChange: () => void) {
   const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -102,7 +107,6 @@ function LenisResizeBridge() {
     };
   }, [lenis]);
 
-  // Menü kilidi sonrası Lenis’in takılı kalmasını önle
   useEffect(() => {
     if (!lenis) return;
 
@@ -126,14 +130,24 @@ function LenisResizeBridge() {
   return null;
 }
 
+/**
+ * SSR + ilk hydrate: her zaman düz children (ağaç birebir).
+ * Lenis yalnızca mount sonrası — ReactLenis sarmalayıcısı hydration
+ * mismatch’ine yol açabiliyordu.
+ */
 export function SmoothScrollProvider({ children }: { children: ReactNode }) {
+  const [lenisReady, setLenisReady] = useState(false);
   const prefersReducedMotion = useSyncExternalStore(
     subscribeReducedMotion,
     getReducedMotionSnapshot,
     getReducedMotionServerSnapshot,
   );
 
-  if (prefersReducedMotion) {
+  useEffect(() => {
+    setLenisReady(true);
+  }, []);
+
+  if (!lenisReady || prefersReducedMotion) {
     return (
       <>
         <NativeHashScroll />

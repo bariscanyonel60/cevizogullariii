@@ -11,6 +11,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { ConfirmDialog } from "@/components/molecules/ConfirmDialog";
 import { AccountingCustomersPanel } from "@/components/organisms/admin/AccountingCustomersPanel";
 import { AccountingExpensesPanel } from "@/components/organisms/admin/AccountingExpensesPanel";
 import { AccountingPdfButton } from "@/components/organisms/admin/AccountingPdfButton";
@@ -60,6 +61,14 @@ async function parseStoreResponse(res: Response): Promise<AccountingStore> {
   return data.store ?? emptyAccountingStore();
 }
 
+type PendingConfirm = {
+  title: string;
+  message: string;
+  confirmLabel: string;
+  run: () => Promise<boolean>;
+  resolve: (ok: boolean) => void;
+};
+
 export function AccountingDashboard() {
   const [tab, setTab] = useState<AccountingTab>("summary");
   const [store, setStore] = useState<AccountingStore>(emptyAccountingStore());
@@ -67,9 +76,43 @@ export function AccountingDashboard() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(
+    null,
+  );
 
   const today = istanbulIsoDate();
   const month = istanbulYearMonth();
+
+  function askConfirm(options: {
+    title?: string;
+    message: string;
+    confirmLabel?: string;
+    run: () => Promise<boolean>;
+  }): Promise<boolean> {
+    return new Promise((resolve) => {
+      setPendingConfirm({
+        title: options.title ?? "Emin misiniz?",
+        message: options.message,
+        confirmLabel: options.confirmLabel ?? "Evet, sil",
+        run: options.run,
+        resolve,
+      });
+    });
+  }
+
+  async function handleConfirmAccept() {
+    if (!pendingConfirm) return;
+    const { run, resolve } = pendingConfirm;
+    const ok = await run();
+    setPendingConfirm(null);
+    resolve(ok);
+  }
+
+  function handleConfirmCancel() {
+    if (!pendingConfirm) return;
+    pendingConfirm.resolve(false);
+    setPendingConfirm(null);
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -119,22 +162,32 @@ export function AccountingDashboard() {
 
   async function zeroDayCash(date: string, amount: number) {
     if (amount <= 0) return false;
-    if (!window.confirm(cashZeroConfirmMessage(amount))) return false;
-    return createRecord(
-      "expense",
-      { zeroDayCash: true, scope: "day", date },
-      "Kasa sıfırlandı",
-    );
+    return askConfirm({
+      title: "Emin misiniz?",
+      message: cashZeroConfirmMessage(amount),
+      confirmLabel: "Evet, sıfırla",
+      run: () =>
+        createRecord(
+          "expense",
+          { zeroDayCash: true, scope: "day", date },
+          "Kasa sıfırlandı",
+        ),
+    });
   }
 
   async function zeroMonthCash(amount: number) {
     if (amount <= 0) return false;
-    if (!window.confirm(cashZeroMonthConfirmMessage(amount))) return false;
-    return createRecord(
-      "expense",
-      { zeroDayCash: true, scope: "month", date: today },
-      "Kasa sıfırlandı",
-    );
+    return askConfirm({
+      title: "Emin misiniz?",
+      message: cashZeroMonthConfirmMessage(amount),
+      confirmLabel: "Evet, sıfırla",
+      run: () =>
+        createRecord(
+          "expense",
+          { zeroDayCash: true, scope: "month", date: today },
+          "Kasa sıfırlandı",
+        ),
+    });
   }
 
   async function updateCustomer(id: string, payload: Record<string, unknown>) {
@@ -158,29 +211,61 @@ export function AccountingDashboard() {
     }
   }
 
+  async function updateRecord(
+    entity: "sale" | "credit",
+    id: string,
+    payload: Record<string, unknown>,
+    successMessage: string,
+  ) {
+    setBusy(true);
+    setError(null);
+    setMessage(null);
+    try {
+      const res = await fetch("/api/admin/accounting", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entity, id, ...payload }),
+      });
+      setStore(await parseStoreResponse(res));
+      setMessage(successMessage);
+      return true;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Güncellenemedi");
+      return false;
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function removeRecord(
     entity: AccountingEntity,
     id: string,
     confirmMessage: string,
   ) {
-    if (!window.confirm(confirmMessage)) return false;
-    setBusy(true);
-    setError(null);
-    setMessage(null);
-    try {
-      const res = await fetch(
-        `/api/admin/accounting?entity=${entity}&id=${encodeURIComponent(id)}`,
-        { method: "DELETE" },
-      );
-      setStore(await parseStoreResponse(res));
-      setMessage("Kayıt silindi");
-      return true;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Silinemedi");
-      return false;
-    } finally {
-      setBusy(false);
-    }
+    return askConfirm({
+      title: "Emin misiniz?",
+      message: confirmMessage,
+      confirmLabel: "Evet, sil",
+      run: async () => {
+        setBusy(true);
+        setError(null);
+        setMessage(null);
+        try {
+          const res = await fetch(
+            `/api/admin/accounting?entity=${entity}&id=${encodeURIComponent(id)}`,
+            { method: "DELETE" },
+          );
+          setStore(await parseStoreResponse(res));
+          setMessage("Kayıt silindi");
+          return true;
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Silinemedi");
+          return false;
+        } finally {
+          setBusy(false);
+        }
+      },
+    });
   }
 
   const summary = useMemo(() => {
@@ -440,8 +525,15 @@ export function AccountingDashboard() {
           store={store}
           busy={busy}
           onCreate={(payload) => createRecord("sale", payload)}
+          onUpdate={(id, payload) =>
+            updateRecord("sale", id, payload, "İşlem güncellendi")
+          }
           onDelete={(id) =>
-            removeRecord("sale", id, "Bu satış kaydı silinsin mi?")
+            removeRecord(
+              "sale",
+              id,
+              "Bu satış kaydını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+            )
           }
           onError={setError}
           onMessage={setMessage}
@@ -453,10 +545,18 @@ export function AccountingDashboard() {
           onCreateStaff={(payload) => createRecord("staff", payload)}
           onCreateAdvance={(payload) => createRecord("advance", payload)}
           onDeleteStaff={(id) =>
-            removeRecord("staff", id, "Bu personel silinsin mi?")
+            removeRecord(
+              "staff",
+              id,
+              "Bu personeli silmek istediğinize emin misiniz?",
+            )
           }
           onDeleteAdvance={(id) =>
-            removeRecord("advance", id, "Bu avans kaydı silinsin mi?")
+            removeRecord(
+              "advance",
+              id,
+              "Bu avans kaydını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+            )
           }
           onError={setError}
           onMessage={setMessage}
@@ -468,15 +568,22 @@ export function AccountingDashboard() {
           onCreateCustomer={(payload) => createRecord("customer", payload)}
           onUpdateCustomer={updateCustomer}
           onCreateCredit={(payload) => createRecord("credit", payload)}
+          onUpdateCredit={(id, payload) =>
+            updateRecord("credit", id, payload, "Hareket güncellendi")
+          }
           onDeleteCustomer={(id) =>
             removeRecord(
               "customer",
               id,
-              "Bu müşteri kartı silinsin mi? Kartta hareket olmamalı.",
+              "Bu müşteri kartını silmek istediğinize emin misiniz? Kartta hareket olmamalı. Bu işlem geri alınamaz.",
             )
           }
           onDeleteCredit={(id) =>
-            removeRecord("credit", id, "Bu veresiye hareketi silinsin mi?")
+            removeRecord(
+              "credit",
+              id,
+              "Bu veresiye hareketini silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+            )
           }
           onError={setError}
           onMessage={setMessage}
@@ -488,7 +595,11 @@ export function AccountingDashboard() {
           onCreate={(payload) => createRecord("expense", payload)}
           onZeroCash={(date, amount) => zeroDayCash(date, amount)}
           onDelete={(id) =>
-            removeRecord("expense", id, "Bu gider kaydı silinsin mi?")
+            removeRecord(
+              "expense",
+              id,
+              "Bu gider kaydını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+            )
           }
           onError={setError}
           onMessage={setMessage}
@@ -506,6 +617,16 @@ export function AccountingDashboard() {
           return _exhaustive;
         })()
       )}
+
+      <ConfirmDialog
+        open={pendingConfirm !== null}
+        title={pendingConfirm?.title ?? "Emin misiniz?"}
+        message={pendingConfirm?.message ?? ""}
+        confirmLabel={pendingConfirm?.confirmLabel}
+        busy={busy}
+        onCancel={handleConfirmCancel}
+        onConfirm={() => void handleConfirmAccept()}
+      />
     </div>
   );
 }

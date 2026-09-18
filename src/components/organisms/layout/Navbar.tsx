@@ -102,6 +102,7 @@ function DesktopDropdown({
     };
   }, [open]);
 
+  // Düz div — AnimatePresence/motion SSR hydration mismatch üretiyordu
   return (
     <div
       ref={ref}
@@ -127,43 +128,37 @@ function DesktopDropdown({
         />
       </Link>
 
-      <AnimatePresence>
-        {open ? (
-          <motion.div
-            id={menuId}
-            role="menu"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.18 }}
-            className="absolute left-0 top-full z-50 min-w-52 pt-2"
-          >
-            <div className="overflow-hidden rounded-2xl border border-earth-400/15 bg-ivory-50/95 py-1.5 shadow-premium backdrop-blur-xl">
-              {children.map((child) => {
-                const childActive =
-                  isPathActive(pathname, child.href) &&
-                  navPath(child.href) !== "/";
-                return (
-                  <Link
-                    key={child.href}
-                    href={child.href}
-                    role="menuitem"
-                    className={cn(
-                      "mx-1.5 block rounded-xl px-3.5 py-2.5 text-sm font-medium transition",
-                      childActive
-                        ? "bg-forest-800 text-white"
-                        : "text-ink-700 hover:bg-forest-50 hover:text-forest-800",
-                    )}
-                    onClick={() => setOpen(false)}
-                  >
-                    {child.label}
-                  </Link>
-                );
-              })}
-            </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+      {open ? (
+        <div
+          id={menuId}
+          role="menu"
+          className="absolute left-0 top-full z-50 min-w-52 pt-2"
+        >
+          <div className="overflow-hidden rounded-2xl border border-earth-400/15 bg-ivory-50/95 py-1.5 shadow-premium backdrop-blur-xl">
+            {children.map((child) => {
+              const childActive =
+                isPathActive(pathname, child.href) &&
+                navPath(child.href) !== "/";
+              return (
+                <Link
+                  key={child.href}
+                  href={child.href}
+                  role="menuitem"
+                  className={cn(
+                    "mx-1.5 block rounded-xl px-3.5 py-2.5 text-sm font-medium transition",
+                    childActive
+                      ? "bg-forest-800 text-white"
+                      : "text-ink-700 hover:bg-forest-50 hover:text-forest-800",
+                  )}
+                  onClick={() => setOpen(false)}
+                >
+                  {child.label}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

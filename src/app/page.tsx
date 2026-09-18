@@ -17,6 +17,7 @@ import { pickPreviewMedia } from "@/lib/media";
 import { getPublicMedia } from "@/lib/media-store";
 import { getCmsSnapshot, getFeaturedProjects } from "@/lib/cms-store";
 import { JsonLd } from "@/components/atoms/JsonLd";
+import { HOME_HERO_VIDEO } from "@/data/home-hero";
 import {
   buildMetadata,
   faqJsonLd,
@@ -84,6 +85,12 @@ export default async function HomePage() {
 
   return (
     <>
+      <link
+        rel="preload"
+        as="image"
+        href={HOME_HERO_VIDEO.poster}
+        fetchPriority="high"
+      />
       <JsonLd
         data={[
           websiteJsonLd(),

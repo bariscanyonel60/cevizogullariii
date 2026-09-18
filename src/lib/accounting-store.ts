@@ -339,7 +339,20 @@ function requiredAmount(value: unknown, label: string): number {
 }
 
 export async function createSale(input: unknown): Promise<AccountingStore> {
-  const body = (input ?? {}) as Record<string, unknown>;
+  const fields = parseSaleFields((input ?? {}) as Record<string, unknown>);
+  const sale: Sale = {
+    id: randomUUID(),
+    ...fields,
+    createdAt: new Date().toISOString(),
+  };
+
+  const store = await getAccountingStore();
+  store.sales = [sale, ...store.sales];
+  await saveAccountingStore(store);
+  return store;
+}
+
+function parseSaleFields(body: Record<string, unknown>) {
   const vatRate = body.vatRate;
   const paymentMethod = body.paymentMethod;
   if (!isVatRate(vatRate)) throw new Error("KDV oranı 1, 10 veya 20 olmalı");
@@ -349,9 +362,7 @@ export async function createSale(input: unknown): Promise<AccountingStore> {
   const kind: SaleKind = isSaleKind(body.kind) ? body.kind : "sale";
   const exchangeRefund =
     kind === "exchange" ? Boolean(body.exchangeRefund) : false;
-
-  const sale: Sale = {
-    id: randomUUID(),
+  return {
     date: requiredDate(body.date),
     kind,
     exchangeRefund,
@@ -364,11 +375,21 @@ export async function createSale(input: unknown): Promise<AccountingStore> {
     vatRate,
     paymentMethod,
     note: asString(body.note).trim(),
-    createdAt: new Date().toISOString(),
   };
+}
 
+export async function updateSale(
+  id: string,
+  input: unknown,
+): Promise<AccountingStore> {
+  const fields = parseSaleFields((input ?? {}) as Record<string, unknown>);
   const store = await getAccountingStore();
-  store.sales = [sale, ...store.sales];
+  const index = store.sales.findIndex((item) => item.id === id);
+  if (index === -1) throw new Error("Satış bulunamadı");
+  store.sales[index] = {
+    ...store.sales[index],
+    ...fields,
+  };
   await saveAccountingStore(store);
   return store;
 }
@@ -516,6 +537,21 @@ export async function createCreditEntry(
   if (!store.customers.some((item) => item.id === customerId)) {
     throw new Error("Müşteri bulunamadı");
   }
+  const fields = parseCreditEntryFields(body, customerId);
+  const entry: CreditEntry = {
+    id: randomUUID(),
+    ...fields,
+    createdAt: new Date().toISOString(),
+  };
+  store.creditEntries = [entry, ...store.creditEntries];
+  await saveAccountingStore(store);
+  return store;
+}
+
+function parseCreditEntryFields(
+  body: Record<string, unknown>,
+  customerId: string,
+) {
   const kind = body.kind;
   if (!isCreditKind(kind)) throw new Error("Kayıt türü geçersiz");
 
@@ -555,8 +591,7 @@ export async function createCreditEntry(
     }
   }
 
-  const entry: CreditEntry = {
-    id: randomUUID(),
+  return {
     customerId,
     kind,
     date,
@@ -568,9 +603,31 @@ export async function createCreditEntry(
     vatRate,
     paymentMethod,
     note: asString(body.note).trim(),
-    createdAt: new Date().toISOString(),
   };
-  store.creditEntries = [entry, ...store.creditEntries];
+}
+
+export async function updateCreditEntry(
+  id: string,
+  input: unknown,
+): Promise<AccountingStore> {
+  const body = (input ?? {}) as Record<string, unknown>;
+  const store = await getAccountingStore();
+  const index = store.creditEntries.findIndex((item) => item.id === id);
+  if (index === -1) throw new Error("Kayıt bulunamadı");
+  const existing = store.creditEntries[index];
+  const customerId =
+    asString(body.customerId).trim() || existing.customerId;
+  if (!store.customers.some((item) => item.id === customerId)) {
+    throw new Error("Müşteri bulunamadı");
+  }
+  const fields = parseCreditEntryFields(
+    { ...body, kind: body.kind ?? existing.kind },
+    customerId,
+  );
+  store.creditEntries[index] = {
+    ...existing,
+    ...fields,
+  };
   await saveAccountingStore(store);
   return store;
 }

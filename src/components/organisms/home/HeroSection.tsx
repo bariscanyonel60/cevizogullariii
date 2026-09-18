@@ -33,6 +33,7 @@ export function HeroSection() {
   const pointerRef = useRef<Point>({ x: 0.72, y: 0.46 });
   const scanXRef = useRef(0.72);
   const shiftRef = useRef<Point>({ x: 0, y: 0 });
+  const stageSizeRef = useRef<Point>({ x: 0, y: 0 });
 
   useEffect(() => {
     const video = videoRef.current;
@@ -42,15 +43,58 @@ export function HeroSection() {
       video.pause();
       return;
     }
-    if (!video.querySelector("source")) {
-      const source = document.createElement("source");
-      source.src = HOME_HERO_VIDEO.src;
-      source.type = "video/mp4";
-      video.appendChild(source);
+
+    let cancelled = false;
+    const attach = () => {
+      if (cancelled || !videoRef.current) return;
+      const el = videoRef.current;
+      if (!el.querySelector("source")) {
+        const source = document.createElement("source");
+        source.src = HOME_HERO_VIDEO.src;
+        source.type = "video/mp4";
+        el.appendChild(source);
+      }
+      el.load();
+      void el.play().catch(() => undefined);
+    };
+
+    // LCP sonrası: poster kalsın, ağır mp4 kritik yolu tıkamasın
+    let idleId: number | undefined;
+    let timeoutId: number | undefined;
+
+    if (typeof window.requestIdleCallback === "function") {
+      idleId = window.requestIdleCallback(attach, { timeout: 2200 });
+    } else {
+      timeoutId = window.setTimeout(attach, 1200);
     }
-    video.load();
-    void video.play().catch(() => undefined);
+
+    return () => {
+      cancelled = true;
+      if (idleId !== undefined) {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId);
+      }
+    };
   }, [reduce]);
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    const measure = () => {
+      stageSizeRef.current = {
+        x: stage.clientWidth,
+        y: stage.clientHeight,
+      };
+    };
+    measure();
+
+    const ro = new ResizeObserver(measure);
+    ro.observe(stage);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     if (reduce || !canScrubVideo()) return;
@@ -63,6 +107,7 @@ export function HeroSection() {
       const lens = lensRef.current;
       const pointer = pointerRef.current;
       const hot = hotRef.current;
+      const size = stageSizeRef.current;
       idleRef.current += 0.0032;
 
       scanXRef.current += (pointer.x - scanXRef.current) * 0.14;
@@ -89,11 +134,11 @@ export function HeroSection() {
         stage.style.setProperty("--mx", `${pointer.x * 100}%`);
         stage.style.setProperty("--my", `${pointer.y * 100}%`);
       }
-      if (scan) {
-        scan.style.transform = `translate3d(${scanX * (stage?.clientWidth ?? 0)}px, 0, 0)`;
+      if (scan && size.x > 0) {
+        scan.style.transform = `translate3d(${scanX * size.x}px, 0, 0)`;
       }
-      if (lens && stage) {
-        lens.style.transform = `translate3d(${pointer.x * stage.clientWidth}px, ${pointer.y * stage.clientHeight}px, 0)`;
+      if (lens && size.x > 0 && size.y > 0) {
+        lens.style.transform = `translate3d(${pointer.x * size.x}px, ${pointer.y * size.y}px, 0)`;
       }
 
       frame = requestAnimationFrame(tick);
@@ -118,8 +163,9 @@ export function HeroSection() {
   const applyPointer = (clientX: number, clientY: number) => {
     const stage = stageRef.current;
     if (!stage) return;
+    const size = stageSizeRef.current;
+    if (size.x < 1 || size.y < 1) return;
     const rect = stage.getBoundingClientRect();
-    if (rect.width < 1 || rect.height < 1) return;
     pointerRef.current = {
       x: Math.min(1, Math.max(0, (clientX - rect.left) / rect.width)),
       y: Math.min(1, Math.max(0, (clientY - rect.top) / rect.height)),
@@ -156,9 +202,9 @@ export function HeroSection() {
   return (
     <section id="hero" className="home-hero">
       <motion.div
-        initial={{ opacity: 0 }}
+        initial={reduce ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1.1, ease }}
+        transition={{ duration: 0.6, ease }}
         className="home-hero-video"
       >
         <div
@@ -198,36 +244,27 @@ export function HeroSection() {
 
       <div className="home-hero-copy">
         <div className="home-hero-copy-inner">
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.65, ease, delay: 0.08 }}
-            className="home-hero-kicker mb-2.5 font-display text-[10px] font-semibold uppercase tracking-[0.24em] sm:mb-5 sm:text-xs sm:tracking-[0.36em]"
-          >
+          <p className="home-hero-kicker mb-2.5 font-display text-[10px] font-semibold uppercase tracking-[0.24em] sm:mb-5 sm:text-xs sm:tracking-[0.36em]">
             Cevizoğulları · Turhal / Tokat
-          </motion.p>
-          <motion.h1
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.85, ease, delay: 0.18 }}
-            className="font-display text-[1.85rem] font-bold leading-[1.12] tracking-tight text-balance text-white [text-shadow:0_18px_50px_rgba(0,0,0,0.45)] sm:text-display sm:leading-none"
-          >
+          </p>
+          {/* LCP: opacity animasyonu yok — metin ilk boyamada görünür */}
+          <h1 className="font-display text-[1.85rem] font-bold leading-[1.12] tracking-tight text-balance text-white [text-shadow:0_18px_50px_rgba(0,0,0,0.45)] sm:text-display sm:leading-none">
             <span className="home-hero-title-line">Tokat Yapı</span>
             <span className="home-hero-title-outline">Malzemeleri</span>
-          </motion.h1>
+          </h1>
           <motion.p
-            initial={{ opacity: 0, y: 22 }}
+            initial={reduce ? false : { opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease, delay: 0.32 }}
+            transition={{ duration: 0.55, ease, delay: 0.12 }}
             className="home-hero-lead mt-2.5 max-w-md text-[0.95rem] leading-snug sm:mt-5 sm:text-lead sm:leading-normal"
           >
             Turhal yapı malzemeleri reyonumuz: boya, mantolama, OSB, kereste.
             Listeyi getirin, yükleriz.
           </motion.p>
           <motion.ul
-            initial={{ opacity: 0, y: 16 }}
+            initial={reduce ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease, delay: 0.44 }}
+            transition={{ duration: 0.5, ease, delay: 0.2 }}
             className="home-hero-meta"
           >
             {trustItems.map((item) => (
@@ -235,9 +272,9 @@ export function HeroSection() {
             ))}
           </motion.ul>
           <motion.div
-            initial={{ opacity: 0, y: 14 }}
+            initial={reduce ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease, delay: 0.56 }}
+            transition={{ duration: 0.5, ease, delay: 0.28 }}
             className="home-hero-actions"
           >
             <Button asChild size="md" variant="gold" className="lg:h-14 lg:px-8 lg:text-base">
