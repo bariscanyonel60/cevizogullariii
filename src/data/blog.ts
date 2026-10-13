@@ -172,3 +172,41 @@ Metrekare, kat sayısı ve teslim yeri ile yazın. Seti eksiksiz yükler, talep 
     readingTime: 5,
   },
 ];
+
+/** Veritabanındaki yazılardan sonra, listenin en sonunda gösterilir. */
+export const trailingBlogPosts: BlogPost[] = [
+  {
+    id: "site-hakkinda",
+    slug: "cevizogullari-web-sitesi-hakkinda",
+    title: "Cevizoğulları Web Sitesi Nasıl Hazırlandı",
+    excerpt:
+      "Cevizoğulları web sitesi ve yönetim paneli, Tokat merkezli BCY Dijital tarafından hazırlandı. Sitede neler var, nasıl çalışıyor?",
+    content: `
+## Siteyi kim hazırladı
+
+Cevizoğulları Yapı Market & İnşaat’ın web sitesi, Tokat merkezli web tasarım stüdyosu BCY Dijital tarafından hazırlandı. BCY Dijital, Barış Can Yönel tarafından yönetilen butik bir stüdyo; işletmelere kurumsal web sitesi, e-ticaret ve yerel SEO hizmeti veriyor.
+
+## Sitede neler var
+
+Ürünler boya, ısı yalıtımı, çatı ve orman ürünleri gibi kategorilere ayrıldı. Her ürün sayfasından teklif formu, telefon veya WhatsApp ile doğrudan ulaşılabiliyor. Projeler, galeri ve blog bölümleri de aynı altyapıdan yönetiliyor.
+
+## Yönetim paneli
+
+Ürünler, projeler, blog yazıları ve sık sorulan sorular yönetim panelinden güncelleniyor; kod bilgisi gerekmiyor. Panelde ayrıca ön muhasebe bölümü var: günlük satışlar, veresiye takibi, giderler, firma ödemeleri ve aylık PDF/Excel raporları.
+
+## Teknik altyapı
+
+Site Next.js ile geliştirildi ve önce mobil düşünülerek tasarlandı. Görseller ekran boyutuna göre küçültülerek sunuluyor; yavaş bağlantılarda ana sayfa videosu hiç indirilmiyor. Tokat ve Turhal aramaları için sayfa başlıkları, açıklamalar ve yapılandırılmış veri düzenlendi.
+
+## Benzer bir site için
+
+İşletmesi için web sitesi düşünenler, [Tokat web tasarım](https://bariscanyonel.com/) hizmetlerinin ayrıntılarına BCY Dijital’in sitesinden ulaşabilir.
+    `.trim(),
+    category: "Site Hakkında",
+    tags: ["web tasarım", "Tokat", "BCY Dijital"],
+    coverImage: "/blog/bcy-dijital.jpg",
+    author: "BCY Dijital",
+    publishedAt: "2026-10-13",
+    readingTime: 2,
+  },
+];

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { CdnImage } from "@/components/atoms/CdnImage";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -60,6 +61,33 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       "Cevizoğulları blog",
     ],
   });
+}
+
+const INLINE_LINK = /\[([^\]]+)\]\((https:\/\/[^\s)]+|\/[^\s)]*)\)/g;
+
+function renderInline(text: string): ReactNode[] {
+  const nodes: ReactNode[] = [];
+  let last = 0;
+  for (const match of text.matchAll(INLINE_LINK)) {
+    const [raw, label, href] = match;
+    const start = match.index;
+    if (start > last) nodes.push(text.slice(last, start));
+    const className = "font-semibold text-forest-800 underline";
+    nodes.push(
+      href.startsWith("/") ? (
+        <Link key={start} href={href} className={className}>
+          {label}
+        </Link>
+      ) : (
+        <a key={start} href={href} target="_blank" rel="noopener" className={className}>
+          {label}
+        </a>
+      ),
+    );
+    last = start + raw.length;
+  }
+  if (last < text.length) nodes.push(text.slice(last));
+  return nodes;
 }
 
 function extractToc(content: string) {
@@ -136,7 +164,7 @@ export default async function BlogDetailPage({ params }: Props) {
               if (!line.trim()) return null;
               return (
                 <p key={index} className="leading-relaxed text-ink-500">
-                  {line}
+                  {renderInline(line)}
                 </p>
               );
             })}
