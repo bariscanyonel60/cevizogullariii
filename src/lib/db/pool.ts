@@ -31,7 +31,13 @@ export function getPool(): mysql.Pool {
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
       waitForConnections: true,
-      connectionLimit: 5,
+      // Hostinger saatlik bağlantı kotası (max_connections_per_hour) var:
+      // bağlantıları sık kapatıp yeniden açmak kotayı hızla tüketir.
+      connectionLimit: 3,
+      maxIdle: 3,
+      idleTimeout: 10 * 60 * 1000,
+      enableKeepAlive: true,
+      keepAliveInitialDelay: 30_000,
       connectTimeout: 5000,
       dateStrings: true,
       charset: "utf8mb4",

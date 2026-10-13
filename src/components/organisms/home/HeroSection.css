@@ -164,6 +164,11 @@
   width: 100%;
 }
 
+/* Mobilde WhatsApp sabit alt barda; hero kısa kalsın. */
+.home-hero-actions .home-hero-whatsapp {
+  display: none;
+}
+
 @media (min-width: 640px) {
   .home-hero-copy {
     padding: 0 1.75rem calc(2rem + env(safe-area-inset-bottom));
@@ -201,7 +206,7 @@
   }
 
   .home-hero-actions {
-    grid-template-columns: auto auto;
+    grid-template-columns: auto auto auto;
     width: auto;
     gap: 0.7rem;
     margin-top: 1.35rem;
@@ -209,6 +214,10 @@
 
   .home-hero-actions a {
     width: auto;
+  }
+
+  .home-hero-actions .home-hero-whatsapp {
+    display: inline-flex;
   }
 }
 

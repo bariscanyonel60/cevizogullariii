@@ -6,7 +6,11 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { formatTry } from "@/lib/accounting-money";
-import { buildMonthlyReport, reportFilename } from "@/lib/accounting-report";
+import {
+  buildMonthlyReport,
+  formatChangePercent,
+  reportFilename,
+} from "@/lib/accounting-report";
 import {
   istanbulYearMonth,
   type AccountingStore,
@@ -76,8 +80,9 @@ export function AccountingReportsPanel({
               Aylık rapor
             </h3>
             <p className="mt-1 text-sm text-ink-500">
-              Seçilen ayın satış, gider, kasa, avans ve veresiye özetini Excel
-              veya PDF olarak indirin.
+              Seçilen ayın özetini Excel veya PDF olarak indirin: haftalık
+              gidişat, ödeme yöntemleri, en çok satan ürünler, gider ve firma
+              toplamları, önceki ayla karşılaştırma.
             </p>
           </div>
           <div className="w-full sm:w-56">
@@ -127,9 +132,28 @@ export function AccountingReportsPanel({
           hint={`Net nakit kasa ${formatTry(report.cash.cashNet)}`}
         />
         <PreviewCard
+          label="Firma ödemeleri"
+          value={formatTry(report.cash.supplierPaymentTotal)}
+          hint={`${report.supplierPayments.length} firma`}
+        />
+        <PreviewCard
           label="Personel avansı"
           value={formatTry(report.advanceTotal)}
-          hint={`${report.advances.length} kayıt`}
+          hint={`${report.advancesByStaff.length} personel`}
+        />
+        <PreviewCard
+          label="En çok satan"
+          value={report.topProducts[0]?.productName ?? "—"}
+          hint={
+            report.topProducts[0]
+              ? formatTry(report.topProducts[0].gross)
+              : undefined
+          }
+        />
+        <PreviewCard
+          label={`${report.previousLabel} ile satış`}
+          value={formatChangePercent(report.salesComparison.changePercent)}
+          hint={`Önceki ay ${formatTry(report.salesComparison.previous)}`}
         />
         <PreviewCard
           label="Açık veresiye"

@@ -110,29 +110,12 @@ export async function getCmsSnapshot(): Promise<CmsSnapshot> {
   return (await readLiveSnapshot()) ?? fallbackCmsSnapshot();
 }
 
-export async function seedCmsNow(options?: { force?: boolean }): Promise<CmsSnapshot> {
-  if (!isDatabaseConfigured()) {
-    throw new Error("MySQL ortam değişkenleri eksik");
-  }
-  await ensureCmsSchema();
-  if (options?.force) {
-    await replaceCmsSnapshot(fallbackCmsSnapshot());
-  } else {
-    await seedIfEmpty();
-  }
-  return readCmsSnapshotFromMysql();
-}
-
 export async function getProducts(): Promise<Product[]> {
   return withCatalogProducts((await getCmsSnapshot()).products);
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | undefined> {
   return (await getProducts()).find((item) => item.slug === slug);
-}
-
-export async function getFeaturedProducts(): Promise<Product[]> {
-  return (await getProducts()).filter((item) => item.featured);
 }
 
 export async function getBrands(): Promise<CmsBrand[]> {
@@ -258,14 +241,6 @@ export async function getOrmanPages(): Promise<OrmanUrunleriPage[]> {
 
 export async function getOrmanPage(slug: string): Promise<OrmanUrunleriPage | undefined> {
   return (await getOrmanPages()).find((item) => item.slug === slug);
-}
-
-export async function getStats(): Promise<StatItem[]> {
-  return (await getCmsSnapshot()).stats;
-}
-
-export async function getTestimonials(): Promise<Testimonial[]> {
-  return (await getCmsSnapshot()).testimonials;
 }
 
 export async function getSiteCards(kind: SiteCardKind): Promise<CmsSiteCard[]> {

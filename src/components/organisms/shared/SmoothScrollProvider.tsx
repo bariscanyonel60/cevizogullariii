@@ -2,26 +2,8 @@
 
 import { ReactLenis, useLenis } from "lenis/react";
 import { usePathname } from "next/navigation";
-import {
-  useEffect,
-  useState,
-  useSyncExternalStore,
-  type ReactNode,
-} from "react";
-
-function subscribeReducedMotion(onStoreChange: () => void) {
-  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-  mq.addEventListener("change", onStoreChange);
-  return () => mq.removeEventListener("change", onStoreChange);
-}
-
-function getReducedMotionSnapshot() {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
-function getReducedMotionServerSnapshot() {
-  return false;
-}
+import { useEffect, useState, type ReactNode } from "react";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 function scrollToHashTarget(
   lenis:
@@ -137,11 +119,7 @@ function LenisResizeBridge() {
  */
 export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   const [lenisReady, setLenisReady] = useState(false);
-  const prefersReducedMotion = useSyncExternalStore(
-    subscribeReducedMotion,
-    getReducedMotionSnapshot,
-    getReducedMotionServerSnapshot,
-  );
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     setLenisReady(true);

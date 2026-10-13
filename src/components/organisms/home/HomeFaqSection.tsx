@@ -8,19 +8,19 @@ import { cn } from "@/lib/utils";
 
 export function HomeFaqSection({
   faqs = [],
+  title = "Sık sorulanlar",
+  description = "Stok var mı, götürür müsünüz, mantolama nasıl — kısaca.",
 }: {
-  faqs?: { question: string; answer: string }[];
+  faqs?: readonly { question: string; answer: string }[];
+  title?: string;
+  description?: string;
 }) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
     <section id="sss" className="container-wide scroll-mt-28 section-padding">
       <Reveal>
-        <SectionHeading
-          eyebrow="SSS"
-          title="Sık sorulanlar"
-          description="Stok var mı, götürür müsünüz, mantolama nasıl — kısaca."
-        />
+        <SectionHeading eyebrow="SSS" title={title} description={description} />
       </Reveal>
       <div className="mx-auto max-w-3xl space-y-3">
         {faqs.map((faq, index) => {

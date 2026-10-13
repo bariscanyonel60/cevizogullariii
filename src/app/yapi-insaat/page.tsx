@@ -12,9 +12,12 @@ import { getPublicMedia } from "@/lib/media-store";
 import { GallerySection } from "@/components/organisms/shared/GallerySection";
 import { SiteVideoSection } from "@/components/organisms/shared/SiteVideoSection";
 import { YAPI_INSAAT_VIDEO } from "@/data/yapi-insaat-media";
+import { HomeFaqSection } from "@/components/organisms/home/HomeFaqSection";
+import { CONSTRUCTION_FAQS } from "@/data/page-faqs";
 import {
   breadcrumbJsonLd,
   buildMetadata,
+  faqJsonLd,
   itemListJsonLd,
   webPageJsonLd,
 } from "@/lib/seo";
@@ -84,6 +87,7 @@ export default async function YapiInsaatPage() {
               path: "/yapi-insaat",
             })),
           }),
+          faqJsonLd(CONSTRUCTION_FAQS),
         ]}
       />
       <PageHero
@@ -203,6 +207,12 @@ export default async function YapiInsaatPage() {
           ))}
         </div>
       </section>
+
+      <HomeFaqSection
+        faqs={CONSTRUCTION_FAQS}
+        title="Yapı-inşaat hakkında"
+        description="Keşif, süre, uygulama kapsamı ve referanslar."
+      />
     </>
   );
 }

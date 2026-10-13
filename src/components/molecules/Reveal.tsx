@@ -1,7 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
-import { type ReactNode } from "react";
+import { type CSSProperties, type ReactNode, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 type RevealProps = {
@@ -21,21 +20,39 @@ export function Reveal({
   once = true,
   as = "div",
 }: RevealProps) {
-  const reduce = useReducedMotion();
-  // SSR'da null gelebilir; hydrate uyumu için hareketi sadece kesin true iken kapat.
-  const noMotion = reduce === true;
+  const [node, setNode] = useState<HTMLElement | null>(null);
+  const [shown, setShown] = useState(false);
 
-  const motionProps = {
-    className: cn(className),
-    initial: noMotion ? false : { opacity: 0, y },
-    whileInView: noMotion ? undefined : { opacity: 1, y: 0 },
-    viewport: { once, margin: "-10% 0px" as const },
-    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const, delay },
+  useEffect(() => {
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShown(true);
+          if (once) observer.disconnect();
+        } else if (!once) {
+          setShown(false);
+        }
+      },
+      { rootMargin: "-10% 0px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [node, once]);
+
+  const props = {
+    ref: setNode,
+    className: cn("reveal", className),
+    "data-shown": shown ? "" : undefined,
+    style: {
+      "--reveal-y": `${y}px`,
+      "--reveal-delay": `${delay}s`,
+    } as CSSProperties,
   };
 
   if (as === "li") {
-    return <motion.li {...motionProps}>{children}</motion.li>;
+    return <li {...props}>{children}</li>;
   }
 
-  return <motion.div {...motionProps}>{children}</motion.div>;
+  return <div {...props}>{children}</div>;
 }

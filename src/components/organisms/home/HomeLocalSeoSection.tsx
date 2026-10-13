@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Reveal } from "@/components/molecules/Reveal";
 import { SectionHeading } from "@/components/molecules/SectionHeading";
 import { Button } from "@/components/atoms/Button";
-import { SERVICE_AREA_CITIES } from "@/lib/seo";
+import { SERVICE_AREA_CITIES } from "@/lib/constants";
 
 const pillars = [
   {

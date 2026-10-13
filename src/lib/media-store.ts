@@ -168,14 +168,6 @@ async function getEditableMedia(
   return { items: cloneFallbacks(collection), isFallback: true };
 }
 
-/** Ham kayıtlı liste */
-export async function getStoredMedia(
-  collection: MediaCollection,
-): Promise<MediaItem[]> {
-  const state = await getCollectionState(collection);
-  return state.items;
-}
-
 /** Admin paneli — sitede görünen görseller (seed dahil) */
 export async function getAdminMedia(
   collection: MediaCollection,
@@ -199,7 +191,7 @@ export async function getPublicMedia(
   };
 }
 
-export async function saveMedia(
+async function saveMedia(
   collection: MediaCollection,
   items: MediaItem[],
 ): Promise<void> {

@@ -80,7 +80,7 @@ export type CmsEntity =
   | "card"
   | "faq";
 
-export const CMS_ENTITIES: CmsEntity[] = [
+const CMS_ENTITIES: CmsEntity[] = [
   "product",
   "brand",
   "showcase",

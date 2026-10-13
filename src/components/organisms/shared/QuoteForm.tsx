@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Mail } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
@@ -22,6 +23,7 @@ export function QuoteForm({
 }: {
   defaultType?: QuoteMailValues["type"];
 }) {
+  const router = useRouter();
   const [status, setStatus] = useState<"idle" | "sent" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const {
@@ -53,6 +55,7 @@ export function QuoteForm({
     }
     reset({ kind: "quote", type: defaultType });
     setStatus("sent");
+    router.push("/tesekkurler?tur=teklif");
   };
 
   const openWhatsApp = () => {

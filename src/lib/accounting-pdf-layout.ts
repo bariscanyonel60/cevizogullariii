@@ -41,7 +41,7 @@ export function drawPdfTable(
     }
   };
 
-  ensureSpace(36);
+  ensureSpace(72);
   doc.fontSize(13).fillColor("#295B2D").text(title, margin, y);
   y = doc.y + 8;
 

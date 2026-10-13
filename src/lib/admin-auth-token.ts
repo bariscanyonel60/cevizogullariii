@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 export const ADMIN_COOKIE = "admin_session";
-export const ADMIN_MAX_AGE_SEC = 60 * 60 * 24 * 7;
+const ADMIN_MAX_AGE_SEC = 60 * 60 * 24 * 7;
 
 function getSecrets() {
   const username = process.env.ADMIN_USERNAME;

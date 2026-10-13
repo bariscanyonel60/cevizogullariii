@@ -235,14 +235,3 @@ export const ORMAN_URUNLERI_PAGES: OrmanUrunleriPage[] = [
     relatedCategories: ["orman", "ahsap"],
   },
 ];
-
-export function getOrmanUrunleriPage(slug: string) {
-  return ORMAN_URUNLERI_PAGES.find((page) => page.slug === slug);
-}
-
-export const KERESTE_NAV = ORMAN_URUNLERI_PAGES.filter((p) => p.slug !== "index").map(
-  (page) => ({
-    href: page.href,
-    label: page.navLabel,
-  }),
-);

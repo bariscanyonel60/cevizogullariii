@@ -4,7 +4,13 @@ import { join } from "node:path";
 import { get, put } from "@vercel/blob";
 import { dayCashSummary, monthCashSummary, parseMoneyInput } from "@/lib/accounting-money";
 import {
+  deleteSupplierPaymentRow,
+  deleteSupplierRow,
+  insertSupplierPaymentRow,
+  insertSupplierRow,
   readAccountingFromMysql,
+  updateSupplierPaymentRow,
+  updateSupplierRow,
   writeAccountingToMysql,
 } from "@/lib/db/accounting-sql";
 import { isDatabaseConfigured } from "@/lib/db/pool";
@@ -29,7 +35,10 @@ import {
   type Sale,
   type SaleKind,
   type StaffMember,
+  type Supplier,
+  type SupplierPayment,
   sortCustomersByName,
+  sortSuppliersByName,
 } from "@/lib/accounting-types";
 
 const LOCAL_DIR = join(process.cwd(), ".data");
@@ -102,7 +111,31 @@ function parseStore(data: unknown): AccountingStore {
     expenses: Array.isArray(record.expenses)
       ? record.expenses.filter(isExpense)
       : [],
+    suppliers: Array.isArray(record.suppliers)
+      ? sortSuppliersByName(record.suppliers.filter(isSupplier))
+      : [],
+    supplierPayments: Array.isArray(record.supplierPayments)
+      ? record.supplierPayments.filter(isSupplierPayment)
+      : [],
   };
+}
+
+function isSupplier(value: unknown): value is Supplier {
+  if (!value || typeof value !== "object") return false;
+  const item = value as Supplier;
+  return typeof item.id === "string" && typeof item.name === "string";
+}
+
+function isSupplierPayment(value: unknown): value is SupplierPayment {
+  if (!value || typeof value !== "object") return false;
+  const item = value as SupplierPayment;
+  return (
+    typeof item.id === "string" &&
+    typeof item.supplierId === "string" &&
+    isIsoDate(item.date) &&
+    Number.isFinite(item.amount) &&
+    isPaymentMethod(item.paymentMethod)
+  );
 }
 
 function normalizeSale(item: Sale): Sale {
@@ -313,6 +346,18 @@ async function saveAccountingStore(store: AccountingStore): Promise<void> {
   const encryptedOk = await writeEncryptedBlob(store);
   if (encryptedOk) return;
   writeLocal(store);
+}
+
+/** MySQL'de yalnızca değişen satırı yazar; diğer depolarda tüm store kaydedilir. */
+async function persistRow(
+  store: AccountingStore,
+  writeRow: () => Promise<void>,
+): Promise<void> {
+  if (isDatabaseConfigured()) {
+    await writeRow();
+    return;
+  }
+  await saveAccountingStore(store);
 }
 
 function requiredText(value: unknown, label: string, min = 1): string {
@@ -742,5 +787,147 @@ export async function deleteExpense(id: string): Promise<AccountingStore> {
   if (next.length === store.expenses.length) throw new Error("Gider bulunamadı");
   store.expenses = next;
   await saveAccountingStore(store);
+  return store;
+}
+
+function optionalText(value: unknown, max: number): string {
+  return asString(value).trim().slice(0, max);
+}
+
+function parseSupplierFields(body: Record<string, unknown>) {
+  return {
+    name: requiredText(body.name, "Firma adı", 1).slice(0, 255),
+    taxNumber: optionalText(body.taxNumber, 32),
+    phone: optionalText(body.phone, 32),
+    iban: optionalText(body.iban, 64).replace(/\s+/g, " ").toUpperCase(),
+    note: asString(body.note).trim(),
+  };
+}
+
+function assertUniqueSupplierName(
+  store: AccountingStore,
+  name: string,
+  exceptId?: string,
+) {
+  const needle = name.toLocaleLowerCase("tr-TR");
+  if (
+    store.suppliers.some(
+      (item) =>
+        item.id !== exceptId && item.name.toLocaleLowerCase("tr-TR") === needle,
+    )
+  ) {
+    throw new Error("Bu isimde bir firma kartı zaten var");
+  }
+}
+
+export async function createSupplier(input: unknown): Promise<AccountingStore> {
+  const fields = parseSupplierFields((input ?? {}) as Record<string, unknown>);
+  const store = await getAccountingStore();
+  assertUniqueSupplierName(store, fields.name);
+  const supplier: Supplier = {
+    id: randomUUID(),
+    ...fields,
+    createdAt: new Date().toISOString(),
+  };
+  store.suppliers = sortSuppliersByName([supplier, ...store.suppliers]);
+  await persistRow(store, () => insertSupplierRow(supplier));
+  return store;
+}
+
+export async function updateSupplier(
+  id: string,
+  input: unknown,
+): Promise<AccountingStore> {
+  const fields = parseSupplierFields((input ?? {}) as Record<string, unknown>);
+  const store = await getAccountingStore();
+  const index = store.suppliers.findIndex((item) => item.id === id);
+  if (index === -1) throw new Error("Firma bulunamadı");
+  assertUniqueSupplierName(store, fields.name, id);
+  const updated: Supplier = { ...store.suppliers[index], ...fields };
+  store.suppliers[index] = updated;
+  store.suppliers = sortSuppliersByName(store.suppliers);
+  await persistRow(store, () => updateSupplierRow(updated));
+  return store;
+}
+
+export async function deleteSupplier(id: string): Promise<AccountingStore> {
+  const store = await getAccountingStore();
+  if (store.supplierPayments.some((item) => item.supplierId === id)) {
+    throw new Error("Firma kartında ödeme var; önce ödemeleri silin");
+  }
+  const next = store.suppliers.filter((item) => item.id !== id);
+  if (next.length === store.suppliers.length) throw new Error("Firma bulunamadı");
+  store.suppliers = next;
+  await persistRow(store, () => deleteSupplierRow(id));
+  return store;
+}
+
+function parseSupplierPaymentFields(
+  body: Record<string, unknown>,
+  store: AccountingStore,
+) {
+  const supplierId = requiredText(body.supplierId, "Firma");
+  if (!store.suppliers.some((item) => item.id === supplierId)) {
+    throw new Error("Firma bulunamadı");
+  }
+  if (!isPaymentMethod(body.paymentMethod)) {
+    throw new Error("Ödeme nakit, kart veya havale olmalı");
+  }
+  return {
+    supplierId,
+    date: requiredDate(body.date),
+    amount: requiredAmount(body.amount, "Tutar"),
+    paymentMethod: body.paymentMethod,
+    description: optionalText(body.description, 255),
+    note: asString(body.note).trim(),
+  };
+}
+
+export async function createSupplierPayment(
+  input: unknown,
+): Promise<AccountingStore> {
+  const store = await getAccountingStore();
+  const fields = parseSupplierPaymentFields(
+    (input ?? {}) as Record<string, unknown>,
+    store,
+  );
+  const payment: SupplierPayment = {
+    id: randomUUID(),
+    ...fields,
+    createdAt: new Date().toISOString(),
+  };
+  store.supplierPayments = [payment, ...store.supplierPayments];
+  await persistRow(store, () => insertSupplierPaymentRow(payment));
+  return store;
+}
+
+export async function updateSupplierPayment(
+  id: string,
+  input: unknown,
+): Promise<AccountingStore> {
+  const store = await getAccountingStore();
+  const index = store.supplierPayments.findIndex((item) => item.id === id);
+  if (index === -1) throw new Error("Ödeme bulunamadı");
+  const body = (input ?? {}) as Record<string, unknown>;
+  const fields = parseSupplierPaymentFields(
+    { ...body, supplierId: body.supplierId ?? store.supplierPayments[index].supplierId },
+    store,
+  );
+  const updated: SupplierPayment = { ...store.supplierPayments[index], ...fields };
+  store.supplierPayments[index] = updated;
+  await persistRow(store, () => updateSupplierPaymentRow(updated));
+  return store;
+}
+
+export async function deleteSupplierPayment(
+  id: string,
+): Promise<AccountingStore> {
+  const store = await getAccountingStore();
+  const next = store.supplierPayments.filter((item) => item.id !== id);
+  if (next.length === store.supplierPayments.length) {
+    throw new Error("Ödeme bulunamadı");
+  }
+  store.supplierPayments = next;
+  await persistRow(store, () => deleteSupplierPaymentRow(id));
   return store;
 }

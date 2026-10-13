@@ -3,8 +3,6 @@
 import { CdnImage } from "@/components/atoms/CdnImage";
 import { useState } from "react";
 import { X } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
-
 export function ImageGallery({
   images,
   alt,
@@ -56,37 +54,32 @@ export function ImageGallery({
         </div>
       </div>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            className="fixed inset-0 z-[80] flex items-center justify-center bg-ink-950/90 p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Görsel lightbox"
+      {open && (
+        <div
+          className="animate-fade-in fixed inset-0 z-[80] flex items-center justify-center bg-ink-950/90 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Görsel lightbox"
+        >
+          <button
+            type="button"
+            className="absolute right-5 top-5 rounded-full bg-white/10 p-2 text-white"
+            onClick={() => setOpen(false)}
+            aria-label="Kapat"
           >
-            <button
-              type="button"
-              className="absolute right-5 top-5 rounded-full bg-white/10 p-2 text-white"
-              onClick={() => setOpen(false)}
-              aria-label="Kapat"
-            >
-              <X className="size-5" />
-            </button>
-            <div className="relative h-[70vh] w-full max-w-5xl">
-              <CdnImage
-                src={images[active]}
-                alt={`${alt} büyük görsel`}
-                fill
-                className="object-contain"
-                sizes="100vw"
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <X className="size-5" />
+          </button>
+          <div className="relative h-[70vh] w-full max-w-5xl">
+            <CdnImage
+              src={images[active]}
+              alt={`${alt} büyük görsel`}
+              fill
+              className="object-contain"
+              sizes="100vw"
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }

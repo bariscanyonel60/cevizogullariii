@@ -82,9 +82,9 @@ const searchTopics = [
   },
   {
     icon: ShieldCheck,
-    query: "depreme dayanıklı yapı Tokat",
-    title: "Depreme uygun malzeme seçimi",
-    text: "2026 deprem koşullarına uygun yapı anlayışında; bağlayıcılar, yalıtım ve cephe sistemlerinde yönetmelik bilinciyle ürün önerisi sunuyoruz.",
+    query: "Tokat teknik ürün seçimi",
+    title: "Projeye uygun ürün seçimi",
+    text: "Bağlayıcı, yalıtım ve cephe sistemlerinde proje gereklilikleri ve ilgili teknik standartlara uygun ürün seçimi konusunda destek sağlıyoruz.",
     href: "/teklif-al",
   },
 ] as const;
@@ -177,8 +177,8 @@ export default async function TokatPage() {
             <p className="mt-4 leading-relaxed text-ink-500">
               Amacımız katalog doldurmak değil; Tokat’taki konut, tadilat ve
               şantiye işlerinde gerçekten kullanılan malzemeleri, anlaşılır
-              fiyat ve doğru uygulama önerisiyle sunmak. Deprem kuşağında
-              yaşadığımız için ürün seçiminde güvenli yapı bilincini öne
+              fiyat ve doğru uygulama önerisiyle sunmak. Ürün seçiminde
+              projenin teknik gerekliliklerini ve üretici kılavuzlarını esas
               alıyoruz.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -288,9 +288,9 @@ export default async function TokatPage() {
                   Weber sistemleri ve İzocam gibi bilinen markaları öne çıkarırız.
                 </p>
                 <p>
-                  Yeni bina veya güçlendirme / tadilat fark etmeksizin; 2026
-                  deprem koşullarına uygun yapı kültüründe malzeme kalitesinin
-                  taşıyıcı güven kadar önemli olduğunu biliyoruz.
+                  Yeni bina ya da tadilat fark etmeksizin; proje gereklilikleri
+                  ve ilgili teknik standartlara uygun ürün seçimi konusunda
+                  ustanıza ve size destek oluyoruz.
                 </p>
               </div>
               <div className="relative mt-8 aspect-[16/10] overflow-hidden rounded-[1.75rem] shadow-premium">

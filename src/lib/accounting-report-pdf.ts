@@ -4,9 +4,36 @@ import {
   drawPdfSummaryRows,
   drawPdfTable,
 } from "@/lib/accounting-pdf-layout";
-import type { MonthlyReport } from "@/lib/accounting-report";
+import {
+  formatChangePercent,
+  paymentMethodRows,
+  type MonthlyReport,
+  type ReportGroupRow,
+} from "@/lib/accounting-report";
 import { SITE } from "@/lib/constants";
-import { createBrandedPdf } from "@/lib/pdf-brand";
+import { createBrandedPdf, type PdfDoc } from "@/lib/pdf-brand";
+
+function drawGroupTable(
+  doc: PdfDoc,
+  title: string,
+  firstHeader: string,
+  rows: ReportGroupRow[],
+) {
+  const total = rows.reduce((sum, row) => sum + row.total, 0);
+  const count = rows.reduce((sum, row) => sum + row.count, 0);
+  drawPdfTable(
+    doc,
+    title,
+    [firstHeader, "Kayıt", "Tutar"],
+    rows.length > 0
+      ? [
+          ...rows.map((row) => [row.label, String(row.count), formatTry(row.total)]),
+          ["TOPLAM", String(count), formatTry(total)],
+        ]
+      : [],
+    [300, 100, 140],
+  );
+}
 
 export async function buildMonthlyPdf(report: MonthlyReport): Promise<Buffer> {
   const { doc, done } = await createBrandedPdf({
@@ -17,96 +44,119 @@ export async function buildMonthlyPdf(report: MonthlyReport): Promise<Buffer> {
   });
 
   drawPdfSummaryRows(doc, [
-    ["Satış adedi", String(report.salesTotals.count)],
     ["Toplam satış (KDV dahil)", formatTry(report.salesTotals.gross)],
-    ["Net satış", formatTry(report.salesTotals.net)],
-    ["KDV", formatTry(report.salesTotals.vat)],
-    ["Nakit satış", formatTry(report.salesTotals.cash)],
-    ["Kart satış", formatTry(report.salesTotals.card)],
-    ["Havale satış", formatTry(report.salesTotals.transfer)],
+    ["Net satış / KDV", `${formatTry(report.salesTotals.net)} / ${formatTry(report.salesTotals.vat)}`],
+    ["İşlem adedi / satış yapılan gün", `${report.salesTotals.count} / ${report.salesTotals.activeDays}`],
+    ["Ortalama satış tutarı", formatTry(report.salesTotals.averageTicket)],
     ["Gider toplam", formatTry(report.expenseTotals.total)],
-    ["Net nakit kasa", formatTry(report.cash.cashNet)],
+    ["Firma ödemeleri", formatTry(report.cash.supplierPaymentTotal)],
     ["Personel avansı", formatTry(report.advanceTotal)],
-    ["Veresiye satış (dönem)", formatTry(report.creditTotals.purchases)],
-    ["Veresiye tahsilat (dönem)", formatTry(report.creditTotals.payments)],
+    ["Nakit kasa giren / çıkan", `${formatTry(report.cash.cashIn)} / ${formatTry(report.cash.cashOut)}`],
+    ["Net nakit kasa", formatTry(report.cash.cashNet)],
+    ["Veresiye satış / tahsilat (dönem)", `${formatTry(report.creditTotals.purchases)} / ${formatTry(report.creditTotals.payments)}`],
     ["Açık veresiye (güncel)", formatTry(report.outstanding)],
-    ["Geciken veresiye", formatTry(report.overdueTotal)],
-    ["Geciken müşteri", String(report.overdueCount)],
+    ["Geciken veresiye", `${formatTry(report.overdueTotal)} (${report.overdueCount} müşteri)`],
   ]);
 
   drawPdfTable(
     doc,
-    "Satışlar",
-    ["Tarih", "İşlem", "Ürün", "Miktar", "Ödeme", "Tutar"],
-    report.sales.map((row) => [
-      row.date,
-      row.kind,
-      row.productName,
-      formatQuantity(row.quantity),
-      row.paymentMethod,
+    `Önceki ayla karşılaştırma (${report.previousLabel})`,
+    ["Kalem", report.label, report.previousLabel, "Değişim"],
+    report.comparison.map((row) => [
+      row.label,
+      row.isCount ? String(row.current) : formatTry(row.current),
+      row.isCount ? String(row.previous) : formatTry(row.previous),
+      formatChangePercent(row.changePercent),
+    ]),
+    [200, 150, 150, 100],
+  );
+
+  drawPdfTable(
+    doc,
+    "Haftalık gidişat",
+    ["Hafta", "İşlem", "Satış", "Gider", "Firma ödemesi"],
+    report.weeks.map((row) => [
+      row.label,
+      String(row.saleCount),
+      formatTry(row.salesGross),
+      formatTry(row.expenseTotal),
+      formatTry(row.supplierTotal),
+    ]),
+    [160, 80, 130, 130, 130],
+  );
+
+  drawPdfTable(
+    doc,
+    "Ödeme yöntemine göre",
+    ["Yöntem", "Satış", "Gider"],
+    paymentMethodRows(report).map((row) => [
+      row.label,
+      formatTry(row.sales),
+      formatTry(row.expenses),
+    ]),
+    [200, 160, 160],
+  );
+
+  drawGroupTable(doc, "İşlem türüne göre satış", "Tür", report.salesByKind);
+
+  drawPdfTable(
+    doc,
+    "KDV oranına göre satış",
+    ["KDV", "Net", "KDV tutarı", "Toplam"],
+    report.salesByVat.map((row) => [
+      row.label,
+      formatTry(row.net),
+      formatTry(row.vat),
       formatTry(row.gross),
     ]),
-    [70, 85, 200, 60, 70, 90],
+    [120, 140, 140, 140],
   );
 
   drawPdfTable(
     doc,
-    "Personel avansları",
-    ["Tarih", "Personel", "Tutar", "Not"],
-    report.advances.map((row) => [
-      row.date,
-      row.staffName,
-      formatTry(row.amount),
-      row.note || "—",
-    ]),
-    [90, 220, 100, 200],
+    "En çok satan ürünler",
+    ["Ürün", "İşlem", "Miktar", "Tutar"],
+    [
+      ...report.topProducts.map((row) => [
+        row.productName,
+        String(row.count),
+        formatQuantity(row.quantity),
+        formatTry(row.gross),
+      ]),
+      ...(report.otherProducts
+        ? [[
+            report.otherProducts.productName,
+            String(report.otherProducts.count),
+            "—",
+            formatTry(report.otherProducts.gross),
+          ]]
+        : []),
+    ],
+    [300, 80, 100, 130],
   );
 
-  drawPdfTable(
-    doc,
-    "Veresiye hareketleri",
-    ["Tarih", "Müşteri", "İşlem", "Vade", "Tutar"],
-    report.credit.map((row) => [
-      row.date,
-      row.customerName,
-      row.kind,
-      row.dueDate,
-      formatTry(row.amount),
-    ]),
-    [80, 180, 110, 90, 90],
-  );
-
-  drawPdfTable(
-    doc,
-    "Giderler",
-    ["Tarih", "Kategori", "Açıklama", "Ödeme", "Tutar"],
-    report.expenses.map((row) => [
-      row.date,
-      row.category,
-      row.title,
-      row.paymentMethod,
-      formatTry(row.amount),
-    ]),
-    [80, 110, 220, 90, 90],
-  );
+  drawGroupTable(doc, "Gider kategorileri", "Kategori", report.expensesByCategory);
+  drawGroupTable(doc, "Firma ödemeleri", "Firma", report.supplierPayments);
+  drawGroupTable(doc, "Personel avansları", "Personel", report.advancesByStaff);
 
   drawPdfTable(
     doc,
     "Müşteri bakiyeleri",
-    ["Müşteri", "Telefon", "Bakiye", "Vade", "Geciken"],
+    ["Müşteri", "Telefon", "Dönem borç", "Dönem tahsilat", "Bakiye", "Geciken"],
     report.customers.map((row) => [
       row.name,
       row.phone,
+      formatTry(row.periodPurchases),
+      formatTry(row.periodPayments),
       formatTry(row.balance),
-      row.nextDueDate,
       row.overdueAmount > 0 ? formatTry(row.overdueAmount) : "—",
     ]),
-    [170, 110, 90, 90, 90],
+    [170, 100, 100, 100, 100, 90],
   );
 
   drawPdfFooter(
     doc,
-    "Satış tutarları KDV dahildir. Net nakit kasa = nakit satış + nakit tahsilat − nakit gider − avans.",
+    "Satış tutarları KDV dahildir. Net nakit kasa = nakit satış + nakit tahsilat − nakit gider − avans − nakit firma ödemesi.",
   );
 
   doc.end();

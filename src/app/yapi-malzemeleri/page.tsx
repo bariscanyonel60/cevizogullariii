@@ -6,7 +6,9 @@ import { PageHero } from "@/components/organisms/shared/PageHero";
 import { ProductFilters } from "@/components/organisms/shared/ProductFilters";
 import { Button } from "@/components/atoms/Button";
 import { Reveal } from "@/components/molecules/Reveal";
-import { PRODUCT_CATEGORY_LABELS } from "@/data/products";
+import { HomeFaqSection } from "@/components/organisms/home/HomeFaqSection";
+import { PRODUCTS_FAQS } from "@/data/page-faqs";
+import { brandHref, brandPages, categoryHref } from "@/lib/catalog";
 import {
   getBrands,
   getCategoryShowcase,
@@ -17,10 +19,10 @@ import { JsonLd } from "@/components/atoms/JsonLd";
 import {
   breadcrumbJsonLd,
   buildMetadata,
+  faqJsonLd,
   itemListJsonLd,
   webPageJsonLd,
 } from "@/lib/seo";
-import type { ProductCategory } from "@/types";
 
 export const metadata: Metadata = buildMetadata({
   title: "Yapı Malzemeleri Kataloğu · Boya Mantolama OSB",
@@ -39,28 +41,16 @@ export const metadata: Metadata = buildMetadata({
 
 export const revalidate = 60;
 
-type Props = {
-  searchParams: Promise<{ kategori?: string }>;
-};
-
-function parseCategory(
-  value: string | undefined,
-): "" | ProductCategory {
-  if (!value) return "";
-  return value in PRODUCT_CATEGORY_LABELS
-    ? (value as ProductCategory)
-    : "";
-}
-
-export default async function ProductsPage({ searchParams }: Props) {
-  const { kategori } = await searchParams;
-  const initialCategory = parseCategory(kategori);
+export default async function ProductsPage() {
   const [products, brands, showcase, exterior] = await Promise.all([
     getProducts(),
     getBrands(),
     getCategoryShowcase(),
     getExteriorPackage(),
   ]);
+  const brandLinks = new Map(
+    brandPages(brands, products).map((page) => [page.name, page.slug]),
+  );
 
   return (
     <>
@@ -81,9 +71,10 @@ export default async function ProductsPage({ searchParams }: Props) {
             name: "Yapı malzemesi kategorileri",
             items: showcase.map((c) => ({
               name: c.label,
-              path: `/yapi-malzemeleri?kategori=${c.key}`,
+              path: categoryHref(c.key),
             })),
           }),
+          faqJsonLd(PRODUCTS_FAQS),
         ]}
       />
       <PageHero
@@ -95,7 +86,7 @@ export default async function ProductsPage({ searchParams }: Props) {
       />
 
       <section id="urunler" className="container-wide scroll-mt-28 py-10 md:py-14">
-        <ProductFilters items={products} initialCategory={initialCategory} />
+        <ProductFilters items={products} />
       </section>
 
       <section className="container-wide py-12 md:py-16">
@@ -165,9 +156,13 @@ export default async function ProductsPage({ searchParams }: Props) {
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {brands.map((brand) => (
-              <a
+              <Link
                 key={brand.name}
-                href="#urunler"
+                href={
+                  brandLinks.has(brand.name)
+                    ? brandHref(brandLinks.get(brand.name) ?? "")
+                    : "#urunler"
+                }
                 className="flex items-start gap-3 rounded-2xl border border-earth-400/10 bg-white p-5 shadow-sm transition hover:border-forest-700/20 hover:shadow-premium"
               >
                 <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-forest-800 font-display text-sm font-bold text-gold-300">
@@ -181,7 +176,7 @@ export default async function ProductsPage({ searchParams }: Props) {
                     {brand.blurb}
                   </span>
                 </span>
-              </a>
+              </Link>
             ))}
           </div>
         </Reveal>
@@ -197,9 +192,9 @@ export default async function ProductsPage({ searchParams }: Props) {
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {showcase.map((cat) => (
-              <a
+              <Link
                 key={cat.key}
-                href={`?kategori=${cat.key}#urunler`}
+                href={categoryHref(cat.key)}
                 className="group relative overflow-hidden rounded-3xl bg-white shadow-premium transition hover:-translate-y-1 hover:shadow-premium-hover"
               >
                 <div className="relative aspect-[4/3] overflow-hidden">
@@ -221,11 +216,17 @@ export default async function ProductsPage({ searchParams }: Props) {
                     </span>
                   </div>
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         </Reveal>
       </section>
+
+      <HomeFaqSection
+        faqs={PRODUCTS_FAQS}
+        title="Yapı malzemeleri hakkında"
+        description="Stok, mantolama kalınlığı, toplu fiyat ve teslimat."
+      />
 
       <section className="container-wide pb-16 md:pb-24">
         <div className="flex flex-col gap-4 rounded-3xl bg-forest-950 p-6 text-white md:flex-row md:items-center md:justify-between md:p-8">

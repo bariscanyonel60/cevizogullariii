@@ -43,8 +43,10 @@ export async function POST(request: Request) {
     const result = await sendSiteMail(parsed.data);
     return NextResponse.json({ ok: true, id: result.id });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Mail gönderilemedi.";
-    return NextResponse.json({ error: message }, { status: 502 });
+    console.error("[mail]", error instanceof Error ? error.message : error);
+    return NextResponse.json(
+      { error: "Mesaj gönderilemedi. Lütfen telefon veya WhatsApp ile ulaşın." },
+      { status: 502 },
+    );
   }
 }

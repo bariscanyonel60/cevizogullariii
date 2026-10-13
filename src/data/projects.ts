@@ -136,11 +136,3 @@ export const projects: Project[] = [
     instagramUrl: IG,
   },
 ];
-
-export function getProjectBySlug(slug: string) {
-  return projects.find((p) => p.slug === slug);
-}
-
-export function getFeaturedProjects() {
-  return projects.filter((p) => p.featured);
-}

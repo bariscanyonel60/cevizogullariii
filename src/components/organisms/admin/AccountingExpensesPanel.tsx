@@ -82,7 +82,8 @@ export function AccountingExpensesPanel({
               Günlük nakit kasa
             </h3>
             <p className="mt-1 text-sm text-ink-500">
-              Nakit satış + nakit tahsilat − nakit gider − personel avansı. Kart
+              Nakit satış + nakit tahsilat − nakit gider − personel avansı −
+              nakit firma ödemesi. Kart
               ve havale kasaya girmez. Günün sonunda nakit evde veya bankadaysa
               Kasayı 0’la; satışlar silinmez.
             </p>
@@ -135,6 +136,10 @@ export function AccountingExpensesPanel({
             value={formatTry(cash.cashExpenses)}
           />
           <CashRow label="Avans" value={formatTry(cash.advances)} />
+          <CashRow
+            label="Firma ödemesi (nakit)"
+            value={formatTry(cash.supplierCashPayments)}
+          />
           <CashRow
             label="Kart (satış + tahsilat)"
             value={formatTry(cash.cardSales + cash.cardCollections)}

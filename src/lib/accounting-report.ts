@@ -1,51 +1,52 @@
 import { customerBalance, customerCreditStatus, monthCashSummary, roundMoney, saleSignedGross, splitVat } from "@/lib/accounting-money";
 import {
-  creditKindLabel,
+  CASH_ZERO_TITLE,
   customerFullName,
   expenseCategoryLabel,
   formatIsoDateTr,
   formatYearMonthTr,
   istanbulIsoDate,
+  PAYMENT_METHODS,
   paymentMethodLabel,
   saleKindLabel,
+  VAT_RATES,
   type AccountingStore,
+  type PaymentMethod,
   type ReportFormat,
+  type Sale,
 } from "@/lib/accounting-types";
 
-export type ReportSaleRow = {
-  date: string;
-  kind: string;
+const TOP_PRODUCT_LIMIT = 15;
+
+export type ReportGroupRow = {
+  label: string;
+  count: number;
+  total: number;
+};
+
+type ReportProductRow = {
   productName: string;
+  count: number;
   quantity: number;
-  unitPrice: number;
-  vatRate: number;
-  vatAmount: number;
-  net: number;
   gross: number;
-  paymentMethod: string;
-  note: string;
 };
 
-export type ReportAdvanceRow = {
-  date: string;
-  staffName: string;
-  amount: number;
-  note: string;
+type ReportVatRow = {
+  label: string;
+  net: number;
+  vat: number;
+  gross: number;
 };
 
-export type ReportCreditRow = {
-  date: string;
-  customerName: string;
-  kind: string;
-  productName: string;
-  amount: number;
-  vatLabel: string;
-  paymentMethod: string;
-  dueDate: string;
-  note: string;
+type ReportWeekRow = {
+  label: string;
+  saleCount: number;
+  salesGross: number;
+  expenseTotal: number;
+  supplierTotal: number;
 };
 
-export type ReportCustomerRow = {
+type ReportCustomerRow = {
   name: string;
   tc: string;
   phone: string;
@@ -58,21 +59,29 @@ export type ReportCustomerRow = {
   overdueDays: number;
 };
 
-export type ReportExpenseRow = {
-  date: string;
-  category: string;
-  title: string;
-  amount: number;
-  vatLabel: string;
-  paymentMethod: string;
-  note: string;
+type MonthTotals = {
+  saleCount: number;
+  salesGross: number;
+  expenseTotal: number;
+  supplierPaymentTotal: number;
+  advanceTotal: number;
+  cashNet: number;
+};
+
+export type ReportComparisonRow = {
+  label: string;
+  isCount: boolean;
+  current: number;
+  previous: number;
+  /** Yüzde değişim; önceki ay 0 ise null. */
+  changePercent: number | null;
 };
 
 export type MonthlyReport = {
   yearMonth: string;
   label: string;
+  previousLabel: string;
   generatedAt: string;
-  sales: ReportSaleRow[];
   salesTotals: {
     count: number;
     gross: number;
@@ -81,10 +90,25 @@ export type MonthlyReport = {
     cash: number;
     card: number;
     transfer: number;
+    averageTicket: number;
+    activeDays: number;
   };
-  advances: ReportAdvanceRow[];
+  salesByKind: ReportGroupRow[];
+  salesByVat: ReportVatRow[];
+  topProducts: ReportProductRow[];
+  otherProducts: ReportProductRow | null;
+  weeks: ReportWeekRow[];
+  expenseTotals: {
+    count: number;
+    total: number;
+    cash: number;
+    card: number;
+    transfer: number;
+  };
+  expensesByCategory: ReportGroupRow[];
+  supplierPayments: ReportGroupRow[];
   advanceTotal: number;
-  credit: ReportCreditRow[];
+  advancesByStaff: ReportGroupRow[];
   creditTotals: {
     purchases: number;
     payments: number;
@@ -93,145 +117,244 @@ export type MonthlyReport = {
   outstanding: number;
   overdueTotal: number;
   overdueCount: number;
-  expenses: ReportExpenseRow[];
-  expenseTotals: {
-    count: number;
-    total: number;
-    cash: number;
-    card: number;
-    transfer: number;
-  };
   cash: {
     cashIn: number;
     cashOut: number;
     cashNet: number;
+    supplierPaymentTotal: number;
   };
+  comparison: ReportComparisonRow[];
+  salesComparison: ReportComparisonRow;
 };
 
 function inMonth(date: string, yearMonth: string) {
   return date.startsWith(yearMonth);
 }
 
-function sortByDate<T extends { date: string }>(rows: T[]): T[] {
-  return rows.slice().sort((a, b) => a.date.localeCompare(b.date));
+function previousYearMonth(yearMonth: string): string {
+  const [year, month] = yearMonth.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 2, 1));
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
+function daysInMonth(yearMonth: string): number {
+  const [year, month] = yearMonth.split("-").map(Number);
+  return new Date(Date.UTC(year, month, 0)).getUTCDate();
+}
+
+function dayOf(date: string): number {
+  return Number(date.slice(8, 10));
+}
+
+/** Gruplanmış satırları tutara göre büyükten küçüğe sıralar. */
+function groupRows<T>(
+  items: T[],
+  keyOf: (item: T) => string,
+  amountOf: (item: T) => number,
+): ReportGroupRow[] {
+  const groups = new Map<string, ReportGroupRow>();
+  for (const item of items) {
+    const label = keyOf(item);
+    const row = groups.get(label) ?? { label, count: 0, total: 0 };
+    row.count += 1;
+    row.total += amountOf(item);
+    groups.set(label, row);
+  }
+  return [...groups.values()]
+    .map((row) => ({ ...row, total: roundMoney(row.total) }))
+    .sort((a, b) => b.total - a.total);
+}
+
+function saleKindKey(sale: Sale): string {
+  return sale.kind === "exchange" && sale.exchangeRefund
+    ? "Değişim (iade)"
+    : saleKindLabel(sale.kind);
+}
+
+function emptyMethodTotals(): Record<PaymentMethod, number> {
+  return { nakit: 0, kart: 0, havale: 0 };
+}
+
+function monthTotals(store: AccountingStore, yearMonth: string): MonthTotals {
+  const sales = store.sales.filter((sale) => inMonth(sale.date, yearMonth));
+  const cash = monthCashSummary(store, yearMonth);
+  return {
+    saleCount: sales.length,
+    salesGross: roundMoney(
+      sales.reduce((sum, sale) => sum + saleSignedGross(sale), 0),
+    ),
+    expenseTotal: cash.expenseTotal,
+    supplierPaymentTotal: cash.supplierPaymentTotal,
+    advanceTotal: cash.advances,
+    cashNet: cash.cashNet,
+  };
+}
+
+function comparisonRow(
+  label: string,
+  current: number,
+  previous: number,
+  isCount = false,
+): ReportComparisonRow {
+  return {
+    label,
+    isCount,
+    current,
+    previous,
+    changePercent:
+      previous === 0
+        ? null
+        : roundMoney(((current - previous) / Math.abs(previous)) * 100),
+  };
+}
+
+function buildProductRows(sales: Sale[]): {
+  top: ReportProductRow[];
+  other: ReportProductRow | null;
+} {
+  const products = new Map<string, ReportProductRow>();
+  for (const sale of sales) {
+    const name = sale.productName.trim() || "Ürün adı yok";
+    const key = name.toLocaleLowerCase("tr-TR");
+    const row = products.get(key) ?? {
+      productName: name,
+      count: 0,
+      quantity: 0,
+      gross: 0,
+    };
+    const signed = saleSignedGross(sale);
+    row.count += 1;
+    row.quantity += signed < 0 ? -sale.quantity : sale.quantity;
+    row.gross += signed;
+    products.set(key, row);
+  }
+  const sorted = [...products.values()]
+    .map((row) => ({
+      ...row,
+      quantity: Math.round(row.quantity * 1000) / 1000,
+      gross: roundMoney(row.gross),
+    }))
+    .sort((a, b) => b.gross - a.gross);
+
+  const top = sorted.slice(0, TOP_PRODUCT_LIMIT);
+  const rest = sorted.slice(TOP_PRODUCT_LIMIT);
+  if (rest.length === 0) return { top, other: null };
+  return {
+    top,
+    other: {
+      productName: `Diğer ${rest.length} ürün`,
+      count: rest.reduce((sum, row) => sum + row.count, 0),
+      quantity: 0,
+      gross: roundMoney(rest.reduce((sum, row) => sum + row.gross, 0)),
+    },
+  };
+}
+
+function buildWeekRows(store: AccountingStore, yearMonth: string): ReportWeekRow[] {
+  const lastDay = daysInMonth(yearMonth);
+  const monthName = formatYearMonthTr(yearMonth).split(" ")[0] ?? "";
+  const weeks: ReportWeekRow[] = [];
+  for (let start = 1; start <= lastDay; start += 7) {
+    const end = Math.min(start + 6, lastDay);
+    const inWeek = (date: string) =>
+      inMonth(date, yearMonth) && dayOf(date) >= start && dayOf(date) <= end;
+    const sales = store.sales.filter((sale) => inWeek(sale.date));
+    weeks.push({
+      label: `${start}–${end} ${monthName}`,
+      saleCount: sales.length,
+      salesGross: roundMoney(
+        sales.reduce((sum, sale) => sum + saleSignedGross(sale), 0),
+      ),
+      expenseTotal: roundMoney(
+        store.expenses
+          .filter((item) => inWeek(item.date))
+          .reduce((sum, item) => sum + item.amount, 0),
+      ),
+      supplierTotal: roundMoney(
+        store.supplierPayments
+          .filter((item) => inWeek(item.date))
+          .reduce((sum, item) => sum + item.amount, 0),
+      ),
+    });
+  }
+  return weeks;
 }
 
 export function buildMonthlyReport(
   store: AccountingStore,
   yearMonth: string,
 ): MonthlyReport {
-  const monthSales = sortByDate(
-    store.sales.filter((sale) => inMonth(sale.date, yearMonth)),
-  );
-  const saleRows: ReportSaleRow[] = monthSales.map((sale) => {
+  const monthSales = store.sales.filter((sale) => inMonth(sale.date, yearMonth));
+
+  const methodTotals = emptyMethodTotals();
+  const vatTotals = new Map<number, { net: number; vat: number; gross: number }>();
+  let net = 0;
+  let vat = 0;
+  let gross = 0;
+  for (const sale of monthSales) {
     const signed = saleSignedGross(sale);
-    const abs = Math.abs(signed);
-    const parts = splitVat(abs, sale.vatRate);
     const sign = signed < 0 ? -1 : 1;
-    const kindLabel =
-      sale.kind === "exchange" && sale.exchangeRefund
-        ? "Değişim (iade)"
-        : saleKindLabel(sale.kind);
-    return {
-      date: sale.date,
-      kind: kindLabel,
-      productName: sale.productName,
-      quantity: sale.quantity,
-      unitPrice: sale.unitPrice,
-      vatRate: sale.vatRate,
-      vatAmount: sign * parts.vatAmount,
-      net: sign * parts.net,
-      gross: signed,
-      paymentMethod: paymentMethodLabel(sale.paymentMethod),
-      note: sale.note,
-    };
+    const parts = splitVat(Math.abs(signed), sale.vatRate);
+    gross += signed;
+    net += sign * parts.net;
+    vat += sign * parts.vatAmount;
+    methodTotals[sale.paymentMethod] += signed;
+    const bucket = vatTotals.get(sale.vatRate) ?? { net: 0, vat: 0, gross: 0 };
+    bucket.net += sign * parts.net;
+    bucket.vat += sign * parts.vatAmount;
+    bucket.gross += signed;
+    vatTotals.set(sale.vatRate, bucket);
+  }
+  const activeDays = new Set(monthSales.map((sale) => sale.date)).size;
+  const saleOnlyCount = monthSales.filter((sale) => sale.kind === "sale").length;
+
+  const salesByKind = groupRows(monthSales, saleKindKey, saleSignedGross);
+
+  const salesByVat: ReportVatRow[] = VAT_RATES.flatMap((rate) => {
+    const bucket = vatTotals.get(rate);
+    if (!bucket) return [];
+    return [
+      {
+        label: `%${rate}`,
+        net: roundMoney(bucket.net),
+        vat: roundMoney(bucket.vat),
+        gross: roundMoney(bucket.gross),
+      },
+    ];
   });
 
-  const salesTotals = monthSales.reduce(
-    (acc, sale) => {
-      const signed = saleSignedGross(sale);
-      const abs = Math.abs(signed);
-      const parts = splitVat(abs, sale.vatRate);
-      const sign = signed < 0 ? -1 : 1;
-      acc.count += 1;
-      acc.gross += signed;
-      acc.net += sign * parts.net;
-      acc.vat += sign * parts.vatAmount;
-      switch (sale.paymentMethod) {
-        case "nakit":
-          acc.cash += signed;
-          break;
-        case "kart":
-          acc.card += signed;
-          break;
-        case "havale":
-          acc.transfer += signed;
-          break;
-        default: {
-          const _exhaustive: never = sale.paymentMethod;
-          return _exhaustive;
-        }
+  const products = buildProductRows(monthSales);
+
+  const monthAdvances = store.advances.filter((item) =>
+    inMonth(item.date, yearMonth),
+  );
+  const staffName = (staffId: string) =>
+    store.staff.find((member) => member.id === staffId)?.name ??
+    "Silinmiş personel";
+  const advancesByStaff = groupRows(
+    monthAdvances,
+    (item) => staffName(item.staffId),
+    (item) => item.amount,
+  );
+
+  const monthCredit = store.creditEntries.filter((entry) =>
+    inMonth(entry.date, yearMonth),
+  );
+  const creditTotals = { purchases: 0, payments: 0 };
+  for (const entry of monthCredit) {
+    switch (entry.kind) {
+      case "purchase":
+        creditTotals.purchases += entry.amount;
+        break;
+      case "payment":
+        creditTotals.payments += entry.amount;
+        break;
+      default: {
+        const _exhaustive: never = entry.kind;
+        throw new Error(`Bilinmeyen veresiye türü: ${String(_exhaustive)}`);
       }
-      return acc;
-    },
-    { count: 0, gross: 0, net: 0, vat: 0, cash: 0, card: 0, transfer: 0 },
-  );
-
-  const monthAdvances = sortByDate(
-    store.advances.filter((item) => inMonth(item.date, yearMonth)),
-  );
-  const advanceRows: ReportAdvanceRow[] = monthAdvances.map((item) => {
-    const staff = store.staff.find((member) => member.id === item.staffId);
-    return {
-      date: item.date,
-      staffName: staff?.name ?? "Silinmiş personel",
-      amount: item.amount,
-      note: item.note,
-    };
-  });
-
-  const monthCredit = sortByDate(
-    store.creditEntries.filter((entry) => inMonth(entry.date, yearMonth)),
-  );
-  const creditRows: ReportCreditRow[] = monthCredit.map((entry) => {
-    const customer = store.customers.find((item) => item.id === entry.customerId);
-    return {
-      date: entry.date,
-      customerName: customer
-        ? customerFullName(customer)
-        : "Silinmiş müşteri",
-      kind: creditKindLabel(entry.kind),
-      productName: entry.productName,
-      amount: entry.amount,
-      vatLabel: entry.vatRate ? `%${entry.vatRate}` : "—",
-      paymentMethod: entry.paymentMethod
-        ? paymentMethodLabel(entry.paymentMethod)
-        : "—",
-      dueDate: entry.kind === "purchase" && entry.dueDate
-        ? formatIsoDateTr(entry.dueDate)
-        : "—",
-      note: entry.note,
-    };
-  });
-
-  const creditTotals = monthCredit.reduce(
-    (acc, entry) => {
-      switch (entry.kind) {
-        case "purchase":
-          acc.purchases += entry.amount;
-          break;
-        case "payment":
-          acc.payments += entry.amount;
-          break;
-        default: {
-          const _exhaustive: never = entry.kind;
-          return _exhaustive;
-        }
-      }
-      return acc;
-    },
-    { purchases: 0, payments: 0 },
-  );
+    }
+  }
 
   const asOf = istanbulIsoDate();
   const customerRows: ReportCustomerRow[] = store.customers
@@ -281,62 +404,85 @@ export function buildMonthlyReport(
 
   const overdueRows = customerRows.filter((row) => row.overdueAmount > 0);
 
-  const monthExpenses = sortByDate(
-    store.expenses.filter((item) => inMonth(item.date, yearMonth)),
+  const monthExpenses = store.expenses.filter((item) =>
+    inMonth(item.date, yearMonth),
   );
-  const expenseRows: ReportExpenseRow[] = monthExpenses.map((item) => ({
-    date: item.date,
-    category: expenseCategoryLabel(item.category),
-    title: item.title,
-    amount: item.amount,
-    vatLabel: item.vatRate ? `%${item.vatRate}` : "—",
-    paymentMethod: paymentMethodLabel(item.paymentMethod),
-    note: item.note,
-  }));
-  const expenseTotals = monthExpenses.reduce(
-    (acc, item) => {
-      acc.count += 1;
-      acc.total += item.amount;
-      switch (item.paymentMethod) {
-        case "nakit":
-          acc.cash += item.amount;
-          break;
-        case "kart":
-          acc.card += item.amount;
-          break;
-        case "havale":
-          acc.transfer += item.amount;
-          break;
-        default: {
-          const _exhaustive: never = item.paymentMethod;
-          return _exhaustive;
-        }
-      }
-      return acc;
-    },
-    { count: 0, total: 0, cash: 0, card: 0, transfer: 0 },
+  const expenseMethods = emptyMethodTotals();
+  for (const item of monthExpenses) {
+    expenseMethods[item.paymentMethod] += item.amount;
+  }
+  const expensesByCategory = groupRows(
+    monthExpenses,
+    (item) =>
+      item.title === CASH_ZERO_TITLE
+        ? CASH_ZERO_TITLE
+        : expenseCategoryLabel(item.category),
+    (item) => item.amount,
   );
+
+  const supplierName = (supplierId: string) =>
+    store.suppliers.find((item) => item.id === supplierId)?.name ??
+    "Silinmiş firma";
+  const supplierPayments = groupRows(
+    store.supplierPayments.filter((item) => inMonth(item.date, yearMonth)),
+    (item) => supplierName(item.supplierId),
+    (item) => item.amount,
+  );
+
   const cash = monthCashSummary(store, yearMonth);
+  const previousMonth = previousYearMonth(yearMonth);
+  const current = monthTotals(store, yearMonth);
+  const previous = monthTotals(store, previousMonth);
+  const salesComparison = comparisonRow(
+    "Satış tutarı",
+    current.salesGross,
+    previous.salesGross,
+  );
 
   return {
     yearMonth,
     label: formatYearMonthTr(yearMonth),
+    previousLabel: formatYearMonthTr(previousMonth),
     generatedAt: istanbulIsoDate(),
-    sales: saleRows,
     salesTotals: {
-      count: salesTotals.count,
-      gross: roundMoney(salesTotals.gross),
-      net: roundMoney(salesTotals.net),
-      vat: roundMoney(salesTotals.vat),
-      cash: roundMoney(salesTotals.cash),
-      card: roundMoney(salesTotals.card),
-      transfer: roundMoney(salesTotals.transfer),
+      count: monthSales.length,
+      gross: roundMoney(gross),
+      net: roundMoney(net),
+      vat: roundMoney(vat),
+      cash: roundMoney(methodTotals.nakit),
+      card: roundMoney(methodTotals.kart),
+      transfer: roundMoney(methodTotals.havale),
+      averageTicket:
+        saleOnlyCount > 0
+          ? roundMoney(
+              monthSales
+                .filter((sale) => sale.kind === "sale")
+                .reduce((sum, sale) => sum + saleSignedGross(sale), 0) /
+                saleOnlyCount,
+            )
+          : 0,
+      activeDays,
     },
-    advances: advanceRows,
+    salesByKind,
+    salesByVat,
+    topProducts: products.top,
+    otherProducts: products.other,
+    weeks: buildWeekRows(store, yearMonth),
+    expenseTotals: {
+      count: monthExpenses.length,
+      total: roundMoney(
+        PAYMENT_METHODS.reduce((sum, method) => sum + expenseMethods[method], 0),
+      ),
+      cash: roundMoney(expenseMethods.nakit),
+      card: roundMoney(expenseMethods.kart),
+      transfer: roundMoney(expenseMethods.havale),
+    },
+    expensesByCategory,
+    supplierPayments,
     advanceTotal: roundMoney(
-      advanceRows.reduce((sum, row) => sum + row.amount, 0),
+      monthAdvances.reduce((sum, item) => sum + item.amount, 0),
     ),
-    credit: creditRows,
+    advancesByStaff,
     creditTotals: {
       purchases: roundMoney(creditTotals.purchases),
       payments: roundMoney(creditTotals.payments),
@@ -358,20 +504,63 @@ export function buildMonthlyReport(
       overdueRows.reduce((sum, row) => sum + row.overdueAmount, 0),
     ),
     overdueCount: overdueRows.length,
-    expenses: expenseRows,
-    expenseTotals: {
-      count: expenseTotals.count,
-      total: roundMoney(expenseTotals.total),
-      cash: roundMoney(expenseTotals.cash),
-      card: roundMoney(expenseTotals.card),
-      transfer: roundMoney(expenseTotals.transfer),
-    },
     cash: {
       cashIn: cash.cashIn,
       cashOut: cash.cashOut,
       cashNet: cash.cashNet,
+      supplierPaymentTotal: cash.supplierPaymentTotal,
     },
+    comparison: [
+      comparisonRow("Satış adedi", current.saleCount, previous.saleCount, true),
+      salesComparison,
+      comparisonRow("Gider", current.expenseTotal, previous.expenseTotal),
+      comparisonRow(
+        "Firma ödemeleri",
+        current.supplierPaymentTotal,
+        previous.supplierPaymentTotal,
+      ),
+      comparisonRow("Personel avansı", current.advanceTotal, previous.advanceTotal),
+      comparisonRow("Net nakit kasa", current.cashNet, previous.cashNet),
+    ],
+    salesComparison,
   };
+}
+
+export function paymentMethodRows(
+  report: MonthlyReport,
+): { label: string; sales: number; expenses: number }[] {
+  return PAYMENT_METHODS.map((method) => {
+    switch (method) {
+      case "nakit":
+        return {
+          label: paymentMethodLabel(method),
+          sales: report.salesTotals.cash,
+          expenses: report.expenseTotals.cash,
+        };
+      case "kart":
+        return {
+          label: paymentMethodLabel(method),
+          sales: report.salesTotals.card,
+          expenses: report.expenseTotals.card,
+        };
+      case "havale":
+        return {
+          label: paymentMethodLabel(method),
+          sales: report.salesTotals.transfer,
+          expenses: report.expenseTotals.transfer,
+        };
+      default: {
+        const _exhaustive: never = method;
+        return _exhaustive;
+      }
+    }
+  });
+}
+
+export function formatChangePercent(value: number | null): string {
+  if (value === null) return "—";
+  const sign = value > 0 ? "+" : "";
+  return `${sign}%${value.toLocaleString("tr-TR", { maximumFractionDigits: 1 })}`;
 }
 
 export function reportFilename(yearMonth: string, format: ReportFormat) {

@@ -4,11 +4,6 @@ import { CdnImage } from "@/components/atoms/CdnImage";
 import Link from "next/link";
 import { useRef, type MouseEvent } from "react";
 import { ArrowUpRight } from "lucide-react";
-import {
-  motion,
-  useMotionTemplate,
-  useSpring,
-} from "framer-motion";
 import { Reveal } from "@/components/molecules/Reveal";
 import { SectionHeading } from "@/components/molecules/SectionHeading";
 import { Button } from "@/components/atoms/Button";
@@ -22,9 +17,13 @@ function TiltCard({
   index: number;
 }) {
   const ref = useRef<HTMLAnchorElement>(null);
-  const rotateX = useSpring(0, { stiffness: 200, damping: 20 });
-  const rotateY = useSpring(0, { stiffness: 200, damping: 20 });
-  const transform = useMotionTemplate`perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+
+  function setTilt(rotateX: number, rotateY: number) {
+    ref.current?.style.setProperty(
+      "transform",
+      `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
+    );
+  }
 
   function onMove(event: MouseEvent<HTMLAnchorElement>) {
     const el = ref.current;
@@ -32,24 +31,17 @@ function TiltCard({
     const rect = el.getBoundingClientRect();
     const px = (event.clientX - rect.left) / rect.width;
     const py = (event.clientY - rect.top) / rect.height;
-    rotateX.set((py - 0.5) * -8);
-    rotateY.set((px - 0.5) * 8);
-  }
-
-  function onLeave() {
-    rotateX.set(0);
-    rotateY.set(0);
+    setTilt((py - 0.5) * -8, (px - 0.5) * 8);
   }
 
   return (
     <Reveal delay={index * 0.08} className="min-h-[28rem]">
-      <motion.a
+      <a
         ref={ref}
         href={area.href}
-        style={{ transform }}
         onMouseMove={onMove}
-        onMouseLeave={onLeave}
-        className="group relative block min-h-[28rem] overflow-hidden rounded-[1.75rem] shadow-premium will-change-transform"
+        onMouseLeave={() => setTilt(0, 0)}
+        className="group relative block min-h-[28rem] overflow-hidden rounded-[1.75rem] shadow-premium transition-transform duration-300 ease-out will-change-transform"
       >
         <div className="absolute inset-0">
           <CdnImage
@@ -82,7 +74,7 @@ function TiltCard({
             <ArrowUpRight className="size-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </span>
         </div>
-      </motion.a>
+      </a>
     </Reveal>
   );
 }

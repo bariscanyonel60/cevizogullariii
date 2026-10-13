@@ -6,13 +6,13 @@ import { ImageGallery } from "@/components/organisms/shared/ImageGallery";
 import { BeforeAfter } from "@/components/organisms/shared/BeforeAfter";
 import { InstagramCta } from "@/components/organisms/shared/InstagramCta";
 import { Button } from "@/components/atoms/Button";
+import { ProjectCard } from "@/components/molecules/ProjectCard";
 import { getProjectBySlug, getProjects } from "@/lib/cms-store";
 import { SITE } from "@/lib/constants";
 import { JsonLd } from "@/components/atoms/JsonLd";
 import {
   breadcrumbJsonLd,
   buildMetadata,
-  projectImageAlt,
   projectJsonLd,
   projectSeoDescription,
   projectSeoTitle,
@@ -55,8 +55,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProjectDetailPage({ params }: Props) {
   const { slug } = await params;
-  const project = await getProjectBySlug(slug);
+  const [project, allProjects] = await Promise.all([
+    getProjectBySlug(slug),
+    getProjects(),
+  ]);
   if (!project) notFound();
+
+  const otherProjects = allProjects
+    .filter((item) => item.slug !== project.slug)
+    .slice(0, 3);
 
   const schemas = [
     projectJsonLd(project),
@@ -82,7 +89,7 @@ export default async function ProjectDetailPage({ params }: Props) {
       <section className="container-wide space-y-12 py-12 md:py-16">
         <ImageGallery
           images={project.images}
-          alt={projectImageAlt(project)}
+          alt={`${project.title} — ${project.location}`}
         />
         <div className="max-w-3xl">
           <h2 className="font-display text-2xl font-bold">Proje Özeti</h2>
@@ -109,6 +116,42 @@ export default async function ProjectDetailPage({ params }: Props) {
               after={project.afterImage}
               title={project.title}
             />
+          </div>
+        )}
+        <div className="flex flex-col gap-4 rounded-3xl bg-forest-950 p-6 text-white md:flex-row md:items-center md:justify-between md:p-8">
+          <div>
+            <h2 className="font-display text-xl font-semibold">
+              Benzer bir proje mi planlıyorsunuz?
+            </h2>
+            <p className="mt-1 text-sm text-white/65">
+              Malzeme listesi ve uygulama için ücretsiz teklif alın.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Button asChild variant="gold">
+              <Link href="/teklif-al">Teklif Al</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/yapi-insaat">Yapı-İnşaat Hizmetleri</Link>
+            </Button>
+          </div>
+        </div>
+        {otherProjects.length > 0 && (
+          <div>
+            <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+              <h2 className="font-display text-2xl font-bold">Diğer projeler</h2>
+              <Link
+                href="/projelerimiz"
+                className="text-sm font-semibold text-forest-800 hover:underline"
+              >
+                Tüm projeler
+              </Link>
+            </div>
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {otherProjects.map((item) => (
+                <ProjectCard key={item.slug} project={item} />
+              ))}
+            </div>
           </div>
         )}
         <InstagramCta compact />

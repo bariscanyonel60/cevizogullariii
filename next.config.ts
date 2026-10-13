@@ -6,6 +6,16 @@ const STATIC_CACHE = "public, max-age=31536000, immutable";
 const PRIVATE_NO_STORE =
   "private, no-store, max-age=0, must-revalidate";
 
+const SECURITY_HEADERS = [
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-Frame-Options", value: "SAMEORIGIN" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), payment=()",
+  },
+];
+
 const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
@@ -17,7 +27,7 @@ const nextConfig: NextConfig = {
     const routeHeaders = [
       {
         source: "/:path*",
-        headers: [{ key: "Cache-Control", value: HTML_CACHE }],
+        headers: [{ key: "Cache-Control", value: HTML_CACHE }, ...SECURITY_HEADERS],
       },
       {
         source: "/api/:path*",
@@ -33,6 +43,15 @@ const nextConfig: NextConfig = {
       },
     ];
     if (process.env.NODE_ENV === "production") {
+      routeHeaders.push({
+        source: "/:path*",
+        headers: [
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=31536000; includeSubDomains",
+          },
+        ],
+      });
       routeHeaders.push({
         source: "/_next/static/:path*",
         headers: [{ key: "Cache-Control", value: STATIC_CACHE }],

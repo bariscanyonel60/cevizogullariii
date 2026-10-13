@@ -7,7 +7,7 @@ export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 export const SALE_KINDS = ["sale", "return", "exchange"] as const;
 export type SaleKind = (typeof SALE_KINDS)[number];
 
-export const CREDIT_KINDS = ["purchase", "payment"] as const;
+const CREDIT_KINDS = ["purchase", "payment"] as const;
 export type CreditKind = (typeof CREDIT_KINDS)[number];
 
 export const EXPENSE_CATEGORIES = [
@@ -21,13 +21,15 @@ export const EXPENSE_CATEGORIES = [
 ] as const;
 export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number];
 
-export const ACCOUNTING_ENTITIES = [
+const ACCOUNTING_ENTITIES = [
   "sale",
   "staff",
   "advance",
   "customer",
   "credit",
   "expense",
+  "supplier",
+  "supplierPayment",
 ] as const;
 export type AccountingEntity = (typeof ACCOUNTING_ENTITIES)[number];
 
@@ -106,10 +108,41 @@ export type Expense = {
   createdAt: string;
 };
 
+/** Ödeme yapılan firma (tedarikçi) kartı. */
+export type Supplier = {
+  id: string;
+  name: string;
+  taxNumber: string;
+  phone: string;
+  iban: string;
+  note: string;
+  createdAt: string;
+};
+
+export type SupplierPayment = {
+  id: string;
+  supplierId: string;
+  date: string;
+  amount: number;
+  paymentMethod: PaymentMethod;
+  /** Fatura no, irsaliye veya kısa açıklama. */
+  description: string;
+  note: string;
+  createdAt: string;
+};
+
+export function sortSuppliersByName<T extends Pick<Supplier, "name">>(
+  suppliers: T[],
+): T[] {
+  return [...suppliers].sort((a, b) =>
+    a.name.localeCompare(b.name, "tr-TR", { sensitivity: "base" }),
+  );
+}
+
 export const CASH_ZERO_TITLE = "Kasa çekimi";
 export const CASH_ZERO_NOTE = "Günün net nakit kasasını sıfırlamak için";
 export const CASH_ZERO_MONTH_NOTE = "Ayın net nakit kasasını sıfırlamak için";
-export const CASH_ZERO_SCOPES = ["day", "month"] as const;
+const CASH_ZERO_SCOPES = ["day", "month"] as const;
 export type CashZeroScope = (typeof CASH_ZERO_SCOPES)[number];
 
 export function isCashZeroScope(value: unknown): value is CashZeroScope {
@@ -123,6 +156,8 @@ export type AccountingStore = {
   customers: Customer[];
   creditEntries: CreditEntry[];
   expenses: Expense[];
+  suppliers: Supplier[];
+  supplierPayments: SupplierPayment[];
 };
 
 export function emptyAccountingStore(): AccountingStore {
@@ -133,6 +168,8 @@ export function emptyAccountingStore(): AccountingStore {
     customers: [],
     creditEntries: [],
     expenses: [],
+    suppliers: [],
+    supplierPayments: [],
   };
 }
 
@@ -282,14 +319,14 @@ export function formatYearMonthTr(yearMonth: string): string {
   }).format(new Date(Date.UTC(year, month - 1, 1)));
 }
 
-export const REPORT_FORMATS = ["xlsx", "pdf"] as const;
+const REPORT_FORMATS = ["xlsx", "pdf"] as const;
 export type ReportFormat = (typeof REPORT_FORMATS)[number];
 
 export function isReportFormat(value: unknown): value is ReportFormat {
   return REPORT_FORMATS.includes(value as ReportFormat);
 }
 
-export const ACCOUNTING_PDF_KINDS = [
+const ACCOUNTING_PDF_KINDS = [
   "summary",
   "sales",
   "staff",
@@ -324,24 +361,7 @@ export function accountingPdfFilename(
   }
 }
 
-export function normalizePhone(value: string): string {
-  return value.replace(/[^\d+]/g, "").trim();
-}
-
 export function isValidPhone(value: string): boolean {
   const digits = value.replace(/\D/g, "");
   return digits.length >= 10 && digits.length <= 13;
-}
-
-/** T.C. kimlik numarası algoritması */
-export function isValidTc(value: string): boolean {
-  if (!/^[1-9]\d{10}$/.test(value)) return false;
-  const digits = value.split("").map(Number);
-  const odd =
-    digits[0] + digits[2] + digits[4] + digits[6] + digits[8];
-  const even = digits[1] + digits[3] + digits[5] + digits[7];
-  const tenth = ((odd * 7 - even) % 10 + 10) % 10;
-  if (tenth !== digits[9]) return false;
-  const sum = digits.slice(0, 10).reduce((total, digit) => total + digit, 0);
-  return sum % 10 === digits[10];
 }
