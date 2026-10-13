@@ -4,6 +4,7 @@ import {
   CATEGORY_SHOWCASE,
   products as catalogProducts,
 } from "@/data/products";
+import { trailingBlogPosts } from "@/data/blog";
 import { projects as catalogProjects } from "@/data/projects";
 import type { OrmanUrunleriPage } from "@/data/orman-urunleri";
 import {
@@ -131,7 +132,9 @@ export async function getExteriorPackage(): Promise<CmsExteriorPackage[]> {
 }
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
-  return (await getCmsSnapshot()).posts;
+  const posts = (await getCmsSnapshot()).posts;
+  const slugs = new Set(posts.map((post) => post.slug));
+  return [...posts, ...trailingBlogPosts.filter((post) => !slugs.has(post.slug))];
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | undefined> {
