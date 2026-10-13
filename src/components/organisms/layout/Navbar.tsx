@@ -2,16 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
-import { createPortal } from "react-dom";
 import {
-  ChevronDown,
-  MapPin,
-  Menu,
-  Phone,
-  X,
-} from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { createPortal } from "react-dom";
+import { ChevronDown, FileText, MapPin, Menu, Phone, X } from "lucide-react";
 import { useLenis } from "lenis/react";
 import { Logo } from "@/components/atoms/Logo";
 import { Button } from "@/components/atoms/Button";
@@ -19,12 +18,7 @@ import { MediaCredit } from "@/components/atoms/MediaCredit";
 import { WhatsAppIcon } from "@/components/atoms/SocialIcons";
 import { MegaMenu } from "@/components/organisms/layout/MegaMenu";
 import { TopBar } from "@/components/organisms/layout/TopBar";
-import {
-  NAV_LINKS,
-  SITE,
-  type NavItem,
-  whatsappUrl,
-} from "@/lib/constants";
+import { NAV_LINKS, SITE, type NavItem, whatsappUrl } from "@/lib/constants";
 import type { NavCms } from "@/lib/cms-types";
 import { cn } from "@/lib/utils";
 
@@ -277,6 +271,12 @@ export function Navbar({ nav }: { nav: NavCms }) {
             <span className="truncate">{SITE.phone}</span>
           </a>
           <div className="flex items-center gap-3">
+            <Link
+              href="/teklif-al"
+              className="inline-flex items-center gap-1 font-semibold text-gold-300 transition hover:text-gold-200 sm:hidden"
+            >
+              Ücretsiz teklif
+            </Link>
             <span className="hidden items-center gap-1 text-white/60 sm:inline-flex">
               <MapPin className="size-3 text-gold-400" aria-hidden />
               {SITE.city}
@@ -303,11 +303,7 @@ export function Navbar({ nav }: { nav: NavCms }) {
         )}
       >
         <div className="container-wide flex items-center justify-between gap-4">
-          <Logo
-            compact
-            inverted={!solid}
-            className="min-w-0 shrink"
-          />
+          <Logo compact inverted={!solid} className="min-w-0 shrink" />
 
           <nav
             className="relative hidden min-w-0 flex-1 items-center justify-center gap-0.5 xl:flex"
@@ -370,6 +366,18 @@ export function Navbar({ nav }: { nav: NavCms }) {
           </nav>
 
           <div className="flex shrink-0 items-center gap-2">
+            <Link
+              href="/teklif-al"
+              className={cn(
+                "hidden h-10 items-center gap-1.5 rounded-full px-4 text-sm font-semibold shadow-sm transition sm:inline-flex sm:h-11 sm:px-5",
+                solid
+                  ? "bg-forest-800 text-white hover:bg-forest-700"
+                  : "bg-gold-500 text-ink-950 hover:bg-gold-400",
+              )}
+            >
+              <FileText className="size-4" aria-hidden />
+              Teklif Al
+            </Link>
             <a
               href={SITE.phoneHref}
               className={cn(
@@ -403,254 +411,222 @@ export function Navbar({ nav }: { nav: NavCms }) {
 
       {portalReady &&
         createPortal(
-          <AnimatePresence>
-            {open && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="fixed inset-0 z-100 flex h-dvh max-h-dvh flex-col xl:hidden"
+          open && (
+            <div
+              className="animate-fade-in fixed inset-0 z-100 flex h-dvh max-h-dvh flex-col xl:hidden"
+              style={{
+                paddingTop: "env(safe-area-inset-top)",
+                paddingBottom: "env(safe-area-inset-bottom)",
+              }}
+              data-lenis-prevent
+            >
+              {/* Atmosfer */}
+              <div className="absolute inset-0 bg-ivory-50" aria-hidden />
+              <div
+                className="pointer-events-none absolute inset-0 opacity-90"
+                aria-hidden
                 style={{
-                  paddingTop: "env(safe-area-inset-top)",
-                  paddingBottom: "env(safe-area-inset-bottom)",
+                  background:
+                    "radial-gradient(ellipse 80% 50% at 100% -10%, color-mix(in oklab, var(--forest-500) 18%, transparent), transparent 55%), radial-gradient(ellipse 60% 40% at 0% 100%, color-mix(in oklab, var(--gold-400) 14%, transparent), transparent 50%)",
                 }}
+              />
+
+              {/* Üst bar */}
+              <div className="relative shrink-0 border-b border-earth-400/10 bg-ivory-50/80 backdrop-blur-xl">
+                <div className="container-wide flex h-14 items-center justify-between gap-3 sm:h-16">
+                  <Logo compact />
+                  <button
+                    type="button"
+                    className="inline-flex size-10 items-center justify-center rounded-full border border-earth-400/15 bg-white text-ink-900 shadow-sm transition active:scale-95"
+                    aria-label="Menüyü kapat"
+                    onClick={() => setOpen(false)}
+                  >
+                    <X className="size-5" />
+                  </button>
+                </div>
+              </div>
+
+              <div
+                className="relative min-h-0 flex-1 overflow-y-auto overscroll-y-contain touch-pan-y [-webkit-overflow-scrolling:touch]"
                 data-lenis-prevent
               >
-                {/* Atmosfer */}
-                <div className="absolute inset-0 bg-ivory-50" aria-hidden />
-                <div
-                  className="pointer-events-none absolute inset-0 opacity-90"
-                  aria-hidden
-                  style={{
-                    background:
-                      "radial-gradient(ellipse 80% 50% at 100% -10%, color-mix(in oklab, var(--forest-500) 18%, transparent), transparent 55%), radial-gradient(ellipse 60% 40% at 0% 100%, color-mix(in oklab, var(--gold-400) 14%, transparent), transparent 50%)",
-                  }}
-                />
+                <div className="container-wide flex flex-col pb-6 pt-6">
+                  <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-gold-600">
+                    Keşfet
+                  </p>
 
-                {/* Üst bar */}
-                <div className="relative shrink-0 border-b border-earth-400/10 bg-ivory-50/80 backdrop-blur-xl">
-                  <div className="container-wide flex h-14 items-center justify-between gap-3 sm:h-16">
-                    <Logo compact />
-                    <button
-                      type="button"
-                      className="inline-flex size-10 items-center justify-center rounded-full border border-earth-400/15 bg-white text-ink-900 shadow-sm transition active:scale-95"
-                      aria-label="Menüyü kapat"
-                      onClick={() => setOpen(false)}
-                    >
-                      <X className="size-5" />
-                    </button>
-                  </div>
-                </div>
+                  <nav className="flex flex-col" aria-label="Mobil menü">
+                    {NAV_LINKS.map((link, index) => {
+                      const active = isNavActive(pathname, link);
+                      const delay = 0.04 + index * 0.035;
 
-                <div
-                  className="relative min-h-0 flex-1 overflow-y-auto overscroll-y-contain touch-pan-y [-webkit-overflow-scrolling:touch]"
-                  data-lenis-prevent
-                >
-                  <div className="container-wide flex flex-col pb-6 pt-6">
-                    <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-gold-600">
-                      Keşfet
-                    </p>
-
-                    <nav className="flex flex-col" aria-label="Mobil menü">
-                      {NAV_LINKS.map((link, index) => {
-                        const active = isNavActive(pathname, link);
-                        const delay = 0.04 + index * 0.035;
-
-                        if (link.children?.length) {
-                          const sectionOpen = mobileOpenLabel === link.label;
-                          return (
-                            <motion.div
-                              key={link.label}
-                              initial={{ opacity: 0, y: 12 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{
-                                duration: 0.35,
-                                delay,
-                                ease: [0.22, 1, 0.36, 1],
-                              }}
-                              className="border-b border-earth-400/10"
-                            >
-                              <div className="flex items-center gap-2">
-                                <Link
-                                  href={link.href}
-                                  onClick={() => {
-                                    window.setTimeout(() => setOpen(false), 0);
-                                  }}
-                                  className={cn(
-                                    "min-w-0 flex-1 py-4 text-left transition",
-                                    active
-                                      ? "text-forest-800"
-                                      : "text-ink-900",
-                                  )}
-                                >
-                                  <span className="font-display text-xl font-semibold tracking-tight sm:text-2xl">
-                                    {link.label}
-                                  </span>
-                                </Link>
-                                <button
-                                  type="button"
-                                  className={cn(
-                                    "inline-flex size-10 shrink-0 items-center justify-center rounded-full border transition",
-                                    sectionOpen
-                                      ? "border-forest-800 bg-forest-800 text-white"
-                                      : "border-earth-400/20 bg-white text-ink-500",
-                                  )}
-                                  aria-expanded={sectionOpen}
-                                  aria-label={`${link.label} alt menüsünü ${sectionOpen ? "kapat" : "aç"}`}
-                                  onClick={() =>
-                                    setMobileOpenLabel((current) =>
-                                      current === link.label
-                                        ? null
-                                        : link.label,
-                                    )
-                                  }
-                                >
-                                  <ChevronDown
-                                    className={cn(
-                                      "size-4 transition duration-300",
-                                      sectionOpen && "rotate-180",
-                                    )}
-                                    aria-hidden
-                                  />
-                                </button>
-                              </div>
-                              <AnimatePresence initial={false}>
-                                {sectionOpen && (
-                                  <motion.div
-                                    initial={{ height: 0, opacity: 0 }}
-                                    animate={{ height: "auto", opacity: 1 }}
-                                    exit={{ height: 0, opacity: 0 }}
-                                    transition={{ duration: 0.22 }}
-                                    className="overflow-hidden"
-                                  >
-                                    <div className="mb-4 ml-1 space-y-0.5 border-l-2 border-gold-400/50 pl-4">
-                                      {(link.children.some(
-                                        (child) => child.href === link.href,
-                                      )
-                                        ? link.children
-                                        : [
-                                            {
-                                              href: link.href,
-                                              label: "Tümü",
-                                            },
-                                            ...link.children,
-                                          ]
-                                      ).map((child) => {
-                                        const childActive =
-                                          pathname === child.href ||
-                                          (child.href !== link.href &&
-                                            pathname.startsWith(
-                                              `${child.href}/`,
-                                            ));
-                                        return (
-                                          <Link
-                                            key={child.href}
-                                            href={child.href}
-                                            onClick={() => {
-                                              window.setTimeout(
-                                                () => setOpen(false),
-                                                0,
-                                              );
-                                            }}
-                                            className={cn(
-                                              "block rounded-lg py-2.5 text-[15px] font-medium transition",
-                                              childActive
-                                                ? "text-forest-800"
-                                                : "text-ink-500 hover:text-forest-800",
-                                            )}
-                                          >
-                                            {child.label}
-                                          </Link>
-                                        );
-                                      })}
-                                    </div>
-                                  </motion.div>
-                                )}
-                              </AnimatePresence>
-                            </motion.div>
-                          );
-                        }
-
+                      if (link.children?.length) {
+                        const sectionOpen = mobileOpenLabel === link.label;
                         return (
-                          <motion.div
-                            key={link.href}
-                            initial={{ opacity: 0, y: 12 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{
-                              duration: 0.35,
-                              delay,
-                              ease: [0.22, 1, 0.36, 1],
-                            }}
-                            className="border-b border-earth-400/10"
+                          <div
+                            key={link.label}
+                            style={{ animationDelay: `${delay}s` }}
+                            className="animate-fade-up border-b border-earth-400/10"
                           >
-                            <Link
-                              href={link.href}
-                              onClick={() => {
-                                window.setTimeout(() => setOpen(false), 0);
-                              }}
-                              className={cn(
-                                "group flex items-center justify-between gap-3 py-4 transition",
-                                active
-                                  ? "text-forest-800"
-                                  : "text-ink-900 hover:text-forest-800",
-                              )}
-                            >
-                              <span className="font-display text-xl font-semibold tracking-tight sm:text-2xl">
-                                {link.label}
-                              </span>
-                              {active ? (
-                                <span
-                                  className="size-1.5 shrink-0 rounded-full bg-gold-500"
+                            <div className="flex items-center gap-2">
+                              <Link
+                                href={link.href}
+                                onClick={() => {
+                                  window.setTimeout(() => setOpen(false), 0);
+                                }}
+                                className={cn(
+                                  "min-w-0 flex-1 py-4 text-left transition",
+                                  active ? "text-forest-800" : "text-ink-900",
+                                )}
+                              >
+                                <span className="font-display text-xl font-semibold tracking-tight sm:text-2xl">
+                                  {link.label}
+                                </span>
+                              </Link>
+                              <button
+                                type="button"
+                                className={cn(
+                                  "inline-flex size-10 shrink-0 items-center justify-center rounded-full border transition",
+                                  sectionOpen
+                                    ? "border-forest-800 bg-forest-800 text-white"
+                                    : "border-earth-400/20 bg-white text-ink-500",
+                                )}
+                                aria-expanded={sectionOpen}
+                                aria-label={`${link.label} alt menüsünü ${sectionOpen ? "kapat" : "aç"}`}
+                                onClick={() =>
+                                  setMobileOpenLabel((current) =>
+                                    current === link.label ? null : link.label,
+                                  )
+                                }
+                              >
+                                <ChevronDown
+                                  className={cn(
+                                    "size-4 transition duration-300",
+                                    sectionOpen && "rotate-180",
+                                  )}
                                   aria-hidden
                                 />
-                              ) : null}
-                            </Link>
-                          </motion.div>
+                              </button>
+                            </div>
+                            {sectionOpen && (
+                              <div className="animate-fade-in overflow-hidden">
+                                <div className="mb-4 ml-1 space-y-0.5 border-l-2 border-gold-400/50 pl-4">
+                                  {(link.children.some(
+                                    (child) => child.href === link.href,
+                                  )
+                                    ? link.children
+                                    : [
+                                        {
+                                          href: link.href,
+                                          label: "Tümü",
+                                        },
+                                        ...link.children,
+                                      ]
+                                  ).map((child) => {
+                                    const childActive =
+                                      pathname === child.href ||
+                                      (child.href !== link.href &&
+                                        pathname.startsWith(`${child.href}/`));
+                                    return (
+                                      <Link
+                                        key={child.href}
+                                        href={child.href}
+                                        onClick={() => {
+                                          window.setTimeout(
+                                            () => setOpen(false),
+                                            0,
+                                          );
+                                        }}
+                                        className={cn(
+                                          "block rounded-lg py-2.5 text-[15px] font-medium transition",
+                                          childActive
+                                            ? "text-forest-800"
+                                            : "text-ink-500 hover:text-forest-800",
+                                        )}
+                                      >
+                                        {child.label}
+                                      </Link>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         );
-                      })}
-                    </nav>
-                  </div>
-                </div>
+                      }
 
-                {/* Alt CTA */}
-                <div className="relative shrink-0 border-t border-earth-400/10 bg-ivory-50/95 p-3 backdrop-blur-xl sm:p-4">
-                  <div className="container-wide grid grid-cols-2 gap-2">
-                    <Button asChild className="h-12">
-                      <Link
-                        href="/teklif-al"
-                        onClick={() => {
-                          window.setTimeout(() => setOpen(false), 0);
-                        }}
-                      >
-                        Teklif Al
-                      </Link>
-                    </Button>
-                    <Button asChild variant="secondary" className="h-12">
-                      <a
-                        href={whatsappUrl()}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <WhatsAppIcon className="size-4" />
-                        WhatsApp
-                      </a>
-                    </Button>
-                  </div>
-                  <a
-                    href={SITE.phoneHref}
-                    className="mt-2.5 flex h-11 items-center justify-center gap-2 rounded-full text-sm font-semibold text-forest-800 transition hover:bg-forest-50"
-                  >
-                    <Phone className="size-3.5" />
-                    {SITE.phone}
-                  </a>
-                  <div className="mt-3 flex justify-center border-t border-earth-400/10 pt-3">
-                    <MediaCredit />
-                  </div>
+                      return (
+                        <div
+                          key={link.href}
+                          style={{ animationDelay: `${delay}s` }}
+                          className="animate-fade-up border-b border-earth-400/10"
+                        >
+                          <Link
+                            href={link.href}
+                            onClick={() => {
+                              window.setTimeout(() => setOpen(false), 0);
+                            }}
+                            className={cn(
+                              "group flex items-center justify-between gap-3 py-4 transition",
+                              active
+                                ? "text-forest-800"
+                                : "text-ink-900 hover:text-forest-800",
+                            )}
+                          >
+                            <span className="font-display text-xl font-semibold tracking-tight sm:text-2xl">
+                              {link.label}
+                            </span>
+                            {active ? (
+                              <span
+                                className="size-1.5 shrink-0 rounded-full bg-gold-500"
+                                aria-hidden
+                              />
+                            ) : null}
+                          </Link>
+                        </div>
+                      );
+                    })}
+                  </nav>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>,
+              </div>
+
+              {/* Alt CTA */}
+              <div className="relative shrink-0 border-t border-earth-400/10 bg-ivory-50/95 p-3 backdrop-blur-xl sm:p-4">
+                <div className="container-wide grid grid-cols-2 gap-2">
+                  <Button asChild className="h-12">
+                    <Link
+                      href="/teklif-al"
+                      onClick={() => {
+                        window.setTimeout(() => setOpen(false), 0);
+                      }}
+                    >
+                      Teklif Al
+                    </Link>
+                  </Button>
+                  <Button asChild variant="secondary" className="h-12">
+                    <a
+                      href={whatsappUrl()}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <WhatsAppIcon className="size-4" />
+                      WhatsApp
+                    </a>
+                  </Button>
+                </div>
+                <a
+                  href={SITE.phoneHref}
+                  className="mt-2.5 flex h-11 items-center justify-center gap-2 rounded-full text-sm font-semibold text-forest-800 transition hover:bg-forest-50"
+                >
+                  <Phone className="size-3.5" />
+                  {SITE.phone}
+                </a>
+                <div className="mt-3 flex justify-center border-t border-earth-400/10 pt-3">
+                  <MediaCredit />
+                </div>
+              </div>
+            </div>
+          ),
           document.body,
         )}
     </header>

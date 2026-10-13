@@ -1,4 +1,5 @@
 import type { OrmanUrunleriPage } from "@/data/orman-urunleri";
+import { CATEGORY_LANDING_SLUGS } from "@/lib/catalog";
 import {
   isFaqPage,
   isSiteCardKind,
@@ -46,6 +47,14 @@ const PROJECT_CATEGORIES: ProjectCategory[] = [
 
 function asString(value: unknown, fallback = ""): string {
   return typeof value === "string" ? value.trim() : fallback;
+}
+
+/** Yalnızca site içi yol, https, tel:, mailto: veya # bağlantılarına izin verir. */
+function asSafeHref(value: unknown): string {
+  const href = asString(value);
+  if (!href) return "";
+  if (/^(\/(?!\/)|#|https:\/\/|tel:|mailto:)/i.test(href)) return href;
+  throw new Error("Bağlantı / ile başlamalı ya da https://, tel: veya mailto: olmalı");
 }
 
 function asNumber(value: unknown, fallback = 0): number {
@@ -103,9 +112,16 @@ export function parseProduct(body: Record<string, unknown>, id: string): Product
           })
           .filter((item) => item.label && item.value);
 
+  const slug = requireText(body.slug, "Slug");
+  if (CATEGORY_LANDING_SLUGS.includes(slug)) {
+    throw new Error(
+      `"${slug}" bir kategori sayfası adresi olarak ayrılmış; farklı bir slug seçin.`,
+    );
+  }
+
   const product: Product = {
     id,
-    slug: requireText(body.slug, "Slug"),
+    slug,
     title: requireText(body.title, "Başlık"),
     description: requireText(body.description, "Açıklama"),
     category: asCategory(body.category),
@@ -228,7 +244,7 @@ export function parseOrman(body: Record<string, unknown>): OrmanUrunleriPage {
 
   return {
     slug,
-    href: asString(body.href) || (slug === "index" ? "/orman-urunleri" : `/orman-urunleri/${slug}`),
+    href: asSafeHref(body.href) || (slug === "index" ? "/orman-urunleri" : `/orman-urunleri/${slug}`),
     title: requireText(body.title, "Başlık"),
     navLabel: requireText(body.navLabel, "Menü etiketi"),
     eyebrow: asString(body.eyebrow, "Orman Ürünleri"),
@@ -275,7 +291,7 @@ export function parseCard(body: Record<string, unknown>, id: string): CmsSiteCar
     title: requireText(body.title, "Başlık"),
     description: requireText(body.description, "Açıklama"),
   };
-  const href = asString(body.href);
+  const href = asSafeHref(body.href);
   const step = asString(body.step);
   const points = asStringList(body.points);
   if (href) card.href = href;

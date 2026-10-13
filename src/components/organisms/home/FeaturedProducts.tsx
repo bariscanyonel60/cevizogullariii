@@ -6,7 +6,8 @@ import { SectionHeading } from "@/components/molecules/SectionHeading";
 import type { Product } from "@/types";
 
 export function FeaturedProducts({ products = [] }: { products?: Product[] }) {
-  const items = products.slice(0, 3);
+  const items = products.slice(0, 6);
+  if (items.length === 0) return null;
 
   return (
     <section
@@ -21,7 +22,7 @@ export function FeaturedProducts({ products = [] }: { products?: Product[] }) {
             description="Boya, mantolama, yalıtım. Tokat yapı malzemeleri listesini Turhal’daki raftan topluyoruz."
             action={
               <Button asChild variant="secondary">
-                <Link href="/yapi-malzemeleri#urunler">Yapı Market</Link>
+                <Link href="/yapi-malzemeleri#urunler">Tümünü Gör</Link>
               </Button>
             }
           />

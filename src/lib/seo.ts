@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { HOME_HERO_VIDEO } from "@/data/home-hero";
 import { PRODUCT_CATEGORY_LABELS } from "@/data/products";
-import { SITE } from "@/lib/constants";
+import { SERVICE_AREA_CITIES, SITE } from "@/lib/constants";
 import { absoluteMediaUrl } from "@/lib/media";
 import type { BlogPost, Product, Project } from "@/types";
 
@@ -9,27 +9,12 @@ const META_DESCRIPTION_MAX = 155;
 
 const defaultOgImage = absoluteMediaUrl("/og-default.jpg", SITE.url);
 
-/** Canonical hizmet bölgesi — UI, FAQ ve tüm JSON-LD ile senkron */
-export const SERVICE_AREA_CITIES = [
-  "Tokat",
-  "Turhal",
-  "Zile",
-  "Erbaa",
-  "Niksar",
-  "Pazar",
-  "Amasya",
-  "Yozgat",
-  "Sivas",
-  "Çorum",
-  "Samsun",
-] as const;
-
-export const SERVICE_AREA_SCHEMA = SERVICE_AREA_CITIES.map((name) => ({
+const SERVICE_AREA_SCHEMA = SERVICE_AREA_CITIES.map((name) => ({
   "@type": "City" as const,
   name,
 }));
 
-export const LOCAL_SEO_SUFFIX =
+const LOCAL_SEO_SUFFIX =
   "Turhal / Tokat — Cevizoğulları Yapı Market stok, tedarik ve danışmanlık.";
 
 /** Bing/Google snippet:  ~50–155 karakter, kelime ortasında kesme. */
@@ -108,14 +93,9 @@ export function withLocalDescription(description: string, extra?: string) {
 }
 
 export function productImageAlt(product: Pick<Product, "title" | "brand">) {
-  return `${product.title} — Tokat yapı malzemeleri, ${product.brand} Turhal`;
-}
-
-export function projectImageAlt(
-  project: Pick<Project, "title" | "location">,
-  index = 1,
-) {
-  return `${project.title} proje görseli ${index} — ${project.location}`;
+  return product.title.includes(product.brand)
+    ? product.title
+    : `${product.title} — ${product.brand}`;
 }
 
 export function buildMetadata({
@@ -163,7 +143,7 @@ export function buildMetadata({
       images: [absoluteImage],
     },
     robots: noIndex
-      ? { index: false, follow: false }
+      ? { index: false, follow: true }
       : {
           index: true,
           follow: true,
@@ -193,7 +173,6 @@ export const HOME_SEO = {
     "Tokat yalıtım",
     "Tokat orman ürünleri",
     "Tokat OSB",
-    "deprem yönetmeliği yapı malzemesi",
     "Tokat yapı inşaat",
     "Turhal bina inşaatı",
     "Erbaa yapı malzemeleri",
@@ -368,18 +347,32 @@ export function webPageJsonLd(input: {
   };
 }
 
-export function productJsonLd(product: Product) {
+/** Fiyat, stok ve puan verisi olmadığı için offers/aggregateRating eklenmez. */
+export function productJsonLd(product: Product, brandNames: readonly string[] = []) {
   const image = absoluteMediaUrl(product.image, SITE.url);
   return {
     "@context": "https://schema.org",
     "@type": "Product",
     "@id": `${SITE.url}/yapi-malzemeleri/${product.slug}#product`,
+    url: `${SITE.url}/yapi-malzemeleri/${product.slug}`,
     name: product.title,
-    description: withLocalDescription(product.description),
+    description: product.description,
     image,
-    brand: { "@type": "Brand", name: product.brand },
-    category: product.category,
-    sku: product.slug,
+    ...(brandNames.length > 0
+      ? {
+          brand: brandNames.map((name) => ({ "@type": "Brand", name })),
+        }
+      : {}),
+    category: PRODUCT_CATEGORY_LABELS[product.category],
+    ...(product.specs.length > 0
+      ? {
+          additionalProperty: product.specs.map((spec) => ({
+            "@type": "PropertyValue",
+            name: spec.label,
+            value: spec.value,
+          })),
+        }
+      : {}),
   };
 }
 

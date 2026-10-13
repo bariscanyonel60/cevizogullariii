@@ -1,7 +1,15 @@
 import type { MetadataRoute } from "next";
 import { SITE } from "@/lib/constants";
 import {
+  brandHref,
+  brandPages,
+  CATEGORY_INDEX_MIN_PRODUCTS,
+  CATEGORY_LANDINGS,
+  categoryHref,
+} from "@/lib/catalog";
+import {
   getBlogPosts,
+  getBrands,
   getOrmanPages,
   getProducts,
   getProjects,
@@ -18,7 +26,7 @@ type StaticRoute = {
 
 /**
  * Indexlenebilir public rotalar.
- * Redirect’ler (/urunler, /kereste, /gayrimenkul) ve noIndex sayfalar (/kvkk) dahil edilmez.
+ * Redirect’ler (/urunler, /kereste, /gayrimenkul) ve noIndex sayfalar (/tesekkurler) dahil edilmez.
  */
 const STATIC_ROUTES: StaticRoute[] = [
   { path: "", priority: 1, changeFrequency: "weekly" },
@@ -31,7 +39,10 @@ const STATIC_ROUTES: StaticRoute[] = [
   { path: "/teklif-al", priority: 0.85, changeFrequency: "monthly" },
   { path: "/iletisim", priority: 0.8, changeFrequency: "monthly" },
   { path: "/blog", priority: 0.75, changeFrequency: "weekly" },
+  { path: "/markalar", priority: 0.6, changeFrequency: "monthly" },
   { path: "/kurumsal", priority: 0.7, changeFrequency: "monthly" },
+  { path: "/gizlilik-politikasi", priority: 0.3, changeFrequency: "yearly" },
+  { path: "/kvkk", priority: 0.3, changeFrequency: "yearly" },
 ];
 
 function entry(
@@ -53,11 +64,12 @@ function entry(
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [ormanPages, products, projects, blogPosts] = await Promise.all([
+  const [ormanPages, products, projects, blogPosts, brands] = await Promise.all([
     getOrmanPages(),
     getProducts(),
     getProjects(),
     getBlogPosts(),
+    getBrands(),
   ]);
 
   const staticEntries = STATIC_ROUTES.map((route) =>
@@ -75,6 +87,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: "weekly",
       }),
   );
+
+  const categoryEntries = Object.values(CATEGORY_LANDINGS)
+    .filter(
+      (landing) =>
+        products.filter((product) => product.category === landing.key).length >=
+        CATEGORY_INDEX_MIN_PRODUCTS,
+    )
+    .map((landing) =>
+      entry(categoryHref(landing.key), {
+        priority: 0.85,
+        changeFrequency: "weekly",
+      }),
+    );
+
+  const brandEntries = brandPages(brands, products)
+    .filter((page) => page.products.length >= 2)
+    .map((page) =>
+      entry(brandHref(page.slug), {
+        priority: 0.6,
+        changeFrequency: "monthly",
+      }),
+    );
 
   const productEntries = products.map((product) =>
     entry(`/yapi-malzemeleri/${product.slug}`, {
@@ -101,6 +135,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...staticEntries,
     ...ormanEntries,
+    ...categoryEntries,
+    ...brandEntries,
     ...productEntries,
     ...projectEntries,
     ...blogEntries,

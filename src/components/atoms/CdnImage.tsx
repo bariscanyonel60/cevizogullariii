@@ -1,57 +1,40 @@
 "use client";
 
-import Image, { type ImageProps } from "next/image";
-import { useEffect, useState } from "react";
-import { cloudinarySizedUrl, mediaUrl, widthFromSizes } from "@/lib/media";
+import Image, { type ImageLoader, type ImageProps } from "next/image";
+import { useState } from "react";
+import { cloudinarySizedUrl, mediaUrl } from "@/lib/media";
 
-function isHttpUrl(value: string) {
-  return value.startsWith("https://") || value.startsWith("http://");
+function isCloudinaryUrl(value: string) {
+  return value.startsWith("https://res.cloudinary.com/");
 }
 
+const cloudinaryLoader: ImageLoader = ({ src, width }) =>
+  cloudinarySizedUrl(src, width);
+
 /**
- * İlk boya her zaman `mediaUrl` (f_auto,q_auto) — sunucu ve istemci birebir aynı.
- * w_ / q_auto:eco yalnızca hydrate sonrası; Turbopack stale client hydration
- * hatasını önler (önceki prod deneyimi).
+ * Cloudinary görselleri srcset ile istenir: sunucu ve istemci aynı URL'yi
+ * üretir, tarayıcı ekran genişliğine uygun boyutu tek seferde indirir.
  */
-export function CdnImage({
-  src,
-  unoptimized,
-  onError,
-  sizes,
-  ...props
-}: ImageProps) {
-  const localSrc = typeof src === "string" && !isHttpUrl(src) ? src : null;
+export function CdnImage({ src, alt, unoptimized, onError, ...props }: ImageProps) {
+  const localSrc = typeof src === "string" && !src.startsWith("http") ? src : null;
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const failed = localSrc !== null && failedSrc === localSrc;
   const resolved = typeof src === "string" ? mediaUrl(src) : src;
-  const [current, setCurrent] = useState(resolved);
-  const [sized, setSized] = useState(false);
-  const remote = typeof current === "string" && isHttpUrl(current);
-
-  useEffect(() => {
-    setSized(true);
-  }, []);
-
-  useEffect(() => {
-    setCurrent(typeof src === "string" ? mediaUrl(src) : src);
-  }, [src]);
-
-  const displaySrc =
-    remote && sized && typeof current === "string"
-      ? cloudinarySizedUrl(current, widthFromSizes(sizes))
-      : current;
+  const current = failed && localSrc ? localSrc : resolved;
+  const cloudinary = typeof current === "string" && isCloudinaryUrl(current);
+  const remote = typeof current === "string" && current.startsWith("http");
 
   return (
     <Image
-      src={displaySrc}
-      sizes={sizes}
-      unoptimized={unoptimized ?? remote}
+      src={current}
+      alt={alt}
+      loader={cloudinary ? cloudinaryLoader : undefined}
+      unoptimized={cloudinary ? false : (unoptimized ?? remote)}
       onError={(event) => {
-        if (localSrc && current !== localSrc) {
-          setCurrent(localSrc);
-        }
+        if (localSrc && !failed) setFailedSrc(localSrc);
         onError?.(event);
       }}
       {...props}
-      suppressHydrationWarning
     />
   );
 }

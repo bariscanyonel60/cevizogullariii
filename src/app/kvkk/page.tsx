@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { JsonLd } from "@/components/atoms/JsonLd";
 import { PageHero } from "@/components/organisms/shared/PageHero";
 import { Reveal } from "@/components/molecules/Reveal";
 import { SITE } from "@/lib/constants";
-import { buildMetadata } from "@/lib/seo";
+import { breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "KVKK Aydınlatma Metni",
   description:
     "Cevizoğulları kişisel veri işleme amaçları, saklama süresi ve haklarınız. Turhal Yapı Market KVKK aydınlatma metni.",
   path: "/kvkk",
-  noIndex: true,
 });
 
 const sections = [
@@ -46,12 +47,17 @@ const sections = [
 export default function KvkkPage() {
   return (
     <>
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Ana Sayfa", path: "/" },
+          { name: "KVKK", path: "/kvkk" },
+        ])}
+      />
       <PageHero
         title="KVKK Aydınlatma Metni"
         description="6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında bilgilendirme."
         crumbs={[
           { label: "Ana Sayfa", href: "/" },
-          { label: "Kurumsal", href: "/kurumsal" },
           { label: "KVKK" },
         ]}
       />
@@ -74,6 +80,16 @@ export default function KvkkPage() {
                 </p>
               </article>
             ))}
+            <p className="text-sm text-ink-600">
+              Çerezler ve üçüncü taraf hizmetler hakkında bilgi için{" "}
+              <Link
+                href="/gizlilik-politikasi"
+                className="font-semibold text-forest-800 underline-offset-2 hover:underline"
+              >
+                Gizlilik Politikası
+              </Link>
+              ’nı inceleyebilirsiniz.
+            </p>
             <p className="border-t border-earth-400/15 pt-6 text-xs text-ink-500">
               Son güncelleme: {new Date().getFullYear()} · Bu metin bilgilendirme
               amaçlıdır; güncel yasal gerekliliklere göre revize edilebilir.

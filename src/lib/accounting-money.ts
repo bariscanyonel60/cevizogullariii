@@ -2,7 +2,9 @@ import {
   formatIsoDateTr,
   type AccountingStore,
   type CreditEntry,
+  type PaymentMethod,
   type Sale,
+  type SupplierPayment,
   type VatRate,
 } from "@/lib/accounting-types";
 
@@ -76,7 +78,7 @@ export function splitVat(grossInclusive: number, vatRate: VatRate) {
   return { gross, net, vatAmount };
 }
 
-export function saleGross(quantity: number, unitPrice: number): number {
+function saleGross(quantity: number, unitPrice: number): number {
   return roundMoney(quantity * unitPrice);
 }
 
@@ -163,7 +165,7 @@ function chronologicalCredit(entries: CreditEntry[]): CreditEntry[] {
   });
 }
 
-export function calendarDaysBetween(fromIso: string, toIso: string): number {
+function calendarDaysBetween(fromIso: string, toIso: string): number {
   const from = Date.parse(`${fromIso}T00:00:00+03:00`);
   const to = Date.parse(`${toIso}T00:00:00+03:00`);
   return Math.round((to - from) / 86_400_000);
@@ -349,6 +351,10 @@ export type CashSummary = {
   transferCollections: number;
   transferExpenses: number;
   expenseTotal: number;
+  /** Firmalara nakit ödeme; kasadan düşer. */
+  supplierCashPayments: number;
+  /** Firmalara tüm yöntemlerle ödeme toplamı. */
+  supplierPaymentTotal: number;
 };
 
 function inPeriod(date: string, period: string) {
@@ -356,7 +362,7 @@ function inPeriod(date: string, period: string) {
 }
 
 /** Gun veya ay (YYYY-MM-DD / YYYY-MM): nakit kasa = nakit satis + nakit tahsilat - nakit gider - avans. */
-export function cashSummary(store: AccountingStore, period: string): CashSummary {
+function cashSummary(store: AccountingStore, period: string): CashSummary {
   const sales = store.sales.filter((item) => inPeriod(item.date, period));
   const payments = store.creditEntries.filter(
     (item) => item.kind === "payment" && inPeriod(item.date, period),
@@ -419,8 +425,19 @@ export function cashSummary(store: AccountingStore, period: string): CashSummary
   const advanceTotal = roundMoney(
     advances.reduce((sum, item) => sum + item.amount, 0),
   );
+  const supplierPayments = (store.supplierPayments ?? []).filter((item) =>
+    inPeriod(item.date, period),
+  );
+  const supplierCashPayments = roundMoney(
+    supplierPayments
+      .filter((item) => item.paymentMethod === "nakit")
+      .reduce((sum, item) => sum + item.amount, 0),
+  );
+  const supplierPaymentTotal = roundMoney(
+    supplierPayments.reduce((sum, item) => sum + item.amount, 0),
+  );
   const cashIn = roundMoney(cashSales + cashCollections);
-  const cashOut = roundMoney(cashExpenses + advanceTotal);
+  const cashOut = roundMoney(cashExpenses + advanceTotal + supplierCashPayments);
 
   return {
     cashSales,
@@ -437,7 +454,46 @@ export function cashSummary(store: AccountingStore, period: string): CashSummary
     transferCollections,
     transferExpenses,
     expenseTotal,
+    supplierCashPayments,
+    supplierPaymentTotal,
   };
+}
+
+export type SupplierTotals = {
+  total: number;
+  month: number;
+  year: number;
+  count: number;
+  lastDate: string | null;
+  byMethod: Record<PaymentMethod, number>;
+};
+
+/** Firma kartı özeti; `today` YYYY-MM-DD (İstanbul). */
+export function supplierTotals(
+  payments: SupplierPayment[],
+  today: string,
+): SupplierTotals {
+  const month = today.slice(0, 7);
+  const year = today.slice(0, 4);
+  const totals: SupplierTotals = {
+    total: 0,
+    month: 0,
+    year: 0,
+    count: payments.length,
+    lastDate: null,
+    byMethod: { nakit: 0, kart: 0, havale: 0 },
+  };
+  for (const item of payments) {
+    totals.total += item.amount;
+    if (item.date.startsWith(month)) totals.month += item.amount;
+    if (item.date.startsWith(year)) totals.year += item.amount;
+    totals.byMethod[item.paymentMethod] += item.amount;
+    if (!totals.lastDate || item.date > totals.lastDate) totals.lastDate = item.date;
+  }
+  totals.total = roundMoney(totals.total);
+  totals.month = roundMoney(totals.month);
+  totals.year = roundMoney(totals.year);
+  return totals;
 }
 
 export function dayCashSummary(store: AccountingStore, isoDate: string) {

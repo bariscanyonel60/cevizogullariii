@@ -282,7 +282,7 @@ type FaqRow = RowDataPacket & {
 
 let schemaPromise: Promise<void> | null = null;
 
-export function parseJson<T>(value: unknown, fallback: T): T {
+function parseJson<T>(value: unknown, fallback: T): T {
   if (value == null) return fallback;
   if (typeof value === "string") {
     try {

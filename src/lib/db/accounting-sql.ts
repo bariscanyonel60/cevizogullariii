@@ -7,6 +7,7 @@ import {
   isPaymentMethod,
   isSaleKind,
   isVatRate,
+  sortSuppliersByName,
   type AccountingStore,
   type Advance,
   type CreditEntry,
@@ -15,6 +16,8 @@ import {
   type Sale,
   type SaleKind,
   type StaffMember,
+  type Supplier,
+  type SupplierPayment,
 } from "@/lib/accounting-types";
 
 type SaleRow = RowDataPacket & {
@@ -80,6 +83,27 @@ type ExpenseRow = RowDataPacket & {
   amount: string | number;
   vat_rate: number | null;
   payment_method: string;
+  note: string;
+  created_at: string;
+};
+
+type SupplierRow = RowDataPacket & {
+  id: string;
+  name: string;
+  tax_number: string;
+  phone: string;
+  iban: string;
+  note: string;
+  created_at: string;
+};
+
+type SupplierPaymentRow = RowDataPacket & {
+  id: string;
+  supplier_id: string;
+  date: string;
+  amount: string | number;
+  payment_method: string;
+  description: string;
   note: string;
   created_at: string;
 };
@@ -210,6 +234,32 @@ function mapExpense(row: ExpenseRow): Expense | null {
   };
 }
 
+function mapSupplier(row: SupplierRow): Supplier {
+  return {
+    id: row.id,
+    name: row.name,
+    taxNumber: row.tax_number,
+    phone: row.phone,
+    iban: row.iban,
+    note: row.note,
+    createdAt: fromMysqlDateTime(row.created_at),
+  };
+}
+
+function mapSupplierPayment(row: SupplierPaymentRow): SupplierPayment | null {
+  if (!isPaymentMethod(row.payment_method)) return null;
+  return {
+    id: row.id,
+    supplierId: row.supplier_id,
+    date: row.date,
+    amount: asNumber(row.amount),
+    paymentMethod: row.payment_method,
+    description: row.description,
+    note: row.note,
+    createdAt: fromMysqlDateTime(row.created_at),
+  };
+}
+
 export async function readAccountingFromMysql(): Promise<AccountingStore> {
   await ensureAccountingSchema();
   const pool = getPool();
@@ -231,6 +281,12 @@ export async function readAccountingFromMysql(): Promise<AccountingStore> {
   const [expenseRows] = await pool.query<ExpenseRow[]>(
     "SELECT * FROM expenses ORDER BY created_at DESC",
   );
+  const [supplierRows] = await pool.query<SupplierRow[]>(
+    "SELECT * FROM suppliers ORDER BY name ASC",
+  );
+  const [supplierPaymentRows] = await pool.query<SupplierPaymentRow[]>(
+    "SELECT * FROM supplier_payments ORDER BY date DESC, created_at DESC",
+  );
 
   return {
     sales: salesRows.map(mapSale).filter((item): item is Sale => item !== null),
@@ -243,6 +299,10 @@ export async function readAccountingFromMysql(): Promise<AccountingStore> {
     expenses: expenseRows
       .map(mapExpense)
       .filter((item): item is Expense => item !== null),
+    suppliers: sortSuppliersByName(supplierRows.map(mapSupplier)),
+    supplierPayments: supplierPaymentRows
+      .map(mapSupplierPayment)
+      .filter((item): item is SupplierPayment => item !== null),
   };
 }
 
@@ -312,12 +372,116 @@ async function ensureAccountingSchema(): Promise<void> {
           INDEX idx_expenses_created (created_at)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
       `);
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS suppliers (
+          id CHAR(36) NOT NULL PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          tax_number VARCHAR(32) NOT NULL DEFAULT '',
+          phone VARCHAR(32) NOT NULL DEFAULT '',
+          iban VARCHAR(64) NOT NULL DEFAULT '',
+          note TEXT NOT NULL,
+          created_at DATETIME(3) NOT NULL,
+          INDEX idx_suppliers_name (name)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+      `);
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS supplier_payments (
+          id CHAR(36) NOT NULL PRIMARY KEY,
+          supplier_id CHAR(36) NOT NULL,
+          date DATE NOT NULL,
+          amount DECIMAL(14, 3) NOT NULL,
+          payment_method ENUM('nakit', 'kart', 'havale') NOT NULL,
+          description VARCHAR(255) NOT NULL DEFAULT '',
+          note TEXT NOT NULL,
+          created_at DATETIME(3) NOT NULL,
+          INDEX idx_supplier_payments_supplier (supplier_id),
+          INDEX idx_supplier_payments_date (date)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+      `);
     })().catch((error) => {
       schemaPromise = null;
       throw error;
     });
   }
   await schemaPromise;
+}
+
+export async function insertSupplierRow(item: Supplier): Promise<void> {
+  await ensureAccountingSchema();
+  await getPool().query<ResultSetHeader>(
+    `INSERT INTO suppliers
+      (id, name, tax_number, phone, iban, note, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [
+      item.id,
+      item.name,
+      item.taxNumber,
+      item.phone,
+      item.iban,
+      item.note,
+      toMysqlDateTime(item.createdAt),
+    ],
+  );
+}
+
+export async function updateSupplierRow(item: Supplier): Promise<void> {
+  await ensureAccountingSchema();
+  await getPool().query<ResultSetHeader>(
+    `UPDATE suppliers
+     SET name = ?, tax_number = ?, phone = ?, iban = ?, note = ?
+     WHERE id = ?`,
+    [item.name, item.taxNumber, item.phone, item.iban, item.note, item.id],
+  );
+}
+
+export async function deleteSupplierRow(id: string): Promise<void> {
+  await ensureAccountingSchema();
+  await getPool().query<ResultSetHeader>("DELETE FROM suppliers WHERE id = ?", [id]);
+}
+
+export async function insertSupplierPaymentRow(item: SupplierPayment): Promise<void> {
+  await ensureAccountingSchema();
+  await getPool().query<ResultSetHeader>(
+    `INSERT INTO supplier_payments
+      (id, supplier_id, date, amount, payment_method, description, note, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      item.id,
+      item.supplierId,
+      item.date,
+      item.amount,
+      item.paymentMethod,
+      item.description,
+      item.note,
+      toMysqlDateTime(item.createdAt),
+    ],
+  );
+}
+
+export async function updateSupplierPaymentRow(item: SupplierPayment): Promise<void> {
+  await ensureAccountingSchema();
+  await getPool().query<ResultSetHeader>(
+    `UPDATE supplier_payments
+     SET supplier_id = ?, date = ?, amount = ?, payment_method = ?, description = ?, note = ?
+     WHERE id = ?`,
+    [
+      item.supplierId,
+      item.date,
+      item.amount,
+      item.paymentMethod,
+      item.description,
+      item.note,
+      item.id,
+    ],
+  );
+}
+
+export async function deleteSupplierPaymentRow(id: string): Promise<void> {
+  await ensureAccountingSchema();
+  await getPool().query<ResultSetHeader>(
+    "DELETE FROM supplier_payments WHERE id = ?",
+    [id],
+  );
 }
 
 export async function writeAccountingToMysql(
@@ -334,6 +498,42 @@ export async function writeAccountingToMysql(
     await conn.query("DELETE FROM expenses");
     await conn.query("DELETE FROM customers");
     await conn.query("DELETE FROM staff");
+    await conn.query("DELETE FROM supplier_payments");
+    await conn.query("DELETE FROM suppliers");
+
+    for (const item of store.suppliers ?? []) {
+      await conn.query<ResultSetHeader>(
+        `INSERT INTO suppliers
+          (id, name, tax_number, phone, iban, note, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          item.id,
+          item.name,
+          item.taxNumber,
+          item.phone,
+          item.iban,
+          item.note,
+          toMysqlDateTime(item.createdAt),
+        ],
+      );
+    }
+    for (const item of store.supplierPayments ?? []) {
+      await conn.query<ResultSetHeader>(
+        `INSERT INTO supplier_payments
+          (id, supplier_id, date, amount, payment_method, description, note, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          item.id,
+          item.supplierId,
+          item.date,
+          item.amount,
+          item.paymentMethod,
+          item.description,
+          item.note,
+          toMysqlDateTime(item.createdAt),
+        ],
+      );
+    }
 
     for (const item of store.staff) {
       await conn.query<ResultSetHeader>(

@@ -48,6 +48,24 @@ export const SITE = {
 
 export const CANONICAL_HOST = new URL(SITE.url).host;
 
+/** Canonical hizmet bölgesi — UI, FAQ ve tüm JSON-LD ile senkron */
+export const SERVICE_AREA_CITIES = [
+  "Tokat",
+  "Turhal",
+  "Zile",
+  "Erbaa",
+  "Niksar",
+  "Pazar",
+  "Amasya",
+  "Yozgat",
+  "Sivas",
+  "Çorum",
+  "Samsun",
+] as const;
+
+export const MAPS_DIRECTIONS_URL =
+  "https://www.google.com/maps/dir/?api=1&destination=Pazar+Mahallesi+Ye%C5%9Fil%C4%B1rmak+Sk+No+99+Turhal+Tokat";
+
 /** Anasayfa SSS — FAQPage şeması ile birlikte kullanılır (Google People Also Ask uyumlu) */
 export const HOME_FAQS = [
   {
@@ -66,9 +84,9 @@ export const HOME_FAQS = [
       "Cevizoğulları, Tokat / Turhal’da orman ürünleri, kereste, OSB, plywood (odek) ve laminat levha tedarik eder. Ölçü ve adet bilginizle şantiye veya tadilat ihtiyacınıza göre stok ve teslimat planlanır.",
   },
   {
-    question: "Deprem yönetmeliğine uygun yapı malzemesi seçimi yapıyor musunuz?",
+    question: "Projeme uygun malzeme seçiminde yardımcı oluyor musunuz?",
     answer:
-      "Evet. TBDY bilinciyle yalıtım, bağlayıcı, cephe ve çatı ürünlerinde güvenli yapı yaklaşımını destekleriz. Tokat’taki konut ve bina işleriniz için deprem koşullarına uygun malzeme yönlendirmesi sağlarız.",
+      "Evet. Yalıtım, bağlayıcı, cephe ve çatı ürünlerinde proje gereklilikleri ve ilgili teknik standartlara uygun ürün seçimi konusunda destek sağlıyoruz. Projenizin teknik şartnamesi varsa onu esas alırız.",
   },
   {
     question: "Cevizoğulları hangi bölgelere hizmet veriyor?",
@@ -105,7 +123,7 @@ export const TOKAT_FAQS = [
   },
 ] as const;
 
-export type NavChild = {
+type NavChild = {
   href: string;
   label: string;
 };
@@ -180,13 +198,6 @@ export const BUSINESS_AREAS = [
     image: "/media/yapi-insaat/ova-apt-3.jpg",
   },
 ] as const;
-
-/** Footer / düz listeler için alt başlıkları açılmış menü */
-export function flattenNavLinks(links: readonly NavItem[] = NAV_LINKS) {
-  return links.flatMap((link) =>
-    link.children?.length ? [...link.children] : [link],
-  );
-}
 
 /** WhatsApp sohbet URL’si oluşturur. */
 export function whatsappUrl(message?: string) {

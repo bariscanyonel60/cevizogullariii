@@ -17,14 +17,14 @@ export type PdfDoc = InstanceType<typeof PDFDocument>;
 export const PDF_MARGIN = 40;
 export const PDF_CONTINUATION_Y = 56;
 
-export function pdfFontPath() {
+function pdfFontPath() {
   if (!existsSync(/*turbopackIgnore: true*/ FONT_FILE)) {
     throw new Error("Rapor yazı tipi bulunamadı");
   }
   return FONT_FILE;
 }
 
-export async function loadPdfLogo(): Promise<Buffer | null> {
+async function loadPdfLogo(): Promise<Buffer | null> {
   if (logoCache !== undefined) return logoCache;
 
   if (existsSync(/*turbopackIgnore: true*/ LOGO_FILE)) {
@@ -46,7 +46,7 @@ export async function loadPdfLogo(): Promise<Buffer | null> {
   }
 }
 
-export async function drawBrandHeader(
+async function drawBrandHeader(
   doc: PdfDoc,
   title: string,
   subtitle?: string,

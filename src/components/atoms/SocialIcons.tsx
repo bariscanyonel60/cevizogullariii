@@ -36,14 +36,6 @@ export function FacebookIcon(props: IconProps) {
   );
 }
 
-export function YoutubeIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
-      <path d="M22 12.2c0-2.2-.2-3.7-.4-4.6-.2-.8-.8-1.4-1.5-1.6C18.8 5.6 12 5.6 12 5.6s-6.8 0-8.1.4c-.7.2-1.3.8-1.5 1.6-.2.9-.4 2.4-.4 4.6s.2 3.7.4 4.6c.2.8.8 1.4 1.5 1.6 1.3.4 8.1.4 8.1.4s6.8 0 8.1-.4c.7-.2 1.3-.8 1.5-1.6.2-.9.4-2.4.4-4.6ZM10.2 15.1V9.3l5.2 2.9-5.2 2.9Z" />
-    </svg>
-  );
-}
-
 export function XIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" {...props}>

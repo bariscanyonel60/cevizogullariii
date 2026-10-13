@@ -1,25 +1,20 @@
-"use client";
-
-import CountUp from "react-countup";
-import { useInView } from "framer-motion";
-import { useRef } from "react";
+import { CountUpValue } from "@/components/atoms/CountUpValue";
 import { Reveal } from "@/components/molecules/Reveal";
 import { cn } from "@/lib/utils";
 import type { StatItem } from "@/types";
 import "./StatsSection.css";
 
 export function StatsSection({ stats = [] }: { stats?: StatItem[] }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-18%" });
+  if (stats.length === 0) return null;
 
   return (
-    <section id="istatistik" className="home-stats">
+    <section id="istatistik" className="home-stats" aria-label="Rakamlarla Cevizoğulları">
       <div className="home-stats-line" aria-hidden />
       <div className="home-stats-glow" aria-hidden />
       <div className="home-stats-grain" aria-hidden />
 
       <div className="container-wide home-stats-inner">
-        <div ref={ref} className="home-stats-grid">
+        <div className="home-stats-grid">
           {stats.map((stat, index) => {
             const lastOdd =
               stats.length % 2 === 1 && index === stats.length - 1;
@@ -32,15 +27,11 @@ export function StatsSection({ stats = [] }: { stats?: StatItem[] }) {
                     lastOdd && "is-wide",
                   )}
                 >
-                  <p className="home-stats-index">
+                  <p className="home-stats-index" aria-hidden>
                     {String(index + 1).padStart(2, "0")}
                   </p>
                   <p className="home-stats-value">
-                    {inView ? (
-                      <CountUp end={stat.value} duration={2.2} separator="." />
-                    ) : (
-                      0
-                    )}
+                    <CountUpValue value={stat.value} />
                     <span className="home-stats-suffix">{stat.suffix}</span>
                   </p>
                   <p className="home-stats-label">{stat.label}</p>

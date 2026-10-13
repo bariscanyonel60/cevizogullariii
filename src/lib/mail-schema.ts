@@ -1,18 +1,27 @@
-import { z } from "zod";
+import * as z from "zod/mini";
+
+function text(min: number, minMessage: string, max: number, maxMessage: string) {
+  return z.string().check(z.trim(), z.minLength(min, minMessage), z.maxLength(max, maxMessage));
+}
+
+const consent = z.literal(true, {
+  error: "Devam etmek için KVKK bilgilendirmesini onaylayın",
+});
 
 export const contactMailSchema = z.object({
   kind: z.literal("contact"),
-  name: z.string().trim().min(2, "Ad soyad en az 2 karakter olmalı"),
-  email: z.union([z.email("Geçerli bir e-posta girin"), z.literal("")]),
-  phone: z.string().trim().min(10, "Geçerli bir telefon girin"),
-  subject: z.string().trim().min(3, "Konu gerekli"),
-  message: z.string().trim().min(10, "Mesaj en az 10 karakter olmalı"),
-  consent: z.literal(true, {
-    error: "Devam etmek için KVKK bilgilendirmesini onaylayın",
-  }),
+  name: text(2, "Ad soyad en az 2 karakter olmalı", 120, "Ad soyad çok uzun"),
+  email: z.union([
+    z.email("Geçerli bir e-posta girin").check(z.maxLength(254, "E-posta çok uzun")),
+    z.literal(""),
+  ]),
+  phone: text(10, "Geçerli bir telefon girin", 32, "Telefon çok uzun"),
+  subject: text(3, "Konu gerekli", 200, "Konu çok uzun"),
+  message: text(10, "Mesaj en az 10 karakter olmalı", 5000, "Mesaj en fazla 5000 karakter olabilir"),
+  consent,
 });
 
-export const quoteTypeSchema = z.enum([
+const quoteTypeSchema = z.enum([
   "boya",
   "yalitim",
   "orman",
@@ -22,14 +31,14 @@ export const quoteTypeSchema = z.enum([
 
 export const quoteMailSchema = z.object({
   kind: z.literal("quote"),
-  name: z.string().trim().min(2, "Ad soyad gerekli"),
-  company: z.string().trim().optional(),
-  phone: z.string().trim().min(10, "Geçerli telefon girin"),
+  name: text(2, "Ad soyad gerekli", 120, "Ad soyad çok uzun"),
+  company: z.optional(
+    z.string().check(z.trim(), z.maxLength(200, "Firma adı çok uzun")),
+  ),
+  phone: text(10, "Geçerli telefon girin", 32, "Telefon çok uzun"),
   type: quoteTypeSchema,
-  details: z.string().trim().min(10, "Detayları yazın"),
-  consent: z.literal(true, {
-    error: "Devam etmek için KVKK bilgilendirmesini onaylayın",
-  }),
+  details: text(10, "Detayları yazın", 5000, "Detaylar en fazla 5000 karakter olabilir"),
+  consent,
 });
 
 export const mailRequestSchema = z.discriminatedUnion("kind", [

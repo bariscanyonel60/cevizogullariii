@@ -14,7 +14,6 @@ export {
   createAdminSessionValue,
   getAdminCookieOptions,
   verifyAdminCredentials,
-  verifyAdminToken,
 };
 
 export async function isAdminAuthenticated(): Promise<boolean> {

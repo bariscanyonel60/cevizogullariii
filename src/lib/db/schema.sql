@@ -81,6 +81,30 @@ CREATE TABLE IF NOT EXISTS expenses (
   INDEX idx_expenses_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS suppliers (
+  id CHAR(36) NOT NULL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  tax_number VARCHAR(32) NOT NULL DEFAULT '',
+  phone VARCHAR(32) NOT NULL DEFAULT '',
+  iban VARCHAR(64) NOT NULL DEFAULT '',
+  note TEXT NOT NULL,
+  created_at DATETIME(3) NOT NULL,
+  INDEX idx_suppliers_name (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS supplier_payments (
+  id CHAR(36) NOT NULL PRIMARY KEY,
+  supplier_id CHAR(36) NOT NULL,
+  date DATE NOT NULL,
+  amount DECIMAL(14, 3) NOT NULL,
+  payment_method ENUM('nakit', 'kart', 'havale') NOT NULL,
+  description VARCHAR(255) NOT NULL DEFAULT '',
+  note TEXT NOT NULL,
+  created_at DATETIME(3) NOT NULL,
+  INDEX idx_supplier_payments_supplier (supplier_id),
+  INDEX idx_supplier_payments_date (date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS media_collections (
   collection ENUM('gallery', 'yapi-insaat') NOT NULL PRIMARY KEY,
   managed TINYINT(1) NOT NULL DEFAULT 0

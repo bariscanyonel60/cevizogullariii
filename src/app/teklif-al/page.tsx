@@ -4,8 +4,13 @@ import { CheckCircle2, MessageCircle, Phone } from "lucide-react";
 import { PageHero } from "@/components/organisms/shared/PageHero";
 import { QuoteForm } from "@/components/organisms/shared/QuoteForm";
 import { Button } from "@/components/atoms/Button";
+import { JsonLd } from "@/components/atoms/JsonLd";
+import { HomeFaqSection } from "@/components/organisms/home/HomeFaqSection";
+import { ProcessSection } from "@/components/organisms/home/ProcessSection";
+import { getSiteCards } from "@/lib/cms-store";
+import { QUOTE_FAQS } from "@/data/page-faqs";
 import { SITE, whatsappUrl } from "@/lib/constants";
-import { buildMetadata } from "@/lib/seo";
+import { breadcrumbJsonLd, buildMetadata, faqJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "Teklif Al · Boya Mantolama Kereste Fiyat",
@@ -25,9 +30,26 @@ const trust = [
   "Tokat / Turhal hızlı tedarik",
 ];
 
-export default function QuotePage() {
+export const revalidate = 60;
+
+export default async function QuotePage() {
+  const processSteps = (await getSiteCards("process")).map((item, index) => ({
+    step: item.step || String(index + 1).padStart(2, "0"),
+    title: item.title,
+    description: item.description,
+  }));
+
   return (
     <>
+      <JsonLd
+        data={[
+          breadcrumbJsonLd([
+            { name: "Ana Sayfa", path: "/" },
+            { name: "Teklif Al", path: "/teklif-al" },
+          ]),
+          faqJsonLd(QUOTE_FAQS),
+        ]}
+      />
       <PageHero
         title="Teklif Al"
         description="İhtiyacınızı yazın; e-posta veya WhatsApp üzerinden size özel dönüş yapalım."
@@ -76,6 +98,12 @@ export default function QuotePage() {
         </div>
         <QuoteForm />
       </section>
+      {processSteps.length > 0 && <ProcessSection steps={processSteps} />}
+      <HomeFaqSection
+        faqs={QUOTE_FAQS}
+        title="Teklif süreci hakkında"
+        description="Dönüş süresi, ücret ve gerekli bilgiler — kısaca."
+      />
     </>
   );
 }

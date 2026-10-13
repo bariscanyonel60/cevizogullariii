@@ -421,6 +421,7 @@ async function buildExpensesPdf(store: AccountingStore, date: string) {
     ["Nakit tahsilat", formatTry(cash.cashCollections)],
     ["Nakit gider", formatTry(cash.cashExpenses)],
     ["Personel avansı", formatTry(cash.advances)],
+    ["Firma ödemesi (nakit)", formatTry(cash.supplierCashPayments)],
   ]);
 
   drawPdfTable(

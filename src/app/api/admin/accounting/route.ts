@@ -8,16 +8,22 @@ import {
   createExpense,
   createSale,
   createStaff,
+  createSupplier,
+  createSupplierPayment,
   deleteAdvance,
   deleteCreditEntry,
   deleteCustomer,
   deleteExpense,
   deleteSale,
   deleteStaff,
+  deleteSupplier,
+  deleteSupplierPayment,
   getAccountingStore,
   updateCreditEntry,
   updateCustomer,
   updateSale,
+  updateSupplier,
+  updateSupplierPayment,
 } from "@/lib/accounting-store";
 import { isAccountingEntity } from "@/lib/accounting-types";
 
@@ -33,6 +39,7 @@ async function requireAdmin() {
 
 function errorResponse(error: unknown) {
   const message = error instanceof Error ? error.message : "İşlem başarısız";
+  console.error("[accounting]", message);
   const status =
     message === "Yetkisiz"
       ? 401
@@ -106,6 +113,16 @@ export async function POST(request: Request) {
           ok: true,
           store: await createExpense(body),
         });
+      case "supplier":
+        return NextResponse.json({
+          ok: true,
+          store: await createSupplier(body),
+        });
+      case "supplierPayment":
+        return NextResponse.json({
+          ok: true,
+          store: await createSupplierPayment(body),
+        });
       default: {
         const _exhaustive: never = body.entity;
         return _exhaustive;
@@ -151,6 +168,16 @@ export async function PATCH(request: Request) {
         return NextResponse.json({
           ok: true,
           store: await updateCreditEntry(id, body),
+        });
+      case "supplier":
+        return NextResponse.json({
+          ok: true,
+          store: await updateSupplier(id, body),
+        });
+      case "supplierPayment":
+        return NextResponse.json({
+          ok: true,
+          store: await updateSupplierPayment(id, body),
         });
       case "staff":
       case "advance":
@@ -208,6 +235,16 @@ export async function DELETE(request: Request) {
         return NextResponse.json({
           ok: true,
           store: await deleteExpense(id),
+        });
+      case "supplier":
+        return NextResponse.json({
+          ok: true,
+          store: await deleteSupplier(id),
+        });
+      case "supplierPayment":
+        return NextResponse.json({
+          ok: true,
+          store: await deleteSupplierPayment(id),
         });
       default: {
         const _exhaustive: never = entity;

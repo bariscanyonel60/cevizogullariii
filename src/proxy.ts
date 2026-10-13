@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { categoryHref, isProductCategory } from "@/lib/catalog";
 import { CANONICAL_HOST, SITE } from "@/lib/constants";
 
 const ADMIN_COOKIE = "admin_session";
@@ -17,6 +18,16 @@ export function proxy(request: NextRequest) {
   }
 
   const { pathname } = request.nextUrl;
+
+  if (pathname === "/yapi-malzemeleri") {
+    const legacyCategory = request.nextUrl.searchParams.get("kategori");
+    if (legacyCategory && isProductCategory(legacyCategory)) {
+      const destination = request.nextUrl.clone();
+      destination.pathname = categoryHref(legacyCategory);
+      destination.search = "";
+      return NextResponse.redirect(destination, 301);
+    }
+  }
 
   if (pathname.startsWith("/api/admin/login")) {
     const response = NextResponse.next();

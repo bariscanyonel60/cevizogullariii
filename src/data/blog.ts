@@ -172,17 +172,3 @@ Metrekare, kat sayısı ve teslim yeri ile yazın. Seti eksiksiz yükler, talep 
     readingTime: 5,
   },
 ];
-
-export function getPostBySlug(slug: string) {
-  return blogPosts.find((p) => p.slug === slug);
-}
-
-export function getRelatedPosts(slug: string, limit = 2) {
-  const current = getPostBySlug(slug);
-  if (!current) return blogPosts.slice(0, limit);
-  return blogPosts
-    .filter((p) => p.slug !== slug && p.category === current.category)
-    .concat(blogPosts.filter((p) => p.slug !== slug))
-    .filter((p, i, arr) => arr.findIndex((x) => x.slug === p.slug) === i)
-    .slice(0, limit);
-}

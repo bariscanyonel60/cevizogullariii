@@ -561,34 +561,6 @@ export const products: Product[] = [
   },
 ];
 
-export function getProductBySlug(slug: string) {
-  return products.find((p) => p.slug === slug);
-}
-
-export function getFeaturedProducts() {
-  return products.filter((p) => p.featured);
-}
-
-export function getExteriorProducts() {
-  return products.filter((p) => p.useCases.includes("dis-cephe"));
-}
-
-export function getProductsByBrand(brand: string) {
-  return products.filter(
-    (p) => p.brand.toLowerCase() === brand.toLowerCase(),
-  );
-}
-
-export function getCategoryCounts() {
-  return (Object.keys(PRODUCT_CATEGORY_LABELS) as ProductCategory[]).map(
-    (key) => ({
-      key,
-      label: PRODUCT_CATEGORY_LABELS[key],
-      count: products.filter((p) => p.category === key).length,
-    }),
-  );
-}
-
 /** Kategori vitrin görselleri — yapı market premium grid */
 export const CATEGORY_SHOWCASE: {
   key: ProductCategory;

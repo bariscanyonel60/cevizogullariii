@@ -12,7 +12,7 @@ export type MediaItem = {
   createdAt: string;
 };
 
-export const MEDIA_COLLECTIONS: MediaCollection[] = ["gallery", "yapi-insaat"];
+const MEDIA_COLLECTIONS: MediaCollection[] = ["gallery", "yapi-insaat"];
 
 export function isMediaCollection(value: string): value is MediaCollection {
   return MEDIA_COLLECTIONS.includes(value as MediaCollection);

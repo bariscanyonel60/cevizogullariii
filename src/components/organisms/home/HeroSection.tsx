@@ -1,11 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { type PointerEvent, useEffect, useRef } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import {
+  type CSSProperties,
+  type PointerEvent,
+  useEffect,
+  useRef,
+} from "react";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { HOME_HERO_VIDEO } from "@/data/home-hero";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { whatsappUrl } from "@/lib/constants";
 import "./HeroSection.css";
 
 const trustItems = [
@@ -14,7 +20,13 @@ const trustItems = [
   "Yapı - inşaat uygulamaları",
 ];
 
-const ease = [0.22, 1, 0.36, 1] as const;
+function fadeUp(y: number, duration: number, delay: number): CSSProperties {
+  return {
+    "--fade-y": `${y}px`,
+    animationDuration: `${duration}s`,
+    animationDelay: `${delay}s`,
+  } as CSSProperties;
+}
 
 type Point = { x: number; y: number };
 
@@ -22,8 +34,22 @@ function canScrubVideo() {
   return window.matchMedia("(min-width: 1024px) and (hover: hover)").matches;
 }
 
+type NetworkInformationLike = { saveData?: boolean; effectiveType?: string };
+
+/** Veri tasarrufu veya yavaş bağlantıda video indirilmez; poster kalır. */
+function shouldSkipVideo() {
+  const connection = (
+    navigator as Navigator & { connection?: NetworkInformationLike }
+  ).connection;
+  if (!connection) return false;
+  return (
+    connection.saveData === true ||
+    ["slow-2g", "2g", "3g"].includes(connection.effectiveType ?? "")
+  );
+}
+
 export function HeroSection() {
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
   const videoRef = useRef<HTMLVideoElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const scanRef = useRef<HTMLDivElement>(null);
@@ -38,7 +64,7 @@ export function HeroSection() {
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    if (reduce) {
+    if (reduce || shouldSkipVideo()) {
       video.removeAttribute("src");
       video.pause();
       return;
@@ -58,21 +84,21 @@ export function HeroSection() {
       void el.play().catch(() => undefined);
     };
 
-    // LCP sonrası: poster kalsın, ağır mp4 kritik yolu tıkamasın
-    let idleId: number | undefined;
+    // Sayfa yüklendikten sonra: poster kalsın, ağır mp4 ilk yüklemeyle yarışmasın
     let timeoutId: number | undefined;
+    const schedule = () => {
+      timeoutId = window.setTimeout(attach, 2500);
+    };
 
-    if (typeof window.requestIdleCallback === "function") {
-      idleId = window.requestIdleCallback(attach, { timeout: 2200 });
+    if (document.readyState === "complete") {
+      schedule();
     } else {
-      timeoutId = window.setTimeout(attach, 1200);
+      window.addEventListener("load", schedule, { once: true });
     }
 
     return () => {
       cancelled = true;
-      if (idleId !== undefined) {
-        window.cancelIdleCallback(idleId);
-      }
+      window.removeEventListener("load", schedule);
       if (timeoutId !== undefined) {
         window.clearTimeout(timeoutId);
       }
@@ -114,18 +140,26 @@ export function HeroSection() {
       const scanX = scanXRef.current;
 
       if (video && video.duration > 0 && hot) {
-        const next = video.currentTime + (scanX * video.duration - video.currentTime) * 0.16;
+        const next =
+          video.currentTime +
+          (scanX * video.duration - video.currentTime) * 0.16;
         if (Math.abs(next - video.currentTime) > 0.01) {
           video.currentTime = next;
         }
       }
 
-      const targetX = hot ? (pointer.x - 0.5) * 28 : Math.sin(idleRef.current) * 10;
-      const targetY = hot ? (pointer.y - 0.5) * 18 : Math.cos(idleRef.current * 0.7) * 8;
+      const targetX = hot
+        ? (pointer.x - 0.5) * 28
+        : Math.sin(idleRef.current) * 10;
+      const targetY = hot
+        ? (pointer.y - 0.5) * 18
+        : Math.cos(idleRef.current * 0.7) * 8;
       const shift = shiftRef.current;
       shift.x += (targetX - shift.x) * 0.08;
       shift.y += (targetY - shift.y) * 0.08;
-      const scale = hot ? 1.07 : 1.05 + Math.sin(idleRef.current * 0.45) * 0.008;
+      const scale = hot
+        ? 1.07
+        : 1.05 + Math.sin(idleRef.current * 0.45) * 0.008;
       if (video) {
         video.style.transform = `translate3d(${shift.x}px, ${shift.y}px, 0) scale(${scale})`;
       }
@@ -201,11 +235,9 @@ export function HeroSection() {
 
   return (
     <section id="hero" className="home-hero">
-      <motion.div
-        initial={reduce ? false : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, ease }}
-        className="home-hero-video"
+      <div
+        style={{ animationDuration: "0.6s" }}
+        className="animate-fade-in home-hero-video"
       >
         <div
           ref={stageRef}
@@ -240,7 +272,7 @@ export function HeroSection() {
             <span />
           </div>
         </div>
-      </motion.div>
+      </div>
 
       <div className="home-hero-copy">
         <div className="home-hero-copy-inner">
@@ -252,38 +284,58 @@ export function HeroSection() {
             <span className="home-hero-title-line">Tokat Yapı</span>
             <span className="home-hero-title-outline">Malzemeleri</span>
           </h1>
-          <motion.p
-            initial={reduce ? false : { opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, ease, delay: 0.12 }}
-            className="home-hero-lead mt-2.5 max-w-md text-[0.95rem] leading-snug sm:mt-5 sm:text-lead sm:leading-normal"
+          <p
+            style={fadeUp(14, 0.55, 0.12)}
+            className="animate-fade-up home-hero-lead mt-2.5 max-w-md text-[0.95rem] leading-snug sm:mt-5 sm:text-lead sm:leading-normal"
           >
             Turhal yapı malzemeleri reyonumuz: boya, mantolama, OSB, kereste.
             Listeyi getirin, yükleriz.
-          </motion.p>
-          <motion.ul
-            initial={reduce ? false : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease, delay: 0.2 }}
-            className="home-hero-meta"
+          </p>
+          <ul
+            style={fadeUp(12, 0.5, 0.2)}
+            className="animate-fade-up home-hero-meta"
           >
             {trustItems.map((item) => (
               <li key={item}>{item}</li>
             ))}
-          </motion.ul>
-          <motion.div
-            initial={reduce ? false : { opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease, delay: 0.28 }}
-            className="home-hero-actions"
+          </ul>
+          <div
+            style={fadeUp(10, 0.5, 0.28)}
+            className="animate-fade-up home-hero-actions"
           >
-            <Button asChild size="md" variant="gold" className="lg:h-14 lg:px-8 lg:text-base">
+            <Button
+              asChild
+              size="md"
+              variant="gold"
+              className="lg:h-14 lg:px-8 lg:text-base"
+            >
               <Link href="/teklif-al">Teklif Al</Link>
             </Button>
-            <Button asChild size="md" variant="outline" className="lg:h-14 lg:px-8 lg:text-base">
-              <Link href="/yapi-malzemeleri">Ürünlere bak</Link>
+            <Button
+              asChild
+              size="md"
+              variant="outline"
+              className="lg:h-14 lg:px-8 lg:text-base"
+            >
+              <Link href="/yapi-malzemeleri">Ürünleri İncele</Link>
             </Button>
-          </motion.div>
+            <Button
+              asChild
+              size="md"
+              variant="outline"
+              className="home-hero-whatsapp lg:h-14 lg:px-8 lg:text-base"
+            >
+              <a
+                href={whatsappUrl(
+                  "Merhaba, Cevizoğulları web sitenizden yazıyorum. Ürünler hakkında güncel fiyat ve stok bilgisi almak istiyorum.",
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                WhatsApp&apos;tan Fiyat Sor
+              </a>
+            </Button>
+          </div>
           <a
             href="#istatistik"
             className="mt-10 hidden text-white/35 transition hover:text-white/80 lg:inline-flex"

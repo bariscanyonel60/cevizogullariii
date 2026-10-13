@@ -3,7 +3,6 @@
 import { CdnImage } from "@/components/atoms/CdnImage";
 import { useState } from "react";
 import { X } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
 import { Reveal } from "@/components/molecules/Reveal";
 import { SectionHeading } from "@/components/molecules/SectionHeading";
 import type { MediaItem } from "@/lib/media-types";
@@ -64,58 +63,53 @@ export function GallerySection({
         ))}
       </div>
 
-      <AnimatePresence>
-        {active !== null && items[active] && (
-          <motion.div
-            className="fixed inset-0 z-80 flex items-center justify-center bg-ink-950/90 p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Galeri lightbox"
+      {active !== null && items[active] && (
+        <div
+          className="animate-fade-in fixed inset-0 z-80 flex items-center justify-center bg-ink-950/90 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Galeri lightbox"
+          onClick={() => setActive(null)}
+        >
+          <button
+            type="button"
+            className="absolute right-5 top-5 rounded-full bg-white/10 p-2 text-white"
             onClick={() => setActive(null)}
+            aria-label="Kapat"
           >
-            <button
-              type="button"
-              className="absolute right-5 top-5 rounded-full bg-white/10 p-2 text-white"
-              onClick={() => setActive(null)}
-              aria-label="Kapat"
-            >
-              <X className="size-5" />
-            </button>
-            <div
-              className="flex h-[82vh] w-full max-w-5xl flex-col"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="relative min-h-0 flex-1">
-                <CdnImage
-                  src={items[active].url}
-                  alt={items[active].alt}
-                  fill
-                  className="object-contain"
-                  sizes="100vw"
-                />
-              </div>
-              {items[active].title || items[active].alt ? (
-                <div className="pt-4 text-center">
-                  {items[active].title ? (
-                    <p className="font-display text-lg font-semibold text-white">
-                      {items[active].title}
-                    </p>
-                  ) : null}
-                  {items[active].alt &&
-                  items[active].alt !== items[active].title ? (
-                    <p className="mt-1 text-sm text-white/70">
-                      {items[active].alt}
-                    </p>
-                  ) : null}
-                </div>
-              ) : null}
+            <X className="size-5" />
+          </button>
+          <div
+            className="flex h-[82vh] w-full max-w-5xl flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative min-h-0 flex-1">
+              <CdnImage
+                src={items[active].url}
+                alt={items[active].alt}
+                fill
+                className="object-contain"
+                sizes="100vw"
+              />
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            {items[active].title || items[active].alt ? (
+              <div className="pt-4 text-center">
+                {items[active].title ? (
+                  <p className="font-display text-lg font-semibold text-white">
+                    {items[active].title}
+                  </p>
+                ) : null}
+                {items[active].alt &&
+                items[active].alt !== items[active].title ? (
+                  <p className="mt-1 text-sm text-white/70">
+                    {items[active].alt}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      )}
     </section>
   );
 }

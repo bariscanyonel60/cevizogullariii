@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   Banknote,
+  Building2,
   FileBarChart,
   Landmark,
   NotebookTabs,
@@ -18,6 +19,7 @@ import { AccountingPdfButton } from "@/components/organisms/admin/AccountingPdfB
 import { AccountingReportsPanel } from "@/components/organisms/admin/AccountingReportsPanel";
 import { AccountingSalesPanel } from "@/components/organisms/admin/AccountingSalesPanel";
 import { AccountingStaffPanel } from "@/components/organisms/admin/AccountingStaffPanel";
+import { AccountingSuppliersPanel } from "@/components/organisms/admin/AccountingSuppliersPanel";
 import {
   customerBalance,
   customerCreditStatus,
@@ -44,6 +46,7 @@ type AccountingTab =
   | "staff"
   | "customers"
   | "expenses"
+  | "suppliers"
   | "reports";
 
 const TABS: { id: AccountingTab; label: string; icon: typeof Wallet }[] = [
@@ -52,6 +55,7 @@ const TABS: { id: AccountingTab; label: string; icon: typeof Wallet }[] = [
   { id: "staff", label: "Personel / avans", icon: Users },
   { id: "customers", label: "Veresiye kartları", icon: NotebookTabs },
   { id: "expenses", label: "Gider / kasa", icon: Landmark },
+  { id: "suppliers", label: "Firma ödemeleri", icon: Building2 },
   { id: "reports", label: "Aylık rapor", icon: FileBarChart },
 ];
 
@@ -212,7 +216,7 @@ export function AccountingDashboard() {
   }
 
   async function updateRecord(
-    entity: "sale" | "credit",
+    entity: "sale" | "credit" | "supplier" | "supplierPayment",
     id: string,
     payload: Record<string, unknown>,
     successMessage: string,
@@ -352,7 +356,7 @@ export function AccountingDashboard() {
         </p>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
         {TABS.map((item) => {
           const Icon = item.icon;
           return (
@@ -474,6 +478,10 @@ export function AccountingDashboard() {
                 <Row
                   label="Toplam gider"
                   value={formatTry(summary.monthCash.expenseTotal)}
+                />
+                <Row
+                  label="Firma ödemeleri"
+                  value={formatTry(summary.monthCash.supplierPaymentTotal)}
                 />
                 <Row label="KDV (satış)" value={formatTry(summary.month.vat)} />
               </dl>
@@ -603,6 +611,37 @@ export function AccountingDashboard() {
           }
           onError={setError}
           onMessage={setMessage}
+        />
+      ) : tab === "suppliers" ? (
+        <AccountingSuppliersPanel
+          store={store}
+          busy={busy}
+          onCreateSupplier={(payload) =>
+            createRecord("supplier", payload, "Firma kartı eklendi")
+          }
+          onUpdateSupplier={(id, payload) =>
+            updateRecord("supplier", id, payload, "Firma kartı güncellendi")
+          }
+          onDeleteSupplier={(id) =>
+            removeRecord(
+              "supplier",
+              id,
+              "Bu firma kartını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+            )
+          }
+          onCreatePayment={(payload) =>
+            createRecord("supplierPayment", payload, "Ödeme kaydedildi")
+          }
+          onUpdatePayment={(id, payload) =>
+            updateRecord("supplierPayment", id, payload, "Ödeme güncellendi")
+          }
+          onDeletePayment={(id) =>
+            removeRecord(
+              "supplierPayment",
+              id,
+              "Bu ödeme kaydını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+            )
+          }
         />
       ) : tab === "reports" ? (
         <AccountingReportsPanel

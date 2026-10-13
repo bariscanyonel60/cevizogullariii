@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Cinzel, Montserrat, JetBrains_Mono } from "next/font/google";
+import { JsonLd } from "@/components/atoms/JsonLd";
 import { SiteShell } from "@/components/organisms/layout/SiteShell";
 import { SITE } from "@/lib/constants";
 import { getNavCms } from "@/lib/cms-store";
@@ -74,10 +75,7 @@ export default async function RootLayout({
         >
           İçeriğe geç
         </a>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        <JsonLd data={jsonLd} />
         <SiteShell nav={nav}>{children}</SiteShell>
       </body>
     </html>

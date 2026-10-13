@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Mail } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
@@ -17,6 +18,7 @@ import {
 } from "@/lib/mail-schema";
 
 export function ContactForm() {
+  const router = useRouter();
   const [status, setStatus] = useState<"idle" | "sent" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const {
@@ -48,6 +50,7 @@ export function ContactForm() {
     }
     reset({ kind: "contact", email: "" });
     setStatus("sent");
+    router.push("/tesekkurler?tur=iletisim");
   };
 
   const openWhatsApp = () => {
