@@ -76,14 +76,20 @@ const nextConfig: NextConfig = {
     "/api/admin/accounting/report": [
       "./src/lib/fonts/DejaVuSans.ttf",
       "./src/lib/fonts/logo.png",
+      "./node_modules/pdfkit/js/data/**/*",
+      "./node_modules/pdfkit/js/standard-fonts/**/*",
     ],
     "/api/admin/accounting/section-pdf": [
       "./src/lib/fonts/DejaVuSans.ttf",
       "./src/lib/fonts/logo.png",
+      "./node_modules/pdfkit/js/data/**/*",
+      "./node_modules/pdfkit/js/standard-fonts/**/*",
     ],
     "/api/admin/accounting/customer-pdf": [
       "./src/lib/fonts/DejaVuSans.ttf",
       "./src/lib/fonts/logo.png",
+      "./node_modules/pdfkit/js/data/**/*",
+      "./node_modules/pdfkit/js/standard-fonts/**/*",
     ],
   },
   async redirects() {

@@ -119,10 +119,23 @@ export function AccountingCustomerListPage({
         { cache: "no-store" },
       );
       if (!res.ok) {
-        const data = (await res.json()) as { error?: string };
-        throw new Error(data.error ?? "PDF indirilemedi");
+        let message = "PDF indirilemedi";
+        try {
+          const data = (await res.json()) as { error?: string };
+          if (data.error) message = data.error;
+        } catch {
+          /* non-JSON error body */
+        }
+        if (/pdfkit|Helvetica|standard-fonts/i.test(message)) {
+          message =
+            "PDF sunucuda oluşturulamadı (yazı tipi paketi eksik). Deploy sonrası düzelir.";
+        }
+        throw new Error(message);
       }
       const blob = await res.blob();
+      if (!blob.size || blob.type.includes("json")) {
+        throw new Error("PDF indirilemedi");
+      }
       const header = res.headers.get("Content-Disposition") ?? "";
       const match = header.match(/filename="([^"]+)"/);
       const filename = match?.[1] ?? "cevizogullari-veresiye.pdf";

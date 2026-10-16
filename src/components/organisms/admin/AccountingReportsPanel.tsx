@@ -45,10 +45,23 @@ export function AccountingReportsPanel({
         { cache: "no-store" },
       );
       if (!res.ok) {
-        const data = (await res.json()) as { error?: string };
-        throw new Error(data.error ?? "Rapor indirilemedi");
+        let message = "Rapor indirilemedi";
+        try {
+          const data = (await res.json()) as { error?: string };
+          if (data.error) message = data.error;
+        } catch {
+          /* non-JSON error body */
+        }
+        if (/pdfkit|Helvetica|standard-fonts/i.test(message)) {
+          message =
+            "PDF sunucuda oluşturulamadı (yazı tipi paketi eksik). Deploy sonrası düzelir.";
+        }
+        throw new Error(message);
       }
       const blob = await res.blob();
+      if (!blob.size || (format === "pdf" && blob.type.includes("json"))) {
+        throw new Error("Rapor indirilemedi");
+      }
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
