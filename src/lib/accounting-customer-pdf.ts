@@ -170,7 +170,8 @@ export async function buildCustomerCreditPdf(
 
   const rows = creditLedgerNewestFirst(entries).slice().reverse();
   const headers = ["Tarih", "İşlem", "Açıklama", "Tutar", "Güncel borç"];
-  const widths = [72, 110, 168, 90, 90];
+  // A4 ic genislik ~515; sutun toplami bundan buyuk olmamali.
+  const widths = [70, 105, 160, 90, 90];
 
   const ensureSpace = (needed: number) => {
     if (y + needed > doc.page.height - 48) {

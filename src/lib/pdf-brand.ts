@@ -125,10 +125,14 @@ export async function createBrandedPdf(options: {
 }): Promise<{ doc: PdfDoc; done: Promise<Buffer> }> {
   const font = pdfFontPath();
   const logo = await loadPdfLogo();
+  // Hostinger hbuilds pdfkit standard-fonts (Helvetica.cjs) dosyalarini
+  // buduyor. Varsayilan Helvetica yerine dogrudan TTF ver; aksi halde tum
+  // muhasebe PDF uclari 500 doner.
   const doc = new PDFDocument({
     size: "A4",
     layout: options.layout ?? "portrait",
     margin: PDF_MARGIN,
+    font,
     info: {
       Title: options.infoTitle,
       Author: SITE.name,
