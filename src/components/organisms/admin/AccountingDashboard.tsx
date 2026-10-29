@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog";
-import { useAdminActionPassword } from "@/components/organisms/admin/AdminActionPasswordContext";
 import { AccountingCustomersPanel } from "@/components/organisms/admin/AccountingCustomersPanel";
 import { AccountingExpensesPanel } from "@/components/organisms/admin/AccountingExpensesPanel";
 import { AccountingPdfButton } from "@/components/organisms/admin/AccountingPdfButton";
@@ -75,7 +74,6 @@ type PendingConfirm = {
 };
 
 export function AccountingDashboard() {
-  const { adminMutationFetch } = useAdminActionPassword();
   const [tab, setTab] = useState<AccountingTab>("summary");
   const [store, setStore] = useState<AccountingStore>(emptyAccountingStore());
   const [loading, setLoading] = useState(true);
@@ -150,16 +148,11 @@ export function AccountingDashboard() {
     setError(null);
     setMessage(null);
     try {
-      const res = await adminMutationFetch(
-        "/api/admin/accounting",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ entity, ...payload }),
-        },
-        "Kaydı eklemek için",
-      );
-      if (!res) return false;
+      const res = await fetch("/api/admin/accounting", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entity, ...payload }),
+      });
       setStore(await parseStoreResponse(res));
       setMessage(successMessage);
       return true;
@@ -206,16 +199,11 @@ export function AccountingDashboard() {
     setError(null);
     setMessage(null);
     try {
-      const res = await adminMutationFetch(
-        "/api/admin/accounting",
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ entity: "customer", id, ...payload }),
-        },
-        "Müşteri kartını güncellemek için",
-      );
-      if (!res) return false;
+      const res = await fetch("/api/admin/accounting", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entity: "customer", id, ...payload }),
+      });
       setStore(await parseStoreResponse(res));
       setMessage("Müşteri kartı güncellendi");
       return true;
@@ -237,16 +225,11 @@ export function AccountingDashboard() {
     setError(null);
     setMessage(null);
     try {
-      const res = await adminMutationFetch(
-        "/api/admin/accounting",
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ entity, id, ...payload }),
-        },
-        "Değişikliği kaydetmek için",
-      );
-      if (!res) return false;
+      const res = await fetch("/api/admin/accounting", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entity, id, ...payload }),
+      });
       setStore(await parseStoreResponse(res));
       setMessage(successMessage);
       return true;
@@ -272,12 +255,10 @@ export function AccountingDashboard() {
         setError(null);
         setMessage(null);
         try {
-          const res = await adminMutationFetch(
+          const res = await fetch(
             `/api/admin/accounting?entity=${entity}&id=${encodeURIComponent(id)}`,
             { method: "DELETE" },
-            "Kaydı silmek için",
           );
-          if (!res) return false;
           setStore(await parseStoreResponse(res));
           setMessage("Kayıt silindi");
           return true;
