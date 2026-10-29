@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
+import { requireAdminActionPassword } from "@/lib/admin-action-password";
 import { cloudinary, cloudinaryFolder, configureCloudinary } from "@/lib/cloudinary";
 
 export const runtime = "nodejs";
@@ -59,6 +60,8 @@ async function requireAdmin() {
 export async function POST(request: Request) {
   const denied = await requireAdmin();
   if (denied) return denied;
+  const actionDenied = requireAdminActionPassword(request);
+  if (actionDenied) return actionDenied;
 
   let form: FormData;
   try {

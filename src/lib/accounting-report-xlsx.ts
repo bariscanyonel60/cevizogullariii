@@ -284,7 +284,7 @@ export async function buildMonthlyExcel(report: MonthlyReport): Promise<Buffer> 
     { header: "Dönem borç", key: "periodPurchases", width: 14 },
     { header: "Dönem tahsilat", key: "periodPayments", width: 16 },
     { header: "Güncel bakiye", key: "balance", width: 16 },
-    { header: "Sonraki vade", key: "nextDueDate", width: 14 },
+    { header: "Ödeme tarihi", key: "nextDueDate", width: 14 },
     { header: "Geciken tutar", key: "overdueAmount", width: 16 },
     { header: "Gecikme (gün)", key: "overdueDays", width: 14 },
   ];

@@ -17,6 +17,7 @@ import { CdnImage } from "@/components/atoms/CdnImage";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { Textarea } from "@/components/atoms/Textarea";
+import { useAdminActionPassword } from "@/components/organisms/admin/AdminActionPasswordContext";
 import { CmsImageField } from "@/components/organisms/admin/CmsImageField";
 import type { CmsEntity, CmsSnapshot } from "@/lib/cms-types";
 import { PRODUCT_CATEGORY_LABELS } from "@/data/products";
@@ -323,6 +324,7 @@ function itemsFor(snapshot: CmsSnapshot, entity: CmsEntity): Record<string, unkn
 }
 
 export function CmsDashboard() {
+  const { adminMutationFetch } = useAdminActionPassword();
   const [tab, setTab] = useState<CmsEntity>("product");
   const [homeKind, setHomeKind] = useState<"card" | "stat" | "testimonial" | "brand" | "showcase" | "exterior">("card");
   const [snapshot, setSnapshot] = useState<CmsSnapshot>(EMPTY);
@@ -389,11 +391,16 @@ export function CmsDashboard() {
         featured: draft.featured === "1",
       };
       if (selectedId) payload.id = selectedId;
-      const res = await fetch("/api/admin/cms", {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const res = await adminMutationFetch(
+        "/api/admin/cms",
+        {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+        selectedId ? "İçeriği güncellemek için" : "İçeriği eklemek için",
+      );
+      if (!res) return;
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Kayıt başarısız");
       setSnapshot(data.snapshot as CmsSnapshot);
@@ -415,10 +422,12 @@ export function CmsDashboard() {
     setBusy(true);
     setError(null);
     try {
-      const res = await fetch(
+      const res = await adminMutationFetch(
         `/api/admin/cms?entity=${encodeURIComponent(activeEntity)}&id=${encodeURIComponent(id)}`,
         { method: "DELETE" },
+        "Kaydı silmek için",
       );
+      if (!res) return;
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Silinemedi");
       setSnapshot(data.snapshot as CmsSnapshot);

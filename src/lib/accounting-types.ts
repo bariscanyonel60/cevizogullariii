@@ -82,7 +82,7 @@ export type CreditEntry = {
   customerId: string;
   kind: CreditKind;
   date: string;
-  /** Satış vadesi; yalnızca purchase satırlarında dolu olabilir. */
+  /** Opsiyonel odeme tarihi; yalnizca purchase satirlarinda dolu olabilir. */
   dueDate: string | null;
   productName: string;
   /** İsteğe bağlı adet / miktar (yalnızca veresiye satış). */

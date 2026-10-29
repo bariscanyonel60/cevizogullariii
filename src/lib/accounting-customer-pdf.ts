@@ -78,7 +78,7 @@ function entryDetail(entry: CreditEntry) {
       : "";
   const parts = [entry.productName, qty, entry.note].filter(Boolean);
   if (entry.kind === "purchase" && entry.dueDate) {
-    parts.push(`Vade ${formatIsoDateTr(entry.dueDate)}`);
+    parts.push(`Ödeme ${formatIsoDateTr(entry.dueDate)}`);
   }
   return parts.join(" — ") || "—";
 }
@@ -153,7 +153,7 @@ export async function buildCustomerCreditPdf(
     ["Toplam alış", formatTry(purchases)],
     ["Toplam tahsilat", formatTry(payments)],
     ["Güncel borç", formatDebt(balance)],
-    ["Vade / gecikme", dueLabel],
+    ["Ödeme / gecikme", dueLabel],
   ];
   const cardWidth = (inner - 24) / 4;
   cards.forEach((card, index) => {

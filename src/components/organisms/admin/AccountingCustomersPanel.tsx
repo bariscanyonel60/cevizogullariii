@@ -53,6 +53,7 @@ export function AccountingCustomersPanel({
           store={store}
           busy={busy}
           onOpenView={setView}
+          onUpdateCredit={onUpdateCredit}
           onDeleteCustomer={onDeleteCustomer}
           onError={onError}
           onMessage={onMessage}

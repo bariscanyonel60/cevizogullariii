@@ -383,7 +383,7 @@ export function buildMonthlyReport(
         nextDueDate: status.nextDueDate
           ? formatIsoDateTr(status.nextDueDate)
           : status.isOverdue
-            ? "Gecikmiş"
+            ? "Ödeme gecikti"
             : "—",
         overdueAmount: status.overdueAmount,
         overdueDays: status.overdueDays,

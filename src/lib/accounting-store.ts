@@ -617,7 +617,7 @@ function parseCreditEntryFields(
       vatRate = body.vatRate;
       dueDate = optionalIsoDate(body.dueDate);
       if (dueDate && dueDate < date) {
-        throw new Error("Vade, satış tarihinden önce olamaz");
+        throw new Error("Ödeme tarihi, satış tarihinden önce olamaz");
       }
       quantity = optionalQuantity(body.quantity);
       unit = optionalUnit(body.unit);
@@ -691,7 +691,7 @@ export async function deleteCreditEntry(id: string): Promise<AccountingStore> {
 function optionalIsoDate(value: unknown): string | null {
   if (value === null || value === undefined || value === "") return null;
   if (typeof value !== "string" || !isIsoDate(value)) {
-    throw new Error("Vade tarihi geçersiz");
+    throw new Error("Ödeme tarihi geçersiz");
   }
   return value;
 }

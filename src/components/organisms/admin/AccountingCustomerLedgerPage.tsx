@@ -1,7 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowLeft, FileDown, Pencil, Trash2, X } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  CalendarClock,
+  Check,
+  FileDown,
+  Pencil,
+  Trash2,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
@@ -15,6 +24,7 @@ import {
   formatTry,
   moneyToInput,
   parseMoneyInput,
+  purchaseDueDatePayload,
   splitVat,
 } from "@/lib/accounting-money";
 import {
@@ -79,6 +89,8 @@ export function AccountingCustomerLedgerPage({
   const [payMethod, setPayMethod] = useState<PaymentMethod>("nakit");
   const [payNote, setPayNote] = useState("");
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [dueEditId, setDueEditId] = useState<string | null>(null);
+  const [dueEditValue, setDueEditValue] = useState("");
 
   const ledger = useMemo(() => {
     if (!customer) return [];
@@ -171,6 +183,8 @@ export function AccountingCustomerLedgerPage({
   function resetFormFields() {
     setEditingId(null);
     setEditingKind(null);
+    setDueEditId(null);
+    setDueEditValue("");
     setProductName("");
     setQuantity("");
     setUnit("");
@@ -191,6 +205,8 @@ export function AccountingCustomerLedgerPage({
   }
 
   function startEdit(entry: CreditEntry) {
+    setDueEditId(null);
+    setDueEditValue("");
     setEditingId(entry.id);
     setEditingKind(entry.kind);
     setDate(entry.date);
@@ -218,6 +234,45 @@ export function AccountingCustomerLedgerPage({
     onMessage(null);
     onError(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function startDueEdit(entry: CreditEntry) {
+    if (entry.kind !== "purchase") return;
+    resetFormFields();
+    setDueEditId(entry.id);
+    setDueEditValue(entry.dueDate ?? "");
+    onMessage(null);
+    onError(null);
+  }
+
+  function cancelDueEdit() {
+    setDueEditId(null);
+    setDueEditValue("");
+  }
+
+  async function persistDueDate(entry: CreditEntry, nextDue: string | null) {
+    if (entry.kind !== "purchase") return false;
+    if (nextDue && nextDue < entry.date) {
+      onError("Ödeme tarihi, satış tarihinden önce olamaz");
+      return false;
+    }
+    const saved = await onUpdateCredit(
+      entry.id,
+      purchaseDueDatePayload(entry, nextDue),
+    );
+    if (saved) {
+      cancelDueEdit();
+      onMessage(
+        nextDue
+          ? "Ödeme tarihi güncellendi"
+          : "Gecikmeden çıkarıldı (ödeme tarihi kaldırıldı)",
+      );
+    }
+    return saved;
+  }
+
+  async function saveDueEdit(entry: CreditEntry) {
+    await persistDueDate(entry, dueEditValue.trim() || null);
   }
 
   async function submitPurchase(event: React.FormEvent) {
@@ -307,12 +362,22 @@ export function AccountingCustomerLedgerPage({
           </span>
         </p>
         {status?.isOverdue ? (
-          <p className="mt-1 text-sm font-medium text-red-700">
-            Gecikmiş {status.overdueDays} gün · {formatTry(status.overdueAmount)}
-          </p>
+          <div
+            role="alert"
+            className="mt-3 flex items-start gap-2 rounded-2xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-800"
+          >
+            <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
+            <div>
+              <p className="font-semibold">Ödeme tarihi gecikti</p>
+              <p className="mt-0.5">
+                {status.overdueDays} gün · {formatTry(status.overdueAmount)}{" "}
+                tahsil edilmedi
+              </p>
+            </div>
+          </div>
         ) : status?.nextDueDate ? (
           <p className="mt-1 text-sm text-ink-500">
-            Sonraki vade: {formatIsoDateTr(status.nextDueDate)}
+            Sonraki ödeme tarihi: {formatIsoDateTr(status.nextDueDate)}
           </p>
         ) : null}
         <p className="mt-2 text-xs text-ink-400">
@@ -405,7 +470,7 @@ export function AccountingCustomerLedgerPage({
             </div>
             <div>
               <Label htmlFor="credit-due">
-                Vade{" "}
+                Ödeme tarihi{" "}
                 <span className="font-normal text-ink-400">(isteğe bağlı)</span>
               </Label>
               <Input
@@ -415,6 +480,11 @@ export function AccountingCustomerLedgerPage({
                 value={dueDate}
                 onChange={(event) => setDueDate(event.target.value)}
               />
+              <p className="mt-1 text-xs text-ink-400">
+                Boş bırakılabilir. Bu tarih geçerse kart Gecikenler’de uyarılır.
+                Kayıtlı satırlarda ödeme tarihine tıklayarak da
+                değiştirebilirsiniz.
+              </p>
             </div>
             <div className="sm:col-span-2">
               <Label htmlFor="credit-amount">Tutar (KDV dahil)</Label>
@@ -535,7 +605,7 @@ export function AccountingCustomerLedgerPage({
                   <th className="px-4 py-3">Tarih</th>
                   <th className="px-4 py-3">İşlem</th>
                   <th className="px-4 py-3">Ürün / miktar / not</th>
-                  <th className="px-4 py-3">Vade</th>
+                  <th className="px-4 py-3">Ödeme tarihi</th>
                   <th className="px-4 py-3">Tutar</th>
                   <th className="px-4 py-3">Güncel borç</th>
                   <th className="px-4 py-3" />
@@ -592,19 +662,103 @@ export function AccountingCustomerLedgerPage({
                         ) : null}
                       </td>
                       <td className="px-4 py-3 text-sm">
-                        {entry.kind === "purchase" && entry.dueDate ? (
-                          <span
-                            className={
-                              rowOverdue
-                                ? "font-medium text-red-700"
-                                : "text-ink-700"
-                            }
-                          >
-                            {formatIsoDateTr(entry.dueDate)}
-                            {rowOverdue ? " · gecikmiş" : ""}
-                          </span>
-                        ) : (
+                        {entry.kind !== "purchase" ? (
                           "—"
+                        ) : dueEditId === entry.id ? (
+                          <div className="flex min-w-[11rem] flex-col gap-2">
+                            <Input
+                              type="date"
+                              min={entry.date}
+                              value={dueEditValue}
+                              disabled={busy}
+                              onChange={(event) =>
+                                setDueEditValue(event.target.value)
+                              }
+                              aria-label="Ödeme tarihini düzenle"
+                              autoFocus
+                            />
+                            <div className="flex flex-wrap gap-1">
+                              <button
+                                type="button"
+                                className="inline-flex items-center gap-1 rounded-lg bg-forest-800 px-2 py-1 text-xs font-semibold text-white hover:bg-forest-700 disabled:opacity-40"
+                                disabled={busy}
+                                onClick={() => void saveDueEdit(entry)}
+                              >
+                                <Check className="size-3.5" aria-hidden />
+                                Kaydet
+                              </button>
+                              <button
+                                type="button"
+                                className="rounded-lg px-2 py-1 text-xs font-medium text-ink-500 hover:bg-forest-50 disabled:opacity-40"
+                                disabled={busy}
+                                onClick={cancelDueEdit}
+                              >
+                                Vazgeç
+                              </button>
+                              {entry.dueDate || dueEditValue ? (
+                                <button
+                                  type="button"
+                                  className="rounded-lg px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-40"
+                                  disabled={busy}
+                                  onClick={() => void persistDueDate(entry, null)}
+                                >
+                                  {entry.dueDate &&
+                                  entry.dueDate < today &&
+                                  remaining > 0
+                                    ? "Gecikmeden çıkar"
+                                    : "Tarihi kaldır"}
+                                </button>
+                              ) : null}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-start gap-1">
+                            <button
+                              type="button"
+                              className={`inline-flex items-center gap-1 rounded-lg px-1.5 py-1 text-left transition hover:bg-forest-50 disabled:opacity-40 ${
+                                rowOverdue
+                                  ? "font-semibold text-red-700"
+                                  : entry.dueDate
+                                    ? "text-ink-700"
+                                    : "text-ink-400"
+                              }`}
+                              disabled={busy || Boolean(editingId)}
+                              onClick={() => startDueEdit(entry)}
+                              aria-label={
+                                entry.dueDate
+                                  ? "Ödeme tarihini düzenle"
+                                  : "Ödeme tarihi ekle"
+                              }
+                              title="Ödeme tarihini düzenle"
+                            >
+                              {rowOverdue ? (
+                                <AlertTriangle
+                                  className="size-3.5 shrink-0"
+                                  aria-hidden
+                                />
+                              ) : (
+                                <CalendarClock
+                                  className="size-3.5 shrink-0 opacity-60"
+                                  aria-hidden
+                                />
+                              )}
+                              {entry.dueDate
+                                ? `${formatIsoDateTr(entry.dueDate)}${
+                                    rowOverdue ? " · gecikti" : ""
+                                  }`
+                                : "Tarih ekle"}
+                            </button>
+                            {rowOverdue ? (
+                              <button
+                                type="button"
+                                className="rounded-lg px-1.5 py-0.5 text-[11px] font-semibold text-red-700 underline-offset-2 hover:underline disabled:opacity-40"
+                                disabled={busy || Boolean(editingId)}
+                                onClick={() => void persistDueDate(entry, null)}
+                              >
+                                Gecikmeden çıkar
+                              </button>
+                            ) : null}
+                          </div>
                         )}
                       </td>
                       <td
@@ -625,7 +779,7 @@ export function AccountingCustomerLedgerPage({
                           <button
                             type="button"
                             className="rounded-lg p-2 text-forest-800 hover:bg-forest-50 disabled:opacity-40"
-                            disabled={busy}
+                            disabled={busy || Boolean(dueEditId)}
                             onClick={() => startEdit(entry)}
                             aria-label="Hareketi düzenle"
                           >
@@ -634,7 +788,9 @@ export function AccountingCustomerLedgerPage({
                           <button
                             type="button"
                             className="rounded-lg p-2 text-red-600 hover:bg-red-50 disabled:opacity-40"
-                            disabled={busy || Boolean(editingId)}
+                            disabled={
+                              busy || Boolean(editingId) || Boolean(dueEditId)
+                            }
                             onClick={() => void onDeleteCredit(entry.id)}
                             aria-label="Hareketi sil"
                           >

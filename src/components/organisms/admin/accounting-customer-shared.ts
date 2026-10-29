@@ -44,7 +44,7 @@ export function emptyCustomerListMessage(filter: CustomerListFilter): string {
     case "debtors":
       return "Açık borcu olan müşteri yok.";
     case "overdue":
-      return "Vadesi geçmiş borç yok.";
+      return "Ödeme tarihi geçmiş borç yok.";
     case "all":
       return "Müşteri kartı yok.";
     default: {
