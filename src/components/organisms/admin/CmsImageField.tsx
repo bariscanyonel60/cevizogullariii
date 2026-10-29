@@ -4,7 +4,6 @@ import { useRef, useState } from "react";
 import { ImagePlus, LoaderCircle, Trash2 } from "lucide-react";
 import { CdnImage } from "@/components/atoms/CdnImage";
 import { Label } from "@/components/atoms/Label";
-import { useAdminActionPassword } from "@/components/organisms/admin/AdminActionPasswordContext";
 import { cn } from "@/lib/utils";
 
 type CmsImageFolder = "products" | "blog" | "projects" | "orman";
@@ -36,7 +35,6 @@ export function CmsImageField({
   stem?: string;
   multiple?: boolean;
 }) {
-  const { adminMutationFetch } = useAdminActionPassword();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,12 +47,7 @@ export function CmsImageField({
     body.set("file", file);
     const resolved = nextStem?.trim();
     if (resolved) body.set("stem", resolved);
-    const res = await adminMutationFetch(
-      "/api/admin/cms/upload",
-      { method: "POST", body },
-      "Görseli yüklemek için",
-    );
-    if (!res) throw new Error("Yükleme iptal edildi");
+    const res = await fetch("/api/admin/cms/upload", { method: "POST", body });
     const data = (await res.json()) as { error?: string; path?: string };
     if (!res.ok || !data.path) {
       throw new Error(data.error ?? "Yükleme başarısız");

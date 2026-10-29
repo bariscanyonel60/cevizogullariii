@@ -39,7 +39,6 @@ hPanel → Web siteleri → siteniz → **Environment variables** (veya Deployme
 - `RESEND_API_KEY`, `RESEND_FROM`, `MAIL_TO` (iletişim / teklif formları)
 - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
 - `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`
-- `ADMIN_ACTION_PASSWORD` (ekleme / güncelleme / silmede ikinci onay; örn. `Cvz.60`)
 - `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `DATABASE_USER`, `DATABASE_PASSWORD` (canlıda host genelde `127.0.0.1`)
 
 Kaydetmek uygulamayı yeniden deploy eder. Değişkenler her push’ta kalır; her commit’te tekrar yazılmaz.

@@ -17,7 +17,6 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { Textarea } from "@/components/atoms/Textarea";
-import { useAdminActionPassword } from "@/components/organisms/admin/AdminActionPasswordContext";
 import type { MediaCollection, MediaItem } from "@/lib/media-types";
 
 const TABS: { id: MediaCollection; label: string }[] = [
@@ -209,7 +208,6 @@ function MediaCard({
 }
 
 export function AdminDashboard() {
-  const { adminMutationFetch } = useAdminActionPassword();
   const [tab, setTab] = useState<MediaCollection>("yapi-insaat");
   const [items, setItems] = useState<MediaItem[]>([]);
   const [isFallback, setIsFallback] = useState(false);
@@ -284,14 +282,7 @@ export function AdminDashboard() {
         body.set("file", file);
         body.set("title", files.length === 1 ? title : "");
         body.set("alt", files.length === 1 && alt.trim() ? alt : file.name);
-        const res = await adminMutationFetch(
-          "/api/admin/media",
-          { method: "POST", body },
-          "Görseli yüklemek için",
-        );
-        if (!res) {
-          throw new Error("Yükleme iptal edildi");
-        }
+        const res = await fetch("/api/admin/media", { method: "POST", body });
         const data = await res.json();
         if (!res.ok) {
           throw new Error(
@@ -326,12 +317,10 @@ export function AdminDashboard() {
     setError(null);
     setMessage(null);
     try {
-      const res = await adminMutationFetch(
+      const res = await fetch(
         `/api/admin/media?collection=${tab}&id=${encodeURIComponent(id)}`,
         { method: "DELETE" },
-        "Görseli silmek için",
       );
-      if (!res) return;
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Silinemedi");
       setItems(data.items ?? []);
@@ -349,16 +338,11 @@ export function AdminDashboard() {
     setError(null);
     setMessage(null);
     try {
-      const res = await adminMutationFetch(
-        "/api/admin/media",
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ collection: tab, id, ...draft }),
-        },
-        "Değişikliği kaydetmek için",
-      );
-      if (!res) return false;
+      const res = await fetch("/api/admin/media", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ collection: tab, id, ...draft }),
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Değişiklik kaydedilemedi");
       setItems(data.items ?? []);
@@ -378,16 +362,11 @@ export function AdminDashboard() {
     setError(null);
     setMessage(null);
     try {
-      const res = await adminMutationFetch(
-        "/api/admin/media",
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ collection: tab, id, direction }),
-        },
-        "Sıralamayı değiştirmek için",
-      );
-      if (!res) return;
+      const res = await fetch("/api/admin/media", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ collection: tab, id, direction }),
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Sıralama değiştirilemedi");
       setItems(data.items ?? []);

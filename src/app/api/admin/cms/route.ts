@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
-import { requireAdminActionPassword } from "@/lib/admin-action-password";
 import {
   parseBlog,
   parseBrand,
@@ -115,8 +114,6 @@ export async function GET() {
 export async function POST(request: Request) {
   const denied = await requireAdmin();
   if (denied) return denied;
-  const actionDenied = requireAdminActionPassword(request);
-  if (actionDenied) return actionDenied;
   let body: { entity?: string } & Record<string, unknown>;
   try {
     body = await request.json();
@@ -143,8 +140,6 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   const denied = await requireAdmin();
   if (denied) return denied;
-  const actionDenied = requireAdminActionPassword(request);
-  if (actionDenied) return actionDenied;
   let body: { entity?: string; id?: string } & Record<string, unknown>;
   try {
     body = await request.json();
@@ -171,8 +166,6 @@ export async function PATCH(request: Request) {
 export async function DELETE(request: Request) {
   const denied = await requireAdmin();
   if (denied) return denied;
-  const actionDenied = requireAdminActionPassword(request);
-  if (actionDenied) return actionDenied;
   const { searchParams } = new URL(request.url);
   const entity = searchParams.get("entity") ?? "";
   const id = searchParams.get("id") ?? "";
