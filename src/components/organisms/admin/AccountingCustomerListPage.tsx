@@ -1,7 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { FileDown, Pencil, Search, Trash2, Wallet } from "lucide-react";
+import {
+  AlertTriangle,
+  CalendarClock,
+  Check,
+  FileDown,
+  Pencil,
+  Search,
+  Trash2,
+  Wallet,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { AccountingPdfButton } from "@/components/organisms/admin/AccountingPdfButton";
@@ -18,17 +28,25 @@ import {
   formatCreditDueHint,
   formatOpenBalance,
   formatTry,
+  overduePurchaseEntries,
+  purchaseDueDatePayload,
 } from "@/lib/accounting-money";
 import {
   customerFullName,
+  formatIsoDateTr,
   istanbulIsoDate,
   type AccountingStore,
+  type CreditEntry,
 } from "@/lib/accounting-types";
 
 type Props = {
   store: AccountingStore;
   busy: boolean;
   onOpenView: (view: CustomersView) => void;
+  onUpdateCredit: (
+    id: string,
+    payload: Record<string, unknown>,
+  ) => Promise<boolean>;
   onDeleteCustomer: (id: string) => Promise<boolean>;
   onError: (message: string | null) => void;
   onMessage: (message: string | null) => void;
@@ -38,6 +56,7 @@ export function AccountingCustomerListPage({
   store,
   busy,
   onOpenView,
+  onUpdateCredit,
   onDeleteCustomer,
   onError,
   onMessage,
@@ -46,6 +65,8 @@ export function AccountingCustomerListPage({
   const [listFilter, setListFilter] = useState<CustomerListFilter>("debtors");
   const [page, setPage] = useState(1);
   const [pdfBusyId, setPdfBusyId] = useState<string | null>(null);
+  const [overduePanelId, setOverduePanelId] = useState<string | null>(null);
+  const [dueDrafts, setDueDrafts] = useState<Record<string, string>>({});
   const today = istanbulIsoDate();
 
   const totals = useMemo(
@@ -104,6 +125,17 @@ export function AccountingCustomerListPage({
     if (page !== safePage) setPage(safePage);
   }, [page, safePage]);
 
+  useEffect(() => {
+    if (!overduePanelId) return;
+    const entries = store.creditEntries.filter(
+      (entry) => entry.customerId === overduePanelId,
+    );
+    if (overduePurchaseEntries(entries, today).length === 0) {
+      setOverduePanelId(null);
+      setDueDrafts({});
+    }
+  }, [overduePanelId, store.creditEntries, today]);
+
   const pageCards = useMemo(() => {
     const start = (safePage - 1) * CUSTOMER_PAGE_SIZE;
     return cards.slice(start, start + CUSTOMER_PAGE_SIZE);
@@ -159,6 +191,73 @@ export function AccountingCustomerListPage({
   const rangeStart = cards.length === 0 ? 0 : (safePage - 1) * CUSTOMER_PAGE_SIZE + 1;
   const rangeEnd = Math.min(safePage * CUSTOMER_PAGE_SIZE, cards.length);
 
+  function openOverduePanel(customerId: string, entries: CreditEntry[]) {
+    const overdue = overduePurchaseEntries(entries, today);
+    const drafts: Record<string, string> = {};
+    for (const entry of overdue) {
+      drafts[entry.id] = entry.dueDate ?? "";
+    }
+    setDueDrafts(drafts);
+    setOverduePanelId(customerId);
+    onError(null);
+    onMessage(null);
+  }
+
+  function closeOverduePanel() {
+    setOverduePanelId(null);
+    setDueDrafts({});
+  }
+
+  async function saveOverdueDueDate(entry: CreditEntry) {
+    const nextDue = (dueDrafts[entry.id] ?? "").trim() || null;
+    if (nextDue && nextDue < entry.date) {
+      onError("Ödeme tarihi, satış tarihinden önce olamaz");
+      return;
+    }
+    const saved = await onUpdateCredit(
+      entry.id,
+      purchaseDueDatePayload(entry, nextDue),
+    );
+    if (saved) {
+      onMessage(
+        nextDue
+          ? "Ödeme tarihi güncellendi"
+          : "Gecikmeden çıkarıldı (ödeme tarihi kaldırıldı)",
+      );
+    }
+  }
+
+  async function clearOverdueDueDate(entry: CreditEntry) {
+    const saved = await onUpdateCredit(
+      entry.id,
+      purchaseDueDatePayload(entry, null),
+    );
+    if (saved) {
+      onMessage("Gecikmeden çıkarıldı (ödeme tarihi kaldırıldı)");
+    }
+  }
+
+  async function clearAllOverdue(entries: CreditEntry[]) {
+    const overdue = overduePurchaseEntries(entries, today);
+    if (overdue.length === 0) return;
+    let okCount = 0;
+    for (const entry of overdue) {
+      const saved = await onUpdateCredit(
+        entry.id,
+        purchaseDueDatePayload(entry, null),
+      );
+      if (saved) okCount += 1;
+    }
+    if (okCount > 0) {
+      onMessage(
+        okCount === 1
+          ? "Gecikmeden çıkarıldı"
+          : `${okCount} satır gecikmeden çıkarıldı`,
+      );
+      closeOverduePanel();
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -168,6 +267,7 @@ export function AccountingCustomerListPage({
           </h3>
           <p className="mt-1 text-sm text-ink-500">
             Kart bilgisi ayrı sayfada; borç ekleme / tahsilat ayrı sayfada.
+            Veresiye satışta isteğe bağlı ödeme tarihi girebilirsiniz.
           </p>
         </div>
         <Button
@@ -178,6 +278,28 @@ export function AccountingCustomerListPage({
           Yeni kart
         </Button>
       </div>
+
+      {totals.overdueCount > 0 ? (
+        <button
+          type="button"
+          onClick={() => setListFilter("overdue")}
+          className="flex w-full items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-left transition hover:bg-red-100/80"
+        >
+          <AlertTriangle
+            className="mt-0.5 size-5 shrink-0 text-red-700"
+            aria-hidden
+          />
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-red-800">
+              {totals.overdueCount} kartta ödeme tarihi gecikti
+            </p>
+            <p className="mt-0.5 text-xs text-red-700">
+              Toplam {formatTry(totals.overdueTotal)} · Gecikenler filtresini
+              açmak için tıklayın
+            </p>
+          </div>
+        </button>
+      ) : null}
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <article className="rounded-2xl bg-white p-5 shadow-sm">
@@ -202,16 +324,34 @@ export function AccountingCustomerListPage({
             Tahsilat {formatTry(totals.payments)}
           </p>
         </article>
-        <article className="rounded-2xl bg-white p-5 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">
+        <article
+          className={`rounded-2xl p-5 shadow-sm ${
+            totals.overdueCount > 0
+              ? "border border-red-200 bg-red-50"
+              : "bg-white"
+          }`}
+        >
+          <p
+            className={`text-xs font-semibold uppercase tracking-wider ${
+              totals.overdueCount > 0 ? "text-red-600" : "text-ink-400"
+            }`}
+          >
             Geciken veresiye
           </p>
-          <p className="mt-2 font-display text-2xl font-bold text-ink-900">
+          <p
+            className={`mt-2 font-display text-2xl font-bold ${
+              totals.overdueCount > 0 ? "text-red-800" : "text-ink-900"
+            }`}
+          >
             {formatTry(totals.overdueTotal)}
           </p>
-          <p className="mt-1 text-xs text-ink-400">
+          <p
+            className={`mt-1 text-xs ${
+              totals.overdueCount > 0 ? "text-red-700" : "text-ink-400"
+            }`}
+          >
             {totals.overdueCount === 0
-              ? "Vadesi geçmiş borç yok"
+              ? "Ödeme tarihi geçmiş borç yok"
               : `${totals.overdueCount} müşteri kartı`}
           </p>
         </article>
@@ -277,88 +417,199 @@ export function AccountingCustomerListPage({
               {pageCards.map(({ customer, status }) => {
                 const hint = formatCreditDueHint(status);
                 const cardPdfBusy = pdfBusyId === customer.id;
+                const customerEntries = store.creditEntries.filter(
+                  (entry) => entry.customerId === customer.id,
+                );
+                const overdueRows = status.isOverdue
+                  ? overduePurchaseEntries(customerEntries, today)
+                  : [];
+                const panelOpen = overduePanelId === customer.id;
                 return (
                   <li
                     key={customer.id}
-                    className={`flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between ${
+                    className={`space-y-3 p-4 ${
                       status.isOverdue ? "bg-red-50/60" : ""
                     }`}
                   >
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-semibold text-ink-900">
-                          {customerFullName(customer)}
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-semibold text-ink-900">
+                            {customerFullName(customer)}
+                          </p>
+                          {status.isOverdue ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-700">
+                              <AlertTriangle className="size-3" aria-hidden />
+                              Ödeme gecikti
+                            </span>
+                          ) : null}
+                        </div>
+                        <p
+                          className={`mt-1 text-sm ${
+                            status.isOverdue ? "text-red-700" : "text-ink-500"
+                          }`}
+                        >
+                          {formatOpenBalance(status.balance)}
+                          {hint ? ` · ${hint}` : ""}
                         </p>
-                        {status.isOverdue ? (
-                          <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-700">
-                            Gecikmiş
-                          </span>
-                        ) : null}
+                        <p className="mt-0.5 text-xs text-ink-400">
+                          {customer.phone}
+                          {customer.tc ? ` · ${customer.tc}` : ""}
+                        </p>
                       </div>
-                      <p
-                        className={`mt-1 text-sm ${
-                          status.isOverdue ? "text-red-700" : "text-ink-500"
-                        }`}
-                      >
-                        {formatOpenBalance(status.balance)}
-                        {hint ? ` · ${hint}` : ""}
-                      </p>
-                      <p className="mt-0.5 text-xs text-ink-400">
-                        {customer.phone}
-                        {customer.tc ? ` · ${customer.tc}` : ""}
-                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {status.isOverdue ? (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="secondary"
+                            disabled={busy || pdfBusy}
+                            onClick={() =>
+                              panelOpen
+                                ? closeOverduePanel()
+                                : openOverduePanel(customer.id, customerEntries)
+                            }
+                          >
+                            <CalendarClock className="size-4" />
+                            {panelOpen ? "Kapat" : "Gecikmeyi yönet"}
+                          </Button>
+                        ) : null}
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          disabled={busy || pdfBusy}
+                          onClick={() =>
+                            onOpenView({
+                              name: "ledger",
+                              customerId: customer.id,
+                            })
+                          }
+                        >
+                          <Wallet className="size-4" />
+                          Hareketler
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          disabled={busy || pdfBusy}
+                          onClick={() =>
+                            onOpenView({
+                              name: "card",
+                              customerId: customer.id,
+                            })
+                          }
+                        >
+                          <Pencil className="size-4" />
+                          Kart
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          disabled={busy || pdfBusy}
+                          onClick={() => void downloadCreditPdf(customer.id)}
+                        >
+                          <FileDown className="size-4" />
+                          {cardPdfBusy ? "…" : "PDF"}
+                        </Button>
+                        <button
+                          type="button"
+                          className="rounded-lg p-2 text-red-600 hover:bg-red-50 disabled:opacity-40"
+                          disabled={busy || pdfBusy}
+                          onClick={() => void onDeleteCustomer(customer.id)}
+                          aria-label="Müşteri kartını sil"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        disabled={busy || pdfBusy}
-                        onClick={() =>
-                          onOpenView({
-                            name: "ledger",
-                            customerId: customer.id,
-                          })
-                        }
-                      >
-                        <Wallet className="size-4" />
-                        Hareketler
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        disabled={busy || pdfBusy}
-                        onClick={() =>
-                          onOpenView({
-                            name: "card",
-                            customerId: customer.id,
-                          })
-                        }
-                      >
-                        <Pencil className="size-4" />
-                        Kart
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        disabled={busy || pdfBusy}
-                        onClick={() => void downloadCreditPdf(customer.id)}
-                      >
-                        <FileDown className="size-4" />
-                        {cardPdfBusy ? "…" : "PDF"}
-                      </Button>
-                      <button
-                        type="button"
-                        className="rounded-lg p-2 text-red-600 hover:bg-red-50 disabled:opacity-40"
-                        disabled={busy || pdfBusy}
-                        onClick={() => void onDeleteCustomer(customer.id)}
-                        aria-label="Müşteri kartını sil"
-                      >
-                        <Trash2 className="size-4" />
-                      </button>
-                    </div>
+
+                    {panelOpen && overdueRows.length > 0 ? (
+                      <div className="rounded-2xl border border-red-200 bg-white p-3 shadow-sm">
+                        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                          <p className="text-sm font-semibold text-red-800">
+                            Geciken satırlar ({overdueRows.length})
+                          </p>
+                          <button
+                            type="button"
+                            className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:opacity-40"
+                            disabled={busy}
+                            onClick={() =>
+                              void clearAllOverdue(customerEntries)
+                            }
+                          >
+                            <X className="size-3.5" aria-hidden />
+                            Tümünü gecikmeden çıkar
+                          </button>
+                        </div>
+                        <ul className="space-y-3">
+                          {overdueRows.map((entry) => {
+                            const remaining =
+                              status.remainingById[entry.id] ?? entry.amount;
+                            return (
+                              <li
+                                key={entry.id}
+                                className="flex flex-col gap-2 rounded-xl border border-earth-400/15 p-3 sm:flex-row sm:items-end sm:justify-between"
+                              >
+                                <div className="min-w-0">
+                                  <p className="font-medium text-ink-900">
+                                    {entry.productName || "Veresiye satış"}
+                                  </p>
+                                  <p className="text-xs text-ink-500">
+                                    Satış {formatIsoDateTr(entry.date)} · Kalan{" "}
+                                    {formatTry(remaining)}
+                                    {entry.dueDate
+                                      ? ` · Eski tarih ${formatIsoDateTr(entry.dueDate)}`
+                                      : ""}
+                                  </p>
+                                  <label className="mt-2 block text-xs font-medium text-ink-600">
+                                    Yeni ödeme tarihi
+                                    <Input
+                                      type="date"
+                                      min={entry.date}
+                                      className="mt-1"
+                                      value={dueDrafts[entry.id] ?? ""}
+                                      disabled={busy}
+                                      onChange={(event) =>
+                                        setDueDrafts((current) => ({
+                                          ...current,
+                                          [entry.id]: event.target.value,
+                                        }))
+                                      }
+                                    />
+                                  </label>
+                                </div>
+                                <div className="flex flex-wrap gap-1">
+                                  <button
+                                    type="button"
+                                    className="inline-flex items-center gap-1 rounded-lg bg-forest-800 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-forest-700 disabled:opacity-40"
+                                    disabled={busy}
+                                    onClick={() =>
+                                      void saveOverdueDueDate(entry)
+                                    }
+                                  >
+                                    <Check className="size-3.5" aria-hidden />
+                                    Tarihi kaydet
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:opacity-40"
+                                    disabled={busy}
+                                    onClick={() =>
+                                      void clearOverdueDueDate(entry)
+                                    }
+                                  >
+                                    Gecikmeden çıkar
+                                  </button>
+                                </div>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    ) : null}
                   </li>
                 );
               })}

@@ -263,13 +263,50 @@ export function formatCreditDueHint(
   status: CustomerCreditStatus,
 ): string | null {
   if (status.isOverdue) {
-    return `Gecikmiş ${status.overdueDays} gün · ${formatTry(status.overdueAmount)}`;
+    return `Ödeme gecikti ${status.overdueDays} gün · ${formatTry(status.overdueAmount)}`;
   }
   if (status.nextDueDate) {
-    return `Vade ${formatIsoDateTr(status.nextDueDate)}`;
+    return `Ödeme tarihi ${formatIsoDateTr(status.nextDueDate)}`;
   }
-  if (status.balance > 0) return "Vade tarihi yok";
+  if (status.balance > 0) return "Ödeme tarihi yok";
   return null;
+}
+
+/** Açık bakiyesi olan ve ödeme tarihi geçmiş veresiye satış satırları. */
+export function overduePurchaseEntries(
+  entries: CreditEntry[],
+  asOfDate: string,
+): CreditEntry[] {
+  const status = customerCreditStatus(entries, asOfDate);
+  return chronologicalCredit(entries).filter(
+    (entry) =>
+      entry.kind === "purchase" &&
+      entry.dueDate !== null &&
+      entry.dueDate < asOfDate &&
+      (status.remainingById[entry.id] ?? 0) > 0,
+  );
+}
+
+/** Satın alma kaydı için PATCH gövdesi (yalnızca ödeme tarihi güncellemesi). */
+export function purchaseDueDatePayload(
+  entry: CreditEntry,
+  dueDate: string | null,
+): Record<string, unknown> {
+  if (entry.kind !== "purchase") {
+    throw new Error("Yalnızca veresiye satışta ödeme tarihi vardır");
+  }
+  return {
+    customerId: entry.customerId,
+    kind: "purchase",
+    date: entry.date,
+    dueDate,
+    productName: entry.productName,
+    quantity: entry.quantity,
+    unit: entry.unit,
+    amount: entry.amount,
+    vatRate: entry.vatRate,
+    note: entry.note,
+  };
 }
 
 export type CreditPortfolioTotals = {

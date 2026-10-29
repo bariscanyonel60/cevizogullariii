@@ -354,7 +354,7 @@ async function buildCustomersPdf(store: AccountingStore) {
   drawPdfTable(
     doc,
     "Müşteri bakiyeleri",
-    ["Müşteri", "Telefon", "Bakiye", "Vade / gecikme"],
+    ["Müşteri", "Telefon", "Bakiye", "Ödeme / gecikme"],
     rows.map((item) => [
       customerFullName(item.customer),
       item.customer.phone || "—",
@@ -392,7 +392,7 @@ async function buildCustomersPdf(store: AccountingStore) {
 
   drawPdfFooter(
     doc,
-    "Gecikme, vadesi dolmuş ve henüz tahsil edilmemiş satışlara göre hesaplanır.",
+    "Gecikme, ödeme tarihi dolmuş ve henüz tahsil edilmemiş satışlara göre hesaplanır.",
   );
   doc.end();
   return {
